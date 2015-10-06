@@ -32,6 +32,7 @@ from baxter_core_msgs.srv import (
 )
 from baxter_core_msgs.msg import EndpointState
 import message_filters
+from std_msgs.msg import String
 
 class MoveArms(object):
     
@@ -39,17 +40,39 @@ class MoveArms(object):
     
         self.current_poses = None
         self.init_pose = None
+        self.current_arm_cmd = ''
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
         ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
         ts.registerCallback(self._pose_callback)
         
-        
+        rospy.Subscriber('robot_arms_cmd', String, self._arms_cmd)
         
         left_arm = baxter_interface.Limb("left")
         right_arm = baxter_interface.Limb("right")
         self.arms = {'left':left_arm, 'right':right_arm}
 
+    def _arms_cmd(self, msg):
+        cmd_string = msg.data
+        print "\nReceiving Arms Command\n", cmd_string
+        self.current_arm_cmd = cmd_string
+        
+        
+    
+    def arms_cmd_parser(self, msg):
+        msg_segment = msg.split(':')
+        if len(msg_segment) != 3:
+            return None, None, None
+            
+        arm = msg_segment[0]
+        cmd = msg_segment[1]
+        
+        pose = [float(m) for m in msg_segment[2].split(',')]
+        
+        return arm, cmd, pose
+    
+        
+    
     def _pose_callback(self, left_msg, right_msg):
     
         pose1 = left_msg.pose

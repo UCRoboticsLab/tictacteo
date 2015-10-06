@@ -28,26 +28,40 @@ import rospy
 import baxter_interface
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import Range
+from std_msgs.msg import String
+import message_filters
 
 import math
 
 class GameTableFinder(object):
 
-    def __init__(self):
+    def __init__(self, table_width, table_length, table_height):
         
         self.__ready = False
         
-        rospy.init_node('tablefinder',anonymous = True)
-        self.__left_ir_sensor  = rospy.Subscriber('/robot/range/left_hand_range/state' ,Range, callback=self.__ir_sensor_callback, callback_args="left",queue_size=1)
-        self.__right_ir_sensor = rospy.Subscriber('/robot/range/right_hand_range/state' ,Range, callback=self.__ir_sensor_callback, callback_args="right",queue_size=1)
+        self.table_width = table_width
+        self.table_length = table_length
+        self.table_height = table_height
         
+        self.rb_cmd_pub = rospy.Publisher('robot_arms_cmd', String, queue_size=10)
+        #self._left_ir_sensor  = rospy.Subscriber('/robot/range/left_hand_range/state' ,Range, callback=self._ir_sensor_callback, callback_args="left",queue_size=1)
+        #self._right_ir_sensor = rospy.Subscriber('/robot/range/right_hand_range/state' ,Range, callback=self._ir_sensor_callback, callback_args="right",queue_size=1)
+        left_ir_msg = message_filters.Subscriber('/robot/range/left_hand_range/state',Range)
+        right_ir_msg = message_filters.Subscriber('/robot/range/right_hand_range/state',Range)
+        ts = message_filters.ApproximateTimeSynchronizer([left_ir_msg, right_ir_msg], 10, 0.05)
+        ts.registerCallback(self._ir_sensor_callback)
+        
+        self.current_ir_readings = None
         
     
     
     
-    def __ir_sensor_callback(self, msg, side):
+    def _ir_sensor_callback(self, left_msg, right_msg): #def _ir_sensor_callback(self, msg, side):
         
-        print side, msg
+        print "\nLeft IR: \n", left_msg.range, "\nRight IR: \n", right_msg.range
+        return
+    
+    
     
     
     def is_ready():
@@ -59,16 +73,6 @@ class GameTableFinder(object):
         pass
 
 
-    def run(self):
-    
-        while not rospy.is_shutdown():
-        
-        
-        
-            rospy.sleep(0.1)
-        
-    
-    
     
 
 
@@ -76,8 +80,14 @@ class GameTableFinder(object):
 
 def main():
 
-    gtf = GameTableFinder()
-    gtf.run()
+    gtf = GameTableFinder(1.0, 0.5, 0.9)
+    rospy.init_node('tablefinder',anonymous = True)
+    
+    while not rospy.is_shutdown():
+        
+        
+        
+        rospy.sleep(0.1)
 
 
 
