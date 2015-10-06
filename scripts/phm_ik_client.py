@@ -187,7 +187,7 @@ class MoveArms(object):
 def main():
     rospy.init_node("phm_ik_service_client")
     mr = MoveArms()
-    mr.move_distance([0.0, 0.0, -0.1], 'left')
+    #mr.move_distance([0.0, 0.0, -0.1], 'left')
     
     while not rospy.is_shutdown():
         
