@@ -58,7 +58,7 @@ class GameTableFinder(object):
     # Callback funtion for IR ranger data
     def _ir_sensor_callback(self, left_msg, right_msg): #def _ir_sensor_callback(self, msg, side):
         
-        print "\nLeft IR: \n", left_msg.range
+        #print "\nLeft IR: \n", left_msg.range
         self.current_ir_ranges={'left':left_msg.range, 'right':right_msg.range}
         return
     
@@ -74,19 +74,28 @@ class GameTableFinder(object):
     # height: the height of ir sensor above the table (must be in between 4~40cm or min_ir_range~max_ir_range)
     
     def adjust_height(self, height):
-        if self.current_ir_ranges['left']>0.5 or self.current_ir_ranges['left']<0.0:
-            return
+        # To DO: height error checking
+        #if self.current_ir_ranges['left']>0.5 or self.current_ir_ranges['left']<0.0:
+            #return
             
-        while self.current_ir_ranges['left']>0.3:                 
-            msg_string = 'left:move:0.0,0.0,0.05,0.0,0.0,0.0,0.0'
+        while self.current_ir_ranges['left']>height:                 
+            msg_string = 'left:move:0.0,0.0,-0.02,0.0,0.0,0.0,0.0'
             self.rb_cmd_pub.publish(msg_string)
-            rospy.sleep(1)
+            rospy.loginfo(msg_string)
+            print self.current_ir_ranges
+            rospy.sleep(3)
             
             
         return
         
+    # scan to the left to find edge of table
+    # init_height: set height of arm endpoint above the table
+       
+    def find_left_edge(self, init_height):
+    
+        cur_ir_range = self.current_ir_ranges['left']
         
-    def find_edge(self):
+        
     
         pass
 
@@ -100,7 +109,7 @@ def main():
 
     gtf = GameTableFinder(1.0, 0.5, 0.9)
     rospy.init_node('tablefinder',anonymous = True)
-    gtf.adjust_height(0.3)
+    gtf.adjust_height(0.25)
     while not rospy.is_shutdown():
         
         

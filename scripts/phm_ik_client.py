@@ -57,8 +57,9 @@ class MoveArms(object):
     def _arms_cmd(self, msg):
         cmd_string = msg.data
         print "\nReceiving Arms Command\n", cmd_string
-        #with self.cmd_threadlock:
-        self.current_arm_cmd = cmd_string
+        with self.cmd_threadlock:
+            self.current_arm_cmd = cmd_string
+        #rospy.sleep(0.05)
         
         
     
@@ -142,9 +143,9 @@ class MoveArms(object):
         
         cur_pose = self.current_poses[arm]
 
-        new_pose = self.make_pose_stamp([cur_pose.pose.position.x, \
-                                         cur_pose.pose.position.y, \
-                                         cur_pose.pose.position.z, \
+        new_pose = self.make_pose_stamp([cur_pose.pose.position.x+disp[0], \
+                                         cur_pose.pose.position.y+disp[1], \
+                                         cur_pose.pose.position.z+disp[2], \
                                          cur_pose.pose.orientation.x, \
                                          cur_pose.pose.orientation.y, \
                                          cur_pose.pose.orientation.z, \
@@ -195,13 +196,21 @@ class MoveArms(object):
         while not rospy.is_shutdown():
         
             msg_string = ''
-            #with self.cmd_threadlock:
-            msg_string = self.current_arm_cmd
+            
+            with self.cmd_threadlock:
+                msg_string = self.current_arm_cmd
+                self.current_arm_cmd = ''
+                #rospy.sleep(0.05)
                 
             if msg_string != '':
                 arm, cmd, pose_list = self.arms_cmd_parser(msg_string)
+                msg_string = ''
                 if (arm != None):
-                    move_distance(pose_list[0:2], arm)
+                    print pose_list[0:3]
+                    self.move_distance(pose_list[0:3], arm)
+                    pass
+                    
+           
                 
         
             rospy.sleep(0.1)
@@ -211,6 +220,7 @@ class MoveArms(object):
 def main():
     rospy.init_node("phm_ik_service_client")
     mr = MoveArms()
+    #mr.move_distance
     mr.run()
     
     
