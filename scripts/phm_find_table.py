@@ -78,7 +78,7 @@ class GameTableFinder(object):
         #if self.current_ir_ranges['left']>0.5 or self.current_ir_ranges['left']<0.0:
             #return
             
-        while self.current_ir_ranges['left']>height:                 
+        while self.current_ir_ranges['left']>height:
             msg_string = 'left:move:0.0,0.0,-0.02,0.0,0.0,0.0,0.0'
             self.rb_cmd_pub.publish(msg_string)
             rospy.loginfo(msg_string)
@@ -93,8 +93,10 @@ class GameTableFinder(object):
        
     def find_left_edge(self, init_height):
     
+        #To Do: height error checking
         cur_ir_range = self.current_ir_ranges['left']
         
+        while abs(cur_ir_range-init_height)<0.2:
         
     
         pass
