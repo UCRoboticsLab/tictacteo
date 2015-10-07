@@ -33,6 +33,7 @@ from baxter_core_msgs.srv import (
 from baxter_core_msgs.msg import EndpointState
 import message_filters
 from std_msgs.msg import String
+import threading
 
 class MoveArms(object):
     
@@ -41,6 +42,7 @@ class MoveArms(object):
         self.current_poses = None
         self.init_pose = None
         self.current_arm_cmd = ''
+        self.cmd_threadlock = threading.Lock()
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
         ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
@@ -55,6 +57,7 @@ class MoveArms(object):
     def _arms_cmd(self, msg):
         cmd_string = msg.data
         print "\nReceiving Arms Command\n", cmd_string
+        #with self.cmd_threadlock:
         self.current_arm_cmd = cmd_string
         
         
@@ -71,45 +74,57 @@ class MoveArms(object):
         
         return arm, cmd, pose
     
+    
+    # a wrapper of PoseStamped()
+    # pose_list: [x, y, z, ox, oy, oz, ow]
+    # header: from Header(stamp, frame_id)
+    # return: a completed PoseStamped()
+    def make_pose_stamp(self, pose_list, header):
         
+        ps = PoseStamped()
+        ps.header = header
+        ps.pose.position = Point(x = pose_list[0], \
+                                 y = pose_list[1], \
+                                 z = pose_list[2], )
+
+        ps.pose.orientation = Quaternion(x = pose_list[3], \
+                                         y = pose_list[4], \
+                                         z = pose_list[5], \
+                                         w = pose_list[6], )
+        
+        return ps                         
+        
+            
     
     def _pose_callback(self, left_msg, right_msg):
     
-        pose1 = left_msg.pose
-        x1 = pose1.position.x
-        y1 = pose1.position.y
-        z1 = pose1.position.z
-        
-        ox1 = pose1.orientation.x
-        oy1 = pose1.orientation.y
-        oz1 = pose1.orientation.z
-        ow1 = pose1.orientation.w
-        
+        pose1 = left_msg.pose        
         pose2 = right_msg.pose
-        x2 = pose2.position.x
-        y2 = pose2.position.y
-        z2 = pose2.position.z
-        
-        ox2 = pose2.orientation.x
-        oy2 = pose2.orientation.y
-        oz2 = pose2.orientation.z
-        ow2 = pose2.orientation.w
         
         header = Header(stamp=rospy.Time.now(), frame_id='base')
-        cp1 = PoseStamped()
-        cp1.header = header
-        cp1.pose.position=Point(x=x1, y=y1, z=z1,)
-        cp1.pose.orientation=Quaternion(x=ox1, y=oy1, z=oz1, w=ow1,)
+        cp1 = self.make_pose_stamp([pose1.position.x, \
+                                     pose1.position.y, \
+                                     pose1.position.z, \
+                                     pose1.orientation.x, \
+                                     pose1.orientation.y, \
+                                     pose1.orientation.z, \
+                                     pose1.orientation.w], \
+                                     header)
         
-        cp2 = PoseStamped()
-        cp2.header = header
-        cp2.pose.position=Point(x=x2, y=y2, z=z2,)
-        cp2.pose.orientation=Quaternion(x=ox2, y=oy2, z=oz2, w=ow2,)
+        cp2 = self.make_pose_stamp([pose2.position.x, \
+                                     pose2.position.y, \
+                                     pose2.position.z, \
+                                     pose2.orientation.x, \
+                                     pose2.orientation.y, \
+                                     pose2.orientation.z, \
+                                     pose2.orientation.w], \
+                                     header)
         
         self.current_poses = {'left':cp1, 'right':cp2}
         
         
-        #print "\nleft\n", cp1, "\n\nright\n", cp2
+        
+        #print "\nleft: \n", cp1, "\n\nnew left: \n", cp11
             
         return
         
@@ -126,24 +141,15 @@ class MoveArms(object):
     
         
         cur_pose = self.current_poses[arm]
-  
-        x1 = cur_pose.pose.position.x
-        y1 = cur_pose.pose.position.y
-        z1 = cur_pose.pose.position.z
-        
-        x2 = x1 + disp[0]
-        y2 = y1 + disp[1]
-        z2 = z1 + disp[2]
-        
-        ox2 = cur_pose.pose.orientation.x
-        oy2 = cur_pose.pose.orientation.y
-        oz2 = cur_pose.pose.orientation.z
-        ow2 = cur_pose.pose.orientation.w
-        
-        new_pose = PoseStamped()
-        new_pose.header = Header(stamp=rospy.Time.now(), frame_id='base')
-        new_pose.pose.position=Point(x=x2, y=y2, z=z2,)
-        new_pose.pose.orientation=Quaternion(x=ox2, y=oy2, z=oz2, w=ow2,)
+
+        new_pose = self.make_pose_stamp([cur_pose.pose.position.x, \
+                                         cur_pose.pose.position.y, \
+                                         cur_pose.pose.position.z, \
+                                         cur_pose.pose.orientation.x, \
+                                         cur_pose.pose.orientation.y, \
+                                         cur_pose.pose.orientation.z, \
+                                         cur_pose.pose.orientation.w], \
+                                         Header(stamp=rospy.Time.now(), frame_id='base'))
            
         ns = "ExternalTools/" + arm + "/PositionKinematicsNode/IKService"
         print ns
@@ -182,18 +188,32 @@ class MoveArms(object):
     def move_to(self, point):
     
         return
+        
+        
+    def run(self):
+    
+        while not rospy.is_shutdown():
+        
+            msg_string = ''
+            #with self.cmd_threadlock:
+            msg_string = self.current_arm_cmd
+                
+            if msg_string != '':
+                arm, cmd, pose_list = self.arms_cmd_parser(msg_string)
+                if (arm != None):
+                    move_distance(pose_list[0:2], arm)
+                
+        
+            rospy.sleep(0.1)
+    
 
 
 def main():
     rospy.init_node("phm_ik_service_client")
     mr = MoveArms()
-    #mr.move_distance([0.0, 0.0, -0.1], 'left')
+    mr.run()
     
-    while not rospy.is_shutdown():
-        
-        
-        
-            rospy.sleep(0.1)
+    
     
 if __name__ == '__main__':
     sys.exit(main())

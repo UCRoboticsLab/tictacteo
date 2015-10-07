@@ -77,7 +77,7 @@ class GameTableFinder(object):
         if self.current_ir_ranges['left']>0.5 or self.current_ir_ranges['left']<0.0:
             return
             
-        while self.current_ir_ranges['left']>0.3:
+        while self.current_ir_ranges['left']>0.3:                 
             msg_string = 'left:move:0.0,0.0,0.05,0.0,0.0,0.0,0.0'
             self.rb_cmd_pub.publish(msg_string)
             rospy.sleep(1)
