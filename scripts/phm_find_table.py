@@ -30,6 +30,7 @@ from sensor_msgs.msg import Image
 from sensor_msgs.msg import Range
 from std_msgs.msg import String
 import message_filters
+import time
 
 import math
 
@@ -83,7 +84,7 @@ class GameTableFinder(object):
             self.rb_cmd_pub.publish(msg_string)
             rospy.loginfo(msg_string)
             print self.current_ir_ranges
-            rospy.sleep(3)
+            time.sleep(3)
             
             
         return
@@ -98,11 +99,30 @@ class GameTableFinder(object):
         
         while abs(cur_ir_range-init_height)<0.2:
         
+            msg_string = 'left:move:0.0,0.02,0.0,0.0,0.0,0.0,0.0'
+            self.rb_cmd_pub.publish(msg_string)
+            print cur_ir_range
+            cur_ir_range = self.current_ir_ranges['left']
+            time.sleep(2)
     
         pass
 
 
+    def find_back_edge(self, init_height):
     
+        msg_string = 'left:move:0.0,-0.1,0.0,0.0,0.0,0.0,0.0'
+        self.rb_cmd_pub.publish(msg_string)
+        time.sleep(2)
+        
+        cur_ir_range = self.current_ir_ranges['left']
+        while abs(cur_ir_range-init_height)<0.2:
+        
+            msg_string = 'left:move:-0.02,0.0,0.0,0.0,0.0,0.0,0.0'
+            self.rb_cmd_pub.publish(msg_string)
+            print cur_ir_range
+            cur_ir_range = self.current_ir_ranges['left']
+            time.sleep(2)
+                
 
 
 
@@ -111,7 +131,9 @@ def main():
 
     gtf = GameTableFinder(1.0, 0.5, 0.9)
     rospy.init_node('tablefinder',anonymous = True)
-    gtf.adjust_height(0.25)
+    gtf.adjust_height(0.35)
+    gtf.find_left_edge(0.35)
+    gtf.find_back_edge(0.35)
     while not rospy.is_shutdown():
         
         
