@@ -99,24 +99,35 @@ class GridDetector(object):
         counter = 0
         
         print "\n...Start with a new image...\n"
+        matching_result = []
         for cnt in contours:
 
             contour_area = cv2.contourArea(cnt)
-            if contour_area<100:
-                continue
+            #if contour_area<100:
+            #    matching_result.append(10.0) # a large number to fill the list
+            #    continue
             empty_img = np.zeros((self.height,self.width,1), np.uint8)
             contour_img = cv2.merge((bw_img1, empty_img, empty_img)) #np.zeros((self.height,self.width,3), np.uint8)
             cv2.drawContours(contour_img, contours, counter, (255,255,255), 1)
             ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
             print ret, "\nContour Area: \n", contour_area
-
+            if ret == 0.0:
+                ret = 10.0
+            matching_result.append(ret)
             #plot_img = np.zeros((self.height,self.width,3), np.uint8)
             
             counter = counter + 1
-            cv2.imshow('current_image', contour_img)
-            cv2.waitKey(0)
+            #cv2.imshow('current_image', contour_img)
+            #cv2.waitKey(0)
             #rospy.sleep(0.1)
         
+        min_index = matching_result.index(min(matching_result))
+        empty_img = np.zeros((self.height,self.width,1), np.uint8)
+        contour_img = cv2.merge((bw_img1, empty_img, empty_img))
+        plot_img = deepcopy(img)
+        cv2.drawContours(plot_img, contours, min_index, (255,255,255), 1)
+        cv2.imshow('current_image', plot_img)
+        cv2.waitKey(10)
        
     
     
