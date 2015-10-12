@@ -26,6 +26,8 @@ import math
 
 import baxter_interface
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import Range
+from baxter_core_msgs.msg import EndpointState
 import message_filters
 from std_msgs.msg import String
 import rospy
@@ -34,6 +36,8 @@ import signal
 class GridDetector(object):
     
     def __init__(self, tmpl_bw_img):
+        
+        self.current_poses = None
         
         self.rb_cmd_pub = rospy.Publisher('robot_arms_cmd', String, queue_size=10)
         self.tmpl_width, self.tmpl_height, self.tmpl_channel = tmpl_bw_img.shape
@@ -59,10 +63,68 @@ class GridDetector(object):
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
         self._camera.gain = 10
+        self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
+        self.cam_x_offset = 0.045                      # camera gripper offset
+        self.cam_y_offset = -0.01
+        
         
         self.cur_img = None                             
         self.ImageThreadLock = threading.Lock()
         
+        left_ir_msg = message_filters.Subscriber('/robot/range/left_hand_range/state',Range)
+        right_ir_msg = message_filters.Subscriber('/robot/range/right_hand_range/state',Range)
+        ts = message_filters.ApproximateTimeSynchronizer([left_ir_msg, right_ir_msg], 10, 0.05)
+        ts.registerCallback(self._ir_sensor_callback)
+        
+        self.current_ir_ranges = {'left':65.0, 'right':65.0}
+        
+        left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
+        right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
+        ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
+        ts.registerCallback(self._pose_callback)
+        
+    def get_ir_range(self, side):
+        range = self.current_ir_ranges[side]
+        return range
+    
+    def _pose_callback(self, left_msg, right_msg):
+    
+        pose1 = left_msg.pose        
+        pose2 = right_msg.pose
+        
+        header = Header(stamp=rospy.Time.now(), frame_id='base')
+        cp1 = self.make_pose_stamp([pose1.position.x, \
+                                     pose1.position.y, \
+                                     pose1.position.z, \
+                                     pose1.orientation.x, \
+                                     pose1.orientation.y, \
+                                     pose1.orientation.z, \
+                                     pose1.orientation.w], \
+                                     header)
+        
+        cp2 = self.make_pose_stamp([pose2.position.x, \
+                                     pose2.position.y, \
+                                     pose2.position.z, \
+                                     pose2.orientation.x, \
+                                     pose2.orientation.y, \
+                                     pose2.orientation.z, \
+                                     pose2.orientation.w], \
+                                     header)
+        
+        self.current_poses = {'left':cp1, 'right':cp2}
+        
+        
+        
+        #print "\nleft: \n", cp1, "\n\nnew left: \n", cp11
+            
+        return
+    
+    def _ir_sensor_callback(self, left_msg, right_msg): #def _ir_sensor_callback(self, msg, side):
+        
+        #print "\nLeft IR: \n", left_msg.range
+        self.current_ir_ranges={'left':left_msg.range, 'right':right_msg.range}
+        return
+    
     def _camera_callback(self, image):
         with self.ImageThreadLock:
             try:
@@ -108,9 +170,9 @@ class GridDetector(object):
             #    continue
             empty_img = np.zeros((self.height,self.width,1), np.uint8)
             contour_img = cv2.merge((bw_img1, empty_img, empty_img)) #np.zeros((self.height,self.width,3), np.uint8)
-            cv2.drawContours(contour_img, contours, counter, (255,255,255), 1)
+            cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
             ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
-            print ret, "\nContour Area: \n", contour_area
+            #print ret, "\nContour Area: \n", contour_area
             if ret == 0.0:
                 ret = 10.0
             matching_result.append(ret)
@@ -122,21 +184,53 @@ class GridDetector(object):
             #rospy.sleep(0.1)
         
         min_index = matching_result.index(min(matching_result))
+        rect = cv2.minAreaRect(contours[min_index])
+        angle = rect[2]
+        cx = math.floor(rect[0][0])
+        cy = math.floor(rect[0][1])
+        print "\nMatching Result: (", cx, cy, ")\nangle: ", angle
         empty_img = np.zeros((self.height,self.width,1), np.uint8)
         contour_img = cv2.merge((bw_img1, empty_img, empty_img))
         plot_img = deepcopy(img)
-        cv2.drawContours(plot_img, contours, min_index, (255,255,255), 1)
+        cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
         cv2.imshow('current_image', plot_img)
         cv2.waitKey(10)
-       
+        return cx, cy, angle
     
+    def pixel_to_baxter(self, px, dist):
+        x = ((px[1] - (self.height / 2)) * self.cam_calib * dist) \
+          + self.pose[0] + self.cam_x_offset
+        y = ((px[0] - (self.width / 2)) * self.cam_calib * dist) \
+          + self.pose[1] + self.cam_y_offset
+        
+        return x, y
     
+    def put_to_grid(self, x, y):
+        pass
     
     
     def dt_matching(self, img):
         pass
         
-
+        
+    def move_to(self, x, y, z, ox, oy, oz, ow):
+        msg_string = 'left:move:' + \
+                      str(x) + \
+                      ',' + \
+                      str(y) + \
+                      ',' + \
+                      str(z) + \
+                      ',' + \
+                      str(ox) + \
+                      ',' + \
+                      str(oy) + \
+                      ',' + \
+                      str(oz) + \
+                      ',' + \
+                      str(ow)
+        return
+        
+        
 flag = False
 def main():
     
@@ -147,11 +241,17 @@ def main():
     
     rospy.init_node("phm_find_grid")
     
+    img = gd.get_image()
+    angle = 0 
+    cx = 0
+    cy = 0
+    if img != None:
+        cx, cy, angle = gd.contour_matching(img)
+    x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
+    gd.move_to(cx, cy, 0.35, 0.0, 0.0, 0.0, 0.0)
     while not rospy.is_shutdown() and not flag:
 
-        img = gd.get_image()
-        if img != None:
-            gd.contour_matching(img)
+        
         
         rospy.sleep(0.1)
 

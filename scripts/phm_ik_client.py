@@ -182,6 +182,17 @@ class MoveArms(object):
     # single axis ratation
     # angle: angle
     def turn_angle(self, angle, axis):
+        
+        cur_pose = self.current_poses[arm]
+        
+        new_pose = self.make_pose_stamp([cur_pose.pose.position.x, \
+                                         cur_pose.pose.position.y, \
+                                         cur_pose.pose.position.z, \
+                                         cur_pose.pose.orientation.x, \
+                                         cur_pose.pose.orientation.y, \
+                                         cur_pose.pose.orientation.z, \
+                                         cur_pose.pose.orientation.w], \
+                                         Header(stamp=rospy.Time.now(), frame_id='base'))
     
         return
         
