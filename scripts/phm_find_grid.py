@@ -27,8 +27,15 @@ import math
 import baxter_interface
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import Range
+from std_msgs.msg import Header
 from baxter_core_msgs.msg import EndpointState
 import message_filters
+from geometry_msgs.msg import (
+    PoseStamped,
+    Pose,
+    Point,
+    Quaternion,
+)
 from std_msgs.msg import String
 import rospy
 import signal
@@ -71,6 +78,10 @@ class GridDetector(object):
         self.cur_img = None                             
         self.ImageThreadLock = threading.Lock()
         
+        
+        
+    def init_msgs(self):
+        
         left_ir_msg = message_filters.Subscriber('/robot/range/left_hand_range/state',Range)
         right_ir_msg = message_filters.Subscriber('/robot/range/right_hand_range/state',Range)
         ts = message_filters.ApproximateTimeSynchronizer([left_ir_msg, right_ir_msg], 10, 0.05)
@@ -82,14 +93,14 @@ class GridDetector(object):
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
         ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
         ts.registerCallback(self._pose_callback)
-        
+    
     def get_ir_range(self, side):
         range = self.current_ir_ranges[side]
         return range
     
     def _pose_callback(self, left_msg, right_msg):
     
-        pose1 = left_msg.pose        
+        pose1 = left_msg.pose
         pose2 = right_msg.pose
         
         header = Header(stamp=rospy.Time.now(), frame_id='base')
@@ -194,14 +205,20 @@ class GridDetector(object):
         plot_img = deepcopy(img)
         cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
         cv2.imshow('current_image', plot_img)
-        cv2.waitKey(10)
+        cv2.waitKey(2000)
         return cx, cy, angle
     
     def pixel_to_baxter(self, px, dist):
+        
+        x1 = self.current_poses['left'].pose.position.x 
+        y1 = self.current_poses['left'].pose.position.y
+        print "\nCurrent Pose x, y:", x1, y1, "\n"
+        print "Current Cx, Cy: ", px[0], px[1], "\n"
+        print "Current Distance: ", dist, "\n"
         x = ((px[1] - (self.height / 2)) * self.cam_calib * dist) \
-          + self.pose[0] + self.cam_x_offset
+           + self.cam_x_offset
         y = ((px[0] - (self.width / 2)) * self.cam_calib * dist) \
-          + self.pose[1] + self.cam_y_offset
+           + self.cam_y_offset
         
         return x, y
     
@@ -211,7 +228,21 @@ class GridDetector(object):
     
     def dt_matching(self, img):
         pass
+    
+    def make_pose_stamp(self, pose_list, header):
         
+        ps = PoseStamped()
+        ps.header = header
+        ps.pose.position = Point(x = pose_list[0], \
+                                 y = pose_list[1], \
+                                 z = pose_list[2], )
+
+        ps.pose.orientation = Quaternion(x = pose_list[3], \
+                                         y = pose_list[4], \
+                                         z = pose_list[5], \
+                                         w = pose_list[6], )
+        
+        return ps    
         
     def move_to(self, x, y, z, ox, oy, oz, ow):
         msg_string = 'left:move:' + \
@@ -228,8 +259,16 @@ class GridDetector(object):
                       str(oz) + \
                       ',' + \
                       str(ow)
-        return
+        self.rb_cmd_pub.publish(msg_string)
         
+        return
+    def cv_show_img(self, img, key_pressed):
+        
+        cv2.imshow('current_image', img)
+        key = cv2.waitKey(10)
+        while key != key_pressed:
+            key = cv2.waitKey(10)
+            
         
 flag = False
 def main():
@@ -240,6 +279,7 @@ def main():
     gd = GridDetector(template_img) 
     
     rospy.init_node("phm_find_grid")
+    gd.init_msgs()
     
     img = gd.get_image()
     angle = 0 
@@ -248,8 +288,12 @@ def main():
     if img != None:
         cx, cy, angle = gd.contour_matching(img)
     x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
-    gd.move_to(cx, cy, 0.35, 0.0, 0.0, 0.0, 0.0)
+
+    gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0)
+    
     while not rospy.is_shutdown() and not flag:
+        
+        
 
         
         

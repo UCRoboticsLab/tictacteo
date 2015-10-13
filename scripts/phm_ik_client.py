@@ -129,6 +129,22 @@ class MoveArms(object):
             
         return
         
+    
+    def init_angle(self, arm):
+        
+        cur_pose = self.current_poses[arm]
+        
+        new_pose = self.make_pose_stamp([cur_pose.pose.position.x, \
+                                         cur_pose.pose.position.y, \
+                                         cur_pose.pose.position.z, \
+                                         0.0, \
+                                         1.0, \
+                                         0.0, \
+                                         0.0], \
+                                         Header(stamp=rospy.Time.now(), frame_id='base'))    
+        
+        self.move_to(new_pose, 'left')
+    
     def get_pose(self):
     
         return self.current_pose
@@ -163,10 +179,10 @@ class MoveArms(object):
             rospy.wait_for_service(ns, 5.0)
             resp = iksvc(ikreq)
         except (rospy.ServiceException, rospy.ROSException), e:
-            #rospy.logerr("Service call failed: %s" % (e,))
+            rospy.logerr("Service call failed: %s" % (e,))
             return 0
             
-        limb_joints = None    
+        limb_joints = None
         if (resp.isValid[0]):
             limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
             print "\nFinish IK moving\n"
@@ -197,13 +213,42 @@ class MoveArms(object):
         return
         
 
-    def move_to(self, point):
+    def move_to(self, pose, arm):
+        
+        new_pose = pose
+        
+        ns = "ExternalTools/" + arm + "/PositionKinematicsNode/IKService"
+        print ns
+        iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
+        ikreq = SolvePositionIKRequest()
+        
+        ikreq.pose_stamp.append(new_pose)
+        
+        try:
+            rospy.wait_for_service(ns, 5.0)
+            resp = iksvc(ikreq)
+        except (rospy.ServiceException, rospy.ROSException), e:
+            rospy.logerr("Service call failed: %s" % (e,))
+            return 0
+            
+        limb_joints = None
+        if (resp.isValid[0]):
+            limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
+            print "\nFinish IK moving\n"
+            
+        else:
+            return 0
+        
+        
+        self.arms['left'].move_to_joint_positions(limb_joints)                                
     
         return
         
         
     def run(self):
     
+        self.init_angle('left')
+        rospy.sleep(2)
         while not rospy.is_shutdown():
         
             msg_string = ''
@@ -218,6 +263,7 @@ class MoveArms(object):
                 msg_string = ''
                 if (arm != None):
                     print pose_list[0:3]
+                    self.init_angle('left')
                     self.move_distance(pose_list[0:3], arm)
                     pass
                     
