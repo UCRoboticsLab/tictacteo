@@ -244,8 +244,8 @@ class GridDetector(object):
         
         return ps    
         
-    def move_to(self, x, y, z, ox, oy, oz, ow):
-        msg_string = 'left:move:' + \
+    def move_to(self, x, y, z, ox, oy, oz, ow, arm):
+        msg_string = arm + ':move_to:' + \
                       str(x) + \
                       ',' + \
                       str(y) + \
@@ -262,6 +262,33 @@ class GridDetector(object):
         self.rb_cmd_pub.publish(msg_string)
         
         return
+    
+    def move_arm(self, x, y, z, arm):
+        
+        msg_string = arm + ':move:' + \
+                      str(x) + \
+                      ',' + \
+                      str(y) + \
+                      ',' + \
+                      str(z) + \
+                      ',' + \
+                      str(ox) + \
+                      ',' + \
+                      str(oy) + \
+                      ',' + \
+                      str(oz) + \
+                      ',' + \
+                      str(ow)
+        self.rb_cmd_pub.publish(msg_string)
+        
+        return
+    def init_arm_angle(self, arm):
+        msg_string = arm + ':init_angle:0.0,0.0,0.0,0.0,1.0,0.0,0.0'
+            
+        self.rb_cmd_pub.publish(msg_string)
+        
+        return
+        
     def cv_show_img(self, img, key_pressed):
         
         cv2.imshow('current_image', img)
@@ -280,7 +307,7 @@ def main():
     
     rospy.init_node("phm_find_grid")
     gd.init_msgs()
-    
+    gd.init_arm_angle()
     img = gd.get_image()
     angle = 0 
     cx = 0
@@ -289,7 +316,7 @@ def main():
         cx, cy, angle = gd.contour_matching(img)
     x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
 
-    gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0)
+    gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, left)
     
     while not rospy.is_shutdown() and not flag:
         

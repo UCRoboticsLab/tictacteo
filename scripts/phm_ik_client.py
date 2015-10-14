@@ -71,9 +71,9 @@ class MoveArms(object):
         arm = msg_segment[0]
         cmd = msg_segment[1]
         
-        pose = [float(m) for m in msg_segment[2].split(',')]
+        pose_list = [float(m) for m in msg_segment[2].split(',')]
         
-        return arm, cmd, pose
+        return arm, cmd, pose_list
     
     
     # a wrapper of PoseStamped()
@@ -82,6 +82,7 @@ class MoveArms(object):
     # return: a completed PoseStamped()
     def make_pose_stamp(self, pose_list, header):
         
+        #print "\npose list: ", pose_list
         ps = PoseStamped()
         ps.header = header
         ps.pose.position = Point(x = pose_list[0], \
@@ -99,7 +100,7 @@ class MoveArms(object):
     
     def _pose_callback(self, left_msg, right_msg):
     
-        pose1 = left_msg.pose        
+        pose1 = left_msg.pose    
         pose2 = right_msg.pose
         
         header = Header(stamp=rospy.Time.now(), frame_id='base')
@@ -134,16 +135,15 @@ class MoveArms(object):
         
         cur_pose = self.current_poses[arm]
         
-        new_pose = self.make_pose_stamp([cur_pose.pose.position.x, \
-                                         cur_pose.pose.position.y, \
-                                         cur_pose.pose.position.z, \
-                                         0.0, \
-                                         1.0, \
-                                         0.0, \
-                                         0.0], \
-                                         Header(stamp=rospy.Time.now(), frame_id='base'))    
+        new_pose = [cur_pose.pose.position.x, \
+                    cur_pose.pose.position.y, \
+                    cur_pose.pose.position.z, \
+                    0.0, \
+                    1.0, \
+                    0.0, \
+                    0.0]
         
-        self.move_to(new_pose, 'left')
+        self.move_to(new_pose, arm)
     
     def get_pose(self):
     
@@ -213,9 +213,10 @@ class MoveArms(object):
         return
         
 
-    def move_to(self, pose, arm):
+    def move_to(self, pose_list, arm):
         
-        new_pose = pose
+        new_pose = self.make_pose_stamp(pose_list, \
+                                        Header(stamp=rospy.Time.now(), frame_id='base'))
         
         ns = "ExternalTools/" + arm + "/PositionKinematicsNode/IKService"
         print ns
@@ -240,7 +241,7 @@ class MoveArms(object):
             return 0
         
         
-        self.arms['left'].move_to_joint_positions(limb_joints)                                
+        self.arms[arm].move_to_joint_positions(limb_joints)                                
     
         return
         
@@ -261,11 +262,17 @@ class MoveArms(object):
             if msg_string != '':
                 arm, cmd, pose_list = self.arms_cmd_parser(msg_string)
                 msg_string = ''
-                if (arm != None):
-                    print pose_list[0:3]
-                    self.init_angle('left')
-                    self.move_distance(pose_list[0:3], arm)
-                    pass
+                if arm != None and cmd != None:
+                    #print pose_list[0:3]
+                    #self.init_angle('left')
+                    #self.move_distance(pose_list[0:3], arm)
+                    #pass
+                    if cmd == 'move':
+                        self.move_distance(pose_list[0:3], arm)
+                    elif cmd == 'move_to':
+                        self.move_to(pose_list, arm)
+                    elif cmd == 'init_angle':
+                        self.init_angle(arm)
                     
            
                 
