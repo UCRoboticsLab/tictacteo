@@ -67,6 +67,8 @@ class GridDetector(object):
         self.height = 600
         self.width = 960
         self._camera = baxter_interface.CameraController('left_hand_camera')
+        
+        
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
         self._camera.gain = 10
@@ -199,13 +201,13 @@ class GridDetector(object):
         angle = rect[2]
         cx = math.floor(rect[0][0])
         cy = math.floor(rect[0][1])
-        print "\nMatching Result: (", cx, cy, ")\nangle: ", angle
+        print "\nMatching Result: (", matching_result[min_index], ")\nangle: ", angle
         empty_img = np.zeros((self.height,self.width,1), np.uint8)
         contour_img = cv2.merge((bw_img1, empty_img, empty_img))
         plot_img = deepcopy(img)
         cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
         cv2.imshow('current_image', plot_img)
-        cv2.waitKey(2000)
+        cv2.waitKey(20)
         return cx, cy, angle
     
     def pixel_to_baxter(self, px, dist):
@@ -227,7 +229,45 @@ class GridDetector(object):
     
     
     def dt_matching(self, img):
-        pass
+        
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        kernel_smooth = np.ones((5,5),np.float32)/25
+        gray_img = cv2.filter2D(gray_img, -1, kernel_smooth)
+        
+        bw_img = cv2.adaptiveThreshold(gray_img,255,\
+                                       cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+                                       cv2.THRESH_BINARY,103,1)
+                                       
+                                       
+        bw_img1 = cv2.bitwise_not(bw_img)
+        
+        bw_img2 = deepcopy(bw_img1)
+        contours, hierarchy = cv2.findContours(bw_img2, cv2.RETR_TREE, \
+                                               cv2.CHAIN_APPROX_SIMPLE)
+        counter = 0
+        
+        print "\n...Start with a new image...\n"
+        matching_result = []
+        for cnt in contours:
+
+            contour_area = cv2.contourArea(cnt)
+            #if contour_area<100:
+            #    matching_result.append(10.0) # a large number to fill the list
+            #    continue
+            empty_img = np.zeros((self.height,self.width,1), np.uint8)
+            contour_img = cv2.merge((bw_img1, empty_img, empty_img)) #np.zeros((self.height,self.width,3), np.uint8)
+            cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
+            ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
+            #print ret, "\nContour Area: \n", contour_area
+            if ret == 0.0:
+                ret = 10.0
+            matching_result.append(ret)
+            #plot_img = np.zeros((self.height,self.width,3), np.uint8)
+            
+            counter = counter + 1
+            #cv2.imshow('current_image', contour_img)
+            #cv2.waitKey(0)
+            #rospy.sleep(0.1)
     
     def make_pose_stamp(self, pose_list, header):
         
@@ -307,20 +347,25 @@ def main():
     
     rospy.init_node("phm_find_grid")
     gd.init_msgs()
-    gd.init_arm_angle()
+    gd.init_arm_angle('left')
     img = gd.get_image()
     angle = 0 
     cx = 0
     cy = 0
-    if img != None:
-        cx, cy, angle = gd.contour_matching(img)
-    x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
-
-    gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, left)
+##    if img != None:
+##        cx, cy, angle = gd.contour_matching(img)
+##    x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
+##
+##    gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, left)
     
     while not rospy.is_shutdown() and not flag:
         
-        
+        img = gd.get_image()
+        if img != None:
+            cx, cy, angle = gd.contour_matching(img)
+            #x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
+
+            #gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, left)
 
         
         
