@@ -177,7 +177,10 @@ class GridDetector(object):
         matching_result = []
         for cnt in contours:
 
-            contour_area = cv2.contourArea(cnt)
+            #contour_area = cv2.contourArea(cnt)
+            mom = cv2.moments(cnt)
+            contour_area = mom['m00']
+            #print "\nContourArea: ", contour_area, "Moments: ", contour_area1
             #if contour_area<100:
             #    matching_result.append(10.0) # a large number to fill the list
             #    continue
@@ -186,7 +189,7 @@ class GridDetector(object):
             cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
             ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
             #print ret, "\nContour Area: \n", contour_area
-            if ret == 0.0:
+            if ret == 0.0 or contour_area<200:
                 ret = 10.0
             matching_result.append(ret)
             #plot_img = np.zeros((self.height,self.width,3), np.uint8)
@@ -250,14 +253,16 @@ class GridDetector(object):
         matching_result = []
         for cnt in contours:
 
-            contour_area = cv2.contourArea(cnt)
+            #contour_area = cv2.contourArea(cnt)
+            mom = cv2.moments(cnt)
+            contour_area = mom
             #if contour_area<100:
             #    matching_result.append(10.0) # a large number to fill the list
             #    continue
             empty_img = np.zeros((self.height,self.width,1), np.uint8)
             contour_img = cv2.merge((bw_img1, empty_img, empty_img)) #np.zeros((self.height,self.width,3), np.uint8)
             cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
-            ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
+            ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I3, 0.0)
             #print ret, "\nContour Area: \n", contour_area
             if ret == 0.0:
                 ret = 10.0
