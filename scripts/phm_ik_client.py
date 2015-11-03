@@ -191,7 +191,7 @@ class MoveArms(object):
             return 0
         
         
-        self.arms['left'].move_to_joint_positions(limb_joints)
+        self.arms[arm].move_to_joint_positions(limb_joints)
         
         return 1
     
@@ -249,6 +249,9 @@ class MoveArms(object):
     def run(self):
     
         self.init_angle('left')
+        self.init_angle('right')
+        #self.move_distance([0.0, 0.5, 0.0], 'right') #[0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0
+        self.move_to([0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'left')
         rospy.sleep(2)
         while not rospy.is_shutdown():
         
