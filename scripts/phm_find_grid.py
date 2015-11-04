@@ -256,7 +256,7 @@ class GridDetector(object):
         cv2.waitKey(20)
         return cx, cy, angle
     
-    def contour_match(self, img, tmpl_bw_img, mask_img):
+    def contour_match(self, img, tmpl_bw_img, mask_img, rect):
         
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         kernel_smooth = np.ones((5,5),np.float32)/25
@@ -288,11 +288,28 @@ class GridDetector(object):
             #print ret, "\nContour Area: \n", contour_area
             if ret == 0.0 or contour_area<300:
                 ret = 10.0
-            matching_result.append(ret)
+            matching_result.append([ret,cnt])
+            
             counter = counter + 1
+        sorted_list = sorted(matching_result,key=lambda x: x[0])        
+        new_list = sorted_list[0:5]
         
-        min_index = matching_result.index(min(matching_result))
-        rect = cv2.minAreaRect(contours[min_index])
+        dist_list = []
+        if rect != None:
+            cx0 = rect[0][0]
+            cy0 = rect[0][1]
+            
+            for item in new_list:
+                
+                cnt = item[1]
+                new_rect = cv2.minAreaRect(cnt)
+                cx1 = new_rect[0][0]
+                cy1 = new_rect[0][1]
+                dist = sqrt((cx0-cx1)*(cx0-cx1) + (cy0-cy1)*(cy0-cy1))
+                dist_list.append([dist, new_rect])
+        #min_index = matching_result.index(min(matching_result))
+        sorted_dist_list = sorted(dist_list,key=lambda x: x[0])
+        #rect = cv2.minAreaRect(contours[min_index])
         #angle = rect[2]
         #cx = math.floor(rect[0][0])
         #cy = math.floor(rect[0][1])
