@@ -197,7 +197,7 @@ class GridDetector(object):
         
         return c_img
         
-        
+    '''    
     def contour_matching(self, img):
     
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -255,6 +255,7 @@ class GridDetector(object):
         cv2.imshow('current_image', plot_img)
         cv2.waitKey(20)
         return cx, cy, angle
+    '''
     
     def contour_match(self, img, tmpl_bw_img, mask_img, rect):
         
@@ -295,31 +296,49 @@ class GridDetector(object):
         new_list = sorted_list[0:5]
         
         dist_list = []
-        if rect != None:
+        new_rect = None
+        plot_img = deepcopy(img)
+        if rect == None:
+            print "None Image"
+            new_rect = cv2.minAreaRect(new_list[0][1])
+            cv2.drawContours(plot_img, [new_list[0][1]], 0, (255,0,0), 2)
+        
+        else:
+            print "Real Images"
             cx0 = rect[0][0]
             cy0 = rect[0][1]
             
             for item in new_list:
                 
                 cnt = item[1]
-                new_rect = cv2.minAreaRect(cnt)
-                cx1 = new_rect[0][0]
-                cy1 = new_rect[0][1]
-                dist = sqrt((cx0-cx1)*(cx0-cx1) + (cy0-cy1)*(cy0-cy1))
-                dist_list.append([dist, new_rect])
-        #min_index = matching_result.index(min(matching_result))
-        sorted_dist_list = sorted(dist_list,key=lambda x: x[0])
+                new_rect1 = cv2.minAreaRect(cnt)
+                cx1 = new_rect1[0][0]
+                cy1 = new_rect1[0][1]
+                dist = math.sqrt((cx0-cx1)*(cx0-cx1) + (cy0-cy1)*(cy0-cy1))
+                dist_list.append([dist, new_rect1, cnt])
+        
+            
+            #min_index = matching_result.index(min(matching_result))
+            #print "size of dist list", len(dist_list)
+            sorted_dist_list = sorted(dist_list,key=lambda x: x[0])
+            new_rect = sorted_dist_list[0][1]
+            cv2.drawContours(plot_img, [sorted_dist_list[0][2]], 0, (255,0,0), 2)
+        
+        cv2.imshow('current_image', plot_img)
+        cv2.waitKey(10)
+        #sorted_dist_list 
         #rect = cv2.minAreaRect(contours[min_index])
         #angle = rect[2]
         #cx = math.floor(rect[0][0])
         #cy = math.floor(rect[0][1])
         
-        return rect
+        return new_rect
         
     #def get_new_rect(self, rect):
         
         
     def integer_box(self, box, width, height):
+        
         
         x0 = math.floor(box[0][0])
         y0 = math.floor(box[0][1])
@@ -351,15 +370,24 @@ class GridDetector(object):
         
         return int_box
         
-    def track_contour(self, img, side, object_type):
+    def track_contour(self, side, object_type):
+        img = self.get_image()
+        if img == None:
+            rospy.sleep(0.05)
+            return
         
         height, width, channel = img.shape
         mask_img = np.ones((height,width,1), np.uint8)
         
         tmpl_bw_img = self.template_imgs[object_type]
-        rect = self.contour_match(img, tmpl_bw_img, mask_img)
+        rect = self.contour_match(img, tmpl_bw_img, mask_img, None)
         #print rect
         while not self.current_task_dropping:
+            
+            img = self.get_image()
+            if img == None:
+                rospy.sleep(0.05)
+                continue
             
             new_h = rect[1][0]+rect[1][0]/2.0
             new_w = rect[1][1]+rect[1][1]/2.0
@@ -369,20 +397,21 @@ class GridDetector(object):
             box = cv2.cv.BoxPoints(new_rect)
             int_box = self.integer_box(box, width, height)
             #print type(box), box
-            temp_img = np.zeros((height,width,3), np.uint8)
-            cv2.rectangle(temp_img, tuple(int_box[0]), tuple(int_box[2]), (255, 255, 255), -1, 8, 0)
-            mask_img, g, r = cv2.split(temp_img)
-            new_img = cv2.bitwise_and(img,img,mask = mask_img)
+            #temp_img = np.zeros((height,width,3), np.uint8)
+            #cv2.rectangle(temp_img, tuple(int_box[0]), tuple(int_box[2]), (255, 255, 255), -1, 8, 0)
+            #mask_img, g, r = cv2.split(temp_img)
+            #new_img = cv2.bitwise_and(img,img,mask = mask_img)
             
-            rect = self.contour_match(img, tmpl_bw_img, mask_img)
+            rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
+            rect = rect1
             dx, dy = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
             msg_string = side + \
                           object_type + \
                           ':' + str(round(dx, 4)) + ',' + str(round(dy, 4)) + \
                           ',' + str(round(self.get_ir_range(side), 4))
             self.rb_cmd_pub.publish(msg_string)
-            cv2.imshow('current_image', new_img)
-            cv2.waitKey(10)
+            #cv2.imshow('current_image', new_img)
+            #cv2.waitKey(10)
             rospy.sleep(0.05)
             
             
@@ -574,14 +603,14 @@ def main():
     
     while not rospy.is_shutdown() and not flag:
         
-        img = gd.get_image()
-        if img != None:
+        #img = gd.get_image()
+        #if img != None:
         #    cx, cy, angle = gd.contour_matching(img)
             #x, y = gd.pixel_to_baxter([cx, cy], gd.get_ir_range('left'))
 
             #gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, left)
 
-            gd.track_contour(img, 'left', 'x')
+        gd.track_contour('left', 'x')
         
         rospy.sleep(0.1)
 
