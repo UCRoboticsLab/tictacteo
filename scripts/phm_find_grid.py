@@ -42,8 +42,9 @@ import signal
 
 class GridDetector(object):
     
-    def __init__(self):
+    def __init__(self, arm):
         
+        self.arm = arm
         self.current_task_dropping = False
         self.current_poses = None
         self.current_vision_cmd = ''
@@ -64,12 +65,12 @@ class GridDetector(object):
         
         
         
-        left_camera_sub = rospy.Subscriber('/cameras/left_hand_camera/image', \
+        left_camera_sub = rospy.Subscriber('/cameras/'+ self.arm + '_hand_camera/image', \
                                        Image, self._camera_callback)
                                     
         self.height = 600
         self.width = 960
-        self._camera = baxter_interface.CameraController('left_hand_camera')
+        self._camera = baxter_interface.CameraController(self.arm + '_hand_camera')
         
         
         self._camera.open()
@@ -294,7 +295,11 @@ class GridDetector(object):
             counter = counter + 1
         sorted_list = sorted(matching_result,key=lambda x: x[0])        
         new_list = sorted_list[0:5]
-        
+        if new_list[0][0]>0.1:
+            print "Can't find item"
+            cv2.imshow('current_image', img)
+            cv2.waitKey(10)
+            return None
         dist_list = []
         new_rect = None
         plot_img = deepcopy(img)
@@ -389,13 +394,13 @@ class GridDetector(object):
                 rospy.sleep(0.05)
                 continue
             
-            new_h = rect[1][0]+rect[1][0]/2.0
-            new_w = rect[1][1]+rect[1][1]/2.0
-            center = (rect[0][0], rect[0][1])
-            size = (new_h, new_w)
-            new_rect = (center, size, rect[2])
-            box = cv2.cv.BoxPoints(new_rect)
-            int_box = self.integer_box(box, width, height)
+            #new_h = rect[1][0]+rect[1][0]/2.0
+            #new_w = rect[1][1]+rect[1][1]/2.0
+            #center = (rect[0][0], rect[0][1])
+            #size = (new_h, new_w)
+            #new_rect = (center, size, rect[2])
+            #box = cv2.cv.BoxPoints(new_rect)
+            #int_box = self.integer_box(box, width, height)
             #print type(box), box
             #temp_img = np.zeros((height,width,3), np.uint8)
             #cv2.rectangle(temp_img, tuple(int_box[0]), tuple(int_box[2]), (255, 255, 255), -1, 8, 0)
@@ -404,12 +409,13 @@ class GridDetector(object):
             
             rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
             rect = rect1
-            dx, dy = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
-            msg_string = side + \
-                          object_type + \
-                          ':' + str(round(dx, 4)) + ',' + str(round(dy, 4)) + \
-                          ',' + str(round(self.get_ir_range(side), 4))
-            self.rb_cmd_pub.publish(msg_string)
+            if rect != None: 
+                dx, dy = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                msg_string = side + \
+                              object_type + \
+                              ':' + str(round(dx, 4)) + ',' + str(round(dy, 4)) + \
+                              ',' + str(round(self.get_ir_range(side), 4))
+                self.rb_cmd_pub.publish(msg_string)
             #cv2.imshow('current_image', new_img)
             #cv2.waitKey(10)
             rospy.sleep(0.05)
@@ -418,8 +424,8 @@ class GridDetector(object):
 
     def pixel_to_baxter(self, px, dist):
         
-        x1 = self.current_poses['left'].pose.position.x 
-        y1 = self.current_poses['left'].pose.position.y
+        x1 = self.current_poses[self.arm].pose.position.x 
+        y1 = self.current_poses[self.arm].pose.position.y
         print "\nCurrent Pose x, y:", x1, y1, "\n"
         print "Current Cx, Cy: ", px[0], px[1], "\n"
         print "Current Distance: ", dist, "\n"
@@ -427,7 +433,9 @@ class GridDetector(object):
            + self.cam_x_offset 
         y = ((px[0] - (self.width / 2)) * self.cam_calib * dist) \
            + self.cam_y_offset 
-        
+        print "Current dx, dy: ", x, y 
+        print "Target x, y: ", -x+x1, -y+y1
+        #print "Target x, y: ", x+x1, y+y1
         return x, y
     
     def put_to_grid(self, x, y):
@@ -580,7 +588,8 @@ def main():
     cv2.namedWindow('current_image')
     signal.signal(signal.SIGINT, signal_handler)
     #template_img = cv2.imread(sys.argv[1])
-    gd = GridDetector()
+    arm = 'left'
+    gd = GridDetector(arm)
     
     rospy.init_node("phm_find_grid")
     gd.init_msgs()
@@ -610,7 +619,7 @@ def main():
 
             #gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, left)
 
-        gd.track_contour('left', 'x')
+        gd.track_contour(arm, 'grid')
         
         rospy.sleep(0.1)
 

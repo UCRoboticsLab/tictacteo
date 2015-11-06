@@ -110,7 +110,8 @@ class TigTagToe(object):
         rospy.sleep(1)
         self.move_arm('right', self.RightArmInitPose)
         rospy.sleep(1)
-        
+        self.move_arm('left', [0.6, -0.2, 0.1, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(1)
         
         msg_string = 'left:detect:grid'
         self.VisionCmd.publish(msg_string)
