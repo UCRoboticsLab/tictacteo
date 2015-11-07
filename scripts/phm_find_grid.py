@@ -92,6 +92,7 @@ class GridDetector(object):
         
     def vision_cmd_callback(self, msg):
         self.current_vision_cmd = msg.data
+        self.current_task_dropping = True
         
     def add_template_images(self):
         types = self.image_names.keys()
@@ -387,7 +388,11 @@ class GridDetector(object):
         tmpl_bw_img = self.template_imgs[object_type]
         rect = self.contour_match(img, tmpl_bw_img, mask_img, None)
         #print rect
-        while not self.current_task_dropping:
+        counter = 0
+        result_x = 0
+        result_y = 0
+        task_dropping = self.current_task_dropping
+        while not task_dropping and counter <30:
             
             img = self.get_image()
             if img == None:
@@ -410,17 +415,25 @@ class GridDetector(object):
             rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
             rect = rect1
             if rect != None: 
-                dx, dy = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
-                msg_string = side + \
-                              object_type + \
-                              ':' + str(round(dx, 4)) + ',' + str(round(dy, 4)) + \
-                              ',' + str(round(self.get_ir_range(side), 4))
-                self.rb_cmd_pub.publish(msg_string)
+                x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                
+                result_x = result_x + x
+                result_y = result_y + y
+                #self.rb_cmd_pub.publish(msg_string)
             #cv2.imshow('current_image', new_img)
             #cv2.waitKey(10)
             rospy.sleep(0.05)
-            
-            
+            task_dropping = self.current_task_dropping
+        
+        self.current_task_dropping = False
+        result_x = round(result_x/30, 4)
+        result_y = round(result_y/30, 4)
+        msg_string = side + ':' + \
+                     object_type + \
+                     ':' + str(result_x) + ',' + str(result_y) + \
+                     ',' + str(round(self.get_ir_range(side), 4))
+        self.rb_cmd_pub.publish(msg_string)
+        return  result_x/30, result_y/30
 
     def pixel_to_baxter(self, px, dist):
         
@@ -436,7 +449,7 @@ class GridDetector(object):
         print "Current dx, dy: ", x, y 
         print "Target x, y: ", -x+x1, -y+y1
         #print "Target x, y: ", x+x1, y+y1
-        return x, y
+        return -x+x1, -y+y1
     
     def put_to_grid(self, x, y):
         pass
@@ -555,24 +568,25 @@ class GridDetector(object):
 
     def run(self):
         
+        print "Vision Detecting and Tracking Starts"
         while not rospy.is_shutdown():
             
             c_cmd = self.current_vision_cmd
-            if c_cmd != '':
-                self.current_vision_cmd = ''
+            if c_cmd == '':
+                #self.current_vision_cmd = ''
                 rospy.sleep(0.1)
                 continue
-            
+            self.current_vision_cmd = ''
             side, action, target = self.interpret_vision_cmd(c_cmd)
-            
-            if action == 'grid':
+            print "Incoming CMD: ", action
+            if target == 'grid':
                 
-                pass
+                self.track_contour(side, 'grid')
                 
-            elif action == 'x':
+            elif target == 'x':
                 pass
             
-            elif action == 'o':
+            elif target == 'o':
                 pass
             
             
@@ -595,7 +609,7 @@ def main():
     gd.init_msgs()
     
     gd.add_template_images()
-    
+    gd.run()
     #gd.init_arm_angle('left')
     #img = gd.get_image()
     #angle = 0 
@@ -610,6 +624,7 @@ def main():
     #gd.move_to(-round(x, 2), -round(y, 2), 0.0, 0.0, 0.0, 0.0, 0.0, 'left')
     #rospy.sleep(5)
     
+    '''
     while not rospy.is_shutdown() and not flag:
         
         #img = gd.get_image()
@@ -622,6 +637,7 @@ def main():
         gd.track_contour(arm, 'grid')
         
         rospy.sleep(0.1)
+    '''
 
 def signal_handler(signal, frame):
     print 'You pressed Ctrl+C!'

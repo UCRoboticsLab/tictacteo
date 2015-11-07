@@ -62,7 +62,7 @@ class TigTagToe(object):
         
         while cv_reply == '':
             cv_reply = self.VisionReply
-            rospy.sleep(0.02)
+            rospy.sleep(0.1)
             
         self.VisionReply = ''
         return cv_reply
@@ -107,24 +107,24 @@ class TigTagToe(object):
     def init_game(self):
         
         self.move_arm('left', self.LeftArmInitPose)
-        rospy.sleep(1)
+        rospy.sleep(2)
         self.move_arm('right', self.RightArmInitPose)
-        rospy.sleep(1)
+        rospy.sleep(2)
         self.move_arm('left', [0.6, -0.2, 0.1, 0.0, 1.0, 0.0, 0.0])
-        rospy.sleep(1)
+        rospy.sleep(2)
         
         msg_string = 'left:detect:grid'
-        self.VisionCmd.publish(msg_string)
+        self.VisionCmdPub.publish(msg_string)
         
         cv_reply = self.get_vision_reply()
-        
+        print "Grid Tracking result: ", cv_reply
         item_name, item_pose = self.interpret_vision_reply(cv_reply)
         
         if item_name != '':
             self.GridCenter = item_pose
             
         msg_string = 'detect:x'
-        self.VisionCmd.publish(msg_string)
+        self.VisionCmdPub.publish(msg_string)
         
         
         
