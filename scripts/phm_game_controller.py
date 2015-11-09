@@ -24,6 +24,8 @@ import matplotlib.cm as cm
 import math
 
 import baxter_interface
+import baxter_external_devices
+from baxter_interface import CHECK_VERSION
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import Range
 from std_msgs.msg import Header
@@ -53,11 +55,18 @@ class TigTagToe(object):
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         self.GridCenter = []
+        self.TableHeight = 0.0
+        self.GripperLength = 0.125
         self.LeftArmInitPose = [0.5, 0.6, 0.0, 0.0, 1.0, 0.0, 0.0]
         self.RightArmInitPose = [0.5, -0.6, 0.0, 0.0, 1.0, 0.0, 0.0]
         self.current_poses = None
         
-    def get_vision_reply(self):    
+        rs = baxter_interface.RobotEnable(CHECK_VERSION)
+        left = baxter_interface.Gripper('left', CHECK_VERSION)
+        right = baxter_interface.Gripper('right', CHECK_VERSION)
+        self.baxter_grippers = {'left':left, 'right':right}
+        
+    def get_vision_reply(self):
         
         cv_reply = self.VisionReply
         
@@ -70,13 +79,23 @@ class TigTagToe(object):
     
     def interpret_vision_reply(self, msg_string):
         msg_segment = msg_string.split(':')
-        if len(msg_segment)!= 2:
+        if len(msg_segment)!= 3:
             rospy.logerr("Vision Reply Failure: msg segment not right")
             return '', []
         item_name = msg_segment[0]
         item_pose = [float(m) for m in msg_segment[2].split(',')]
         
         return item_name, item_pose
+    
+    def gripper_control(self, side, action):
+        gripper = self.baxter_grippers[side]
+        if action == 'calibrate':
+            gripper.calibrate()
+        elif action == 'open':
+            gripper.open()
+        elif action == 'close':
+            gripper.close()
+        
         
     def move_arm(self, side, target_pose):
         
@@ -103,13 +122,13 @@ class TigTagToe(object):
                       ',' + \
                       str(ow)
         self.ArmCmdPub.publish(msg_string)
-        print self.current_poses
+        #print self.current_poses
         cur_pose = self.current_poses[side]
         dist_x = math.fabs(cur_pose.pose.position.x-x)
         dist_y = math.fabs(cur_pose.pose.position.y-y)
         dist_z = math.fabs(cur_pose.pose.position.z-z)
         
-        while dist_x>0.002 and dist_y>0.02 and dist_z>0.02:
+        while dist_x>0.005 and dist_y>0.005 and dist_z>0.005:
             cur_pose = self.current_poses[side]
             
             dist_x = math.fabs(cur_pose.pose.position.x-x)
@@ -170,11 +189,12 @@ class TigTagToe(object):
         #print self.current_poses
         #print "\nleft: \n", cp1, "\n\nnew left: \n", cp2
             
-        return    
+        return
         
     def init_game(self):
         
-        
+        self.gripper_control('left', 'calibrate')
+        self.gripper_control('left', 'open')
         rospy.sleep(1)
         print "Game Init Starts"
         self.move_arm('left', self.LeftArmInitPose)
@@ -182,7 +202,7 @@ class TigTagToe(object):
         self.move_arm('right', self.RightArmInitPose)
         rospy.sleep(2)
         self.move_arm('left', [0.6, -0.2, 0.1, 0.0, 1.0, 0.0, 0.0])
-        rospy.sleep(2)
+        rospy.sleep(3)
         
         msg_string = 'left:detect:grid'
         self.VisionCmdPub.publish(msg_string)
@@ -193,18 +213,49 @@ class TigTagToe(object):
         
         if item_name != '':
             self.GridCenter = item_pose
-            
-        msg_string = 'detect:x'
+            self.TableHeight = -item_pose[2]
+            print "Grid Center: ", self.GridCenter
+        
+        # Up to here, the center of the Grid Pattern is found.
+          
+    def check_grid(self, side):
+        
+        self.move_arm(side, [0.52, -0.17, 0.0, 0.03, 1.0, 0.0, 0.0])
+        msg_string = side+ ':detect:status'
         self.VisionCmdPub.publish(msg_string)
         
+        cv_reply = self.get_vision_reply()
+        print "Grid Check result: ", cv_reply
+        item_name, item_pose = self.interpret_vision_reply(cv_reply)
         
         
-    
+    def pick_item(self, side, item_name):
+        
+        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.23, 0.0, 0.0, 1.0, 0.0, 0.0])
+        msg_string = 'left:detect:x'
+        self.VisionCmdPub.publish(msg_string)
+        
+        cv_reply = self.get_vision_reply()
+        print "Grid Tracking result: ", cv_reply
+        item_name, item_pose = self.interpret_vision_reply(cv_reply)
+        cur_pose = self.current_poses[side]
+        self.move_arm(side, [item_pose[0], item_pose[1], cur_pose.pose.position.z, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(2)
+        self.gripper_control('left', 'open')
+        self.move_arm(side, [item_pose[0], item_pose[1], self.TableHeight+self.GripperLength+0.05, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(2)
+        self.gripper_control('left', 'close')
+        
     def run(self):
         
         self.init_game()
         print "Game Initilized"
+        
+        #self.pick_item('left', 'x')
+        self.check_grid('left')
         while not rospy.is_shutdown():
+            
+            
             
             rospy.sleep(0.1)
         
@@ -237,7 +288,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print "\nCtrl-C Pressed\n"
         flag = True
-        sys.exit()    
+        sys.exit()
     
     
     

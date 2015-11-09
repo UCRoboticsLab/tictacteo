@@ -45,7 +45,7 @@ class GridDetector(object):
     def __init__(self, arm):
         
         self.arm = arm
-        self.current_task_dropping = False
+        self.current_task_dropping = True
         self.current_poses = None
         self.current_vision_cmd = ''
         self.rb_cmd_pub = rospy.Publisher('vision_reply', String, queue_size=10)
@@ -92,7 +92,7 @@ class GridDetector(object):
         
     def vision_cmd_callback(self, msg):
         self.current_vision_cmd = msg.data
-        self.current_task_dropping = True
+        self.current_task_dropping = False
         
     def add_template_images(self):
         types = self.image_names.keys()
@@ -392,7 +392,8 @@ class GridDetector(object):
         result_x = 0
         result_y = 0
         task_dropping = self.current_task_dropping
-        while not task_dropping and counter <30:
+        print "Task Dropping Status: ", task_dropping
+        while (not task_dropping) and (counter <30):
             
             img = self.get_image()
             if img == None:
@@ -414,18 +415,21 @@ class GridDetector(object):
             
             rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
             rect = rect1
-            if rect != None: 
+            print rect
+            if rect != None:
                 x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
                 
                 result_x = result_x + x
                 result_y = result_y + y
+                counter = counter + 1
+                print x, y
                 #self.rb_cmd_pub.publish(msg_string)
             #cv2.imshow('current_image', new_img)
             #cv2.waitKey(10)
             rospy.sleep(0.05)
-            task_dropping = self.current_task_dropping
+            
         
-        self.current_task_dropping = False
+        self.current_task_dropping = True
         result_x = round(result_x/30, 4)
         result_y = round(result_y/30, 4)
         msg_string = side + ':' + \
@@ -564,7 +568,24 @@ class GridDetector(object):
         key = cv2.waitKey(10)
         while key != key_pressed:
             key = cv2.waitKey(10)
+    
+    
+    def check_grid(self, side):
+        
+        
+        
+        task_dropping = self.current_task_dropping
+        while (not task_dropping):
             
+            task_dropping = self.current_task_dropping
+            img = self.get_image()
+            if img == None:
+                rospy.sleep(0.05)
+                continue
+            
+            cv2.imshow('current_image', img)
+            cv2.waitKey(10)
+            rospy.sleep(0.05)
 
     def run(self):
         
@@ -578,17 +599,20 @@ class GridDetector(object):
                 continue
             self.current_vision_cmd = ''
             side, action, target = self.interpret_vision_cmd(c_cmd)
-            print "Incoming CMD: ", action
+            print "Target : ", target
             if target == 'grid':
                 
                 self.track_contour(side, 'grid')
                 
             elif target == 'x':
-                pass
+                self.track_contour(side, 'x')
             
             elif target == 'o':
                 pass
             
+            elif target == 'status':
+                
+                self.check_grid(side)
             
             
             
