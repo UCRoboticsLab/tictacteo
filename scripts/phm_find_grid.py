@@ -341,7 +341,11 @@ class GridDetector(object):
         return new_rect
         
     #def get_new_rect(self, rect):
-        
+    
+    def fine_ture_position(self):
+        pass
+    
+    def check_grid(self, ):
         
     def integer_box(self, box, width, height):
         
