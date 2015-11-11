@@ -63,6 +63,8 @@ class TigTagToe(object):
         self.GridLocations = []
         self.GridRoiLocations = []
         self.GridRoiPose = []
+        self.TableZ = 100.0
+        self.BlockHeight = 0.03
         
         
         rs = baxter_interface.RobotEnable(CHECK_VERSION)
@@ -91,6 +93,25 @@ class TigTagToe(object):
         
         return item_name, item_pose
     
+    def interpret_grid_checking_reply(self, msg_string):
+        
+        msg_segment = msg_string.split(':')
+        print msg_segment
+        if len(msg_segment)!= 3:
+            rospy.logerr("Vision Reply Failure: msg segment not right")
+            return '', []
+        
+        if msg_segment[1] != 'grid_status':
+            rospy.logerr("Vision Reply Failure: msg type not right")
+            return '', []
+        
+        grid_status = msg_segment[2].split()
+        if len(grid_status) != 9:
+            rospy.logerr("Vision Reply Failure: number of grids not right")
+            return '', []
+        
+        return msg_segment[0], grid_status
+        
     def gripper_control(self, side, action):
         gripper = self.baxter_grippers[side]
         if action == 'calibrate':
@@ -132,7 +153,7 @@ class TigTagToe(object):
         dist_y = math.fabs(cur_pose.pose.position.y-y)
         dist_z = math.fabs(cur_pose.pose.position.z-z)
         
-        while dist_x>0.005 and dist_y>0.005 and dist_z>0.005:
+        while dist_x>0.005 or dist_y>0.005 or dist_z>0.005:
             cur_pose = self.current_poses[side]
             
             dist_x = math.fabs(cur_pose.pose.position.x-x)
@@ -198,7 +219,6 @@ class TigTagToe(object):
         
     def init_game(self):
         
-        
         self.gripper_control('left', 'calibrate')
         self.gripper_control('left', 'open')
         rospy.sleep(1)
@@ -207,62 +227,136 @@ class TigTagToe(object):
         rospy.sleep(2)
         self.move_arm('right', self.RightArmInitPose)
         rospy.sleep(2)
-        self.move_arm('left', [0.6, -0.2, 0.1, 0.0, 1.0, 0.0, 0.0])
-        rospy.sleep(3)
         
-        msg_string = 'left:detect:grid'
-        self.VisionCmdPub.publish(msg_string)
-        
-        cv_reply = self.get_vision_reply()
-        print "Grid Tracking result: ", cv_reply
-        item_name, item_pose = self.interpret_vision_reply(cv_reply)
-        
-        if item_name != '':
-            self.GridCenter = item_pose
-            self.TableHeight = -item_pose[2]
-            print "Grid Center: ", self.GridCenter
+        self.GridCenter = self.GridLocations[4]
         
         # Up to here, the center of the Grid Pattern is found.
           
     def check_grid(self, side):
         
-        self.move_arm(side, [0.52, -0.17, 0.0, 0.03, 1.0, 0.0, 0.0])
+        print "Checking Grid Status..."
+        self.move_arm(side, self.GridRoiPose)
+        rospy.sleep(1)
         msg_string = side+ ':detect:status'
         self.VisionCmdPub.publish(msg_string)
         
         cv_reply = self.get_vision_reply()
-        print "Grid Check result: ", cv_reply
-        item_name, item_pose = self.interpret_vision_reply(cv_reply)
         
+        reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
+        print "Grid Check result: ", grid_status
+        #if reply_cmd == 'grid_status':
+        return grid_status
+        #else:
+        #    return ''
         
-    def pick_item(self, side, item_name):
+    def pick_item(self, side, target_name):
         
-        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.23, 0.0, 0.0, 1.0, 0.0, 0.0])
-        msg_string = 'left:detect:x'
+        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.23, self.TableZ+0.1, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(2)
+        msg_string = side+':detect:'+ target_name
         self.VisionCmdPub.publish(msg_string)
         
         cv_reply = self.get_vision_reply()
         print "Grid Tracking result: ", cv_reply
         item_name, item_pose = self.interpret_vision_reply(cv_reply)
         cur_pose = self.current_poses[side]
-        self.move_arm(side, [item_pose[0], item_pose[1], cur_pose.pose.position.z, 0.0, 1.0, 0.0, 0.0])
-        rospy.sleep(2)
         self.gripper_control('left', 'open')
-        self.move_arm(side, [item_pose[0], item_pose[1], self.TableHeight+self.GripperLength+0.05, 0.0, 1.0, 0.0, 0.0])
+        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.03, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(2)
+        
+        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight-0.02, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
         self.gripper_control('left', 'close')
+        rospy.sleep(1)
+        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.06, 0.0, 1.0, 0.0, 0.0])
+        '''
+        msg_string = side+':fine_tune:'+ target_name
+        print "Fine tune Cmd: ", msg_string
+        self.VisionCmdPub.publish(msg_string)
+        cv_reply = self.get_vision_reply()
+        dx = item_pose[0]
+        dy = item_pose[1]
+        angle = item_pose[2]
+        
+        while (math.fabs(dx)>5 or math.fabs(dy)>5) and not rospy.is_shutdown():
+            
+            cur_pose = self.current_poses[side]
+            x = cur_pose.pose.position.x
+            y = cur_pose.pose.position.y
+            z = cur_pose.pose.position.z
+            ox = cur_pose.pose.orientation.x
+            oy = cur_pose.pose.orientation.y
+            oz = cur_pose.pose.orientation.z
+            ow = cur_pose.pose.orientation.w
+            if dx>0:
+                x1 = x-0.005
+            elif dx<0:
+                x1 = x+0.005
+            if dy>0:
+                y1 = y+0.005
+            elif dy<0:
+                y1 = y-0.005
+            self.move_arm(side, [x1, y1, z, ox, oy, oz, ow])
+            rospy.sleep(0.2)
+            msg_string = side+':fine_tune:'+ target_name
+            self.VisionCmdPub.publish(msg_string)
+            cv_reply = self.get_vision_reply()
+            dx = item_pose[0]
+            dy = item_pose[1]
+            angle = item_pose[2]
+        '''
+        
+        #self.move_arm(side, [item_pose[0], item_pose[1], self.TableHeight+self.GripperLength+0.05, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(2)
+        #self.gripper_control('left', 'close')
     
+    def place_item(self, side, col, row):
+        
+        init_pose = self.current_poses['left']
+        x = init_pose.pose.position.x
+        y = init_pose.pose.position.y
+        z = init_pose.pose.position.z
+        ox = init_pose.pose.orientation.x
+        oy = init_pose.pose.orientation.y
+        oz = init_pose.pose.orientation.z
+        ow = init_pose.pose.orientation.w
+        
+        if col>2 or col<0 or row>2 or row<0:
+            return
+        print "about to place..."
+        
+        self.move_arm(side, [x, y, self.TableZ+self.BlockHeight+0.15, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(1.5)
+        
+        pose_list = self.GridLocations[col + row*3]
+        pose_list1 = list(pose_list)
+        pose_list1[2] = pose_list1[2]+0.15
+        self.move_arm(side, pose_list1)
+        rospy.sleep(1.5)
+        
+        pose_list1 = list(pose_list)
+        pose_list1[2] = pose_list1[2]+0.01
+        self.move_arm(side, pose_list1)
+        rospy.sleep(1.5)
+        self.gripper_control(side, 'open')
+        
+        
     def load_location_data(self):
         self.GridLocations = []
+        self.TableZ = 0.0
         file = open("./src/phm/grids_location.txt", "r")
-        for i in range(0, 10):
+        for i in range(0, 9):
             line = file.readline()
             temp_list = []
             for j in line.split():
                 temp_list.append(float(j))
             self.GridLocations.append(temp_list)
-        file.close()    
+            #print temp_list
+            self.TableZ = self.TableZ + temp_list[2]
+        self.TableZ = self.TableZ / 9
+        file.close()
         print self.GridLocations
+        print "Table Z Value:", self.TableZ
         
         self.GridRoiLocations = []
         self.GridRoiPose = []
@@ -284,6 +378,9 @@ class TigTagToe(object):
         file.close()
         print self.GridRoiLocations
         print self.GridRoiPose
+
+    def start_roi_recording(self):
+        pass
         
     def pick_test(self, col, row):
         
@@ -324,16 +421,54 @@ class TigTagToe(object):
         
         print "Loading Game Data..."
         self.load_location_data()
-        self.pick_test(1,0)
+        #self.pick_test(1,0)
         
-        #self.init_game()
+        self.init_game()
         print "Game Initilized"
         
-        #self.pick_item('left', 'x')
+        ##self.pick_item('left', 'x')
+        ##self.place_item('left', 1, 1)
         #self.check_grid('left')
+        grid_status = self.check_grid('left')
+        print "Grid Status: ", grid_status
+        grid_xy = [[0,0], [1,0], [2,0], [0,1], [1,1], [2,1], [0,2], [1,2], [2,2]]
+        counter = 0
+        for grid in grid_status:
+                
+                if grid == 'b':
+                    print "Pick and place item..."
+                    self.pick_item('left', 'x')
+                    col = grid_xy[counter][0]
+                    row = grid_xy[counter][1]
+                    self.place_item('left', col, row)
+                    
+                    break
+                
+                counter = counter + 1
         while not rospy.is_shutdown():
             
+            grid_status1 = self.check_grid('left')
+            print "previous grid status: ", grid_status
+            print "Current grid status: ", grid_status1
+            if grid_status1 == grid_status:
+                print "Grid Status not Changed..."
+                rospy.sleep(0.1)
+                continue
             
+            counter = 0
+            for grid in grid_status1:
+                
+                if grid == 'b':
+                    self.pick_item('left', 'x')
+                    col = grid_xy[counter][0]
+                    row = grid_xy[counter][1]
+                    self.place_item('left', col, row)
+                    
+                    break
+                
+                counter = counter + 1
+            
+            grid_status = list(grid_status1)
             
             rospy.sleep(0.1)
         

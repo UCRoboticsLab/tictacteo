@@ -58,6 +58,13 @@ class GridDetector(object):
         #    self.tmpl_bw_img = deepcopy(tmpl_bw_img)
         #else:
         #    self.tmpl_bw_img = None
+        self.GridRois = []
+        self.GridRoiLocations = []
+        self.GripperRect_x = [394, 666, 667, 393]
+        self.GripperRect_y = [59, 70, 226, 217]
+        self.Gripper_x = int(max(self.GripperRect_x)/2 + min(self.GripperRect_x)/2)
+        self.Gripper_y = int(max(self.GripperRect_y)/2 + min(self.GripperRect_y)/2)
+        self.RoiMaskImages = []
         
         rospy.Subscriber('robot_vision_cmd', String, self.vision_cmd_callback)
         
@@ -75,7 +82,7 @@ class GridDetector(object):
         
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 10
+        self._camera.gain = 20
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.045                      # camera gripper offset
         self.cam_y_offset = -0.01
@@ -86,9 +93,48 @@ class GridDetector(object):
         
         self.image_names = {'grid':'template_grid_white_center.png', \
                             'o':'template_grid_white_center.png', \
-                            'x':'template_x01.png'}
+                            'x':'template_x02.png'}
                             
         self.image_folder = './src/phm/images/'
+    
+    def load_roi_location(self):
+        
+        self.GridRoiLocations = []
+        
+        file = open("./src/phm/grids_roi_location.txt", "r")
+        for i in range(0, 9):
+            line = file.readline()
+            temp_list = []
+            for j in line.split():
+                
+                temp_list.append(int(j))
+                        
+            p1 = [temp_list[0], temp_list[1]]
+            p2 = [temp_list[2], temp_list[3]]
+            p3 = [temp_list[4], temp_list[5]]
+            p4 = [temp_list[6], temp_list[7]]
+            self.GridRoiLocations.append([p1, p2, p3, p4])    
+        print "Rois: ", self.GridRoiLocations
+        file.close()
+    
+    def create_roi_masks(self):
+        
+        self.RoiMaskImages = []
+        
+        for item_line in self.GridRoiLocations:
+            temp_list = []
+            for item in item_line:
+                new_item = [item]
+                temp_list.append(new_item)
+            shape = np.array(item_line, np.int32)
+            temp_img = np.zeros((self.height, self.width, 3), np.uint8) 
+            #print shape
+            cv2.fillPoly(temp_img, [shape], (255, 255, 255))
+            mask_img, c2, c3 = cv2.split(temp_img)
+            self.RoiMaskImages.append(mask_img)
+            #cv2.imshow('current_image', temp_img)
+            #cv2.waitKey(0)
+        
         
     def vision_cmd_callback(self, msg):
         self.current_vision_cmd = msg.data
@@ -117,7 +163,7 @@ class GridDetector(object):
         
     def interpret_vision_cmd(self, msg_string):
         
-        msg_segments = msg_string.split(':')        
+        msg_segments = msg_string.split(':')
         if len(msg_segments) != 3:
             return '', '', ''
         
@@ -199,8 +245,8 @@ class GridDetector(object):
         
         return c_img
         
-    '''    
-    def contour_matching(self, img):
+       
+    def contour_matching1(self, img, tmpl_bw_img, mask_img):
     
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         kernel_smooth = np.ones((5,5),np.float32)/25
@@ -213,12 +259,17 @@ class GridDetector(object):
                                        
         bw_img1 = cv2.bitwise_not(bw_img)
         
-        bw_img2 = deepcopy(bw_img1)
+        bw_img2 = cv2.bitwise_and(bw_img1,bw_img1,mask = mask_img)#deepcopy(bw_img1)
+        
         contours, hierarchy = cv2.findContours(bw_img2, cv2.RETR_TREE, \
                                                cv2.CHAIN_APPROX_SIMPLE)
         counter = 0
         
-        print "\n...Start with a new image...\n"
+        tmpl_contours, tmpl_hierarchy = cv2.findContours \
+                                                (tmpl_bw_img, \
+                                                 cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) 
+        
+        #print "\n...Start with a new image...\n"
         matching_result = []
         for cnt in contours:
 
@@ -232,7 +283,7 @@ class GridDetector(object):
             empty_img = np.zeros((self.height,self.width,1), np.uint8)
             contour_img = cv2.merge((bw_img1, empty_img, empty_img)) #np.zeros((self.height,self.width,3), np.uint8)
             cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
-            ret = cv2.matchShapes(cnt,self.tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
+            ret = cv2.matchShapes(cnt,tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
             #print ret, "\nContour Area: \n", contour_area
             if ret == 0.0 or contour_area<300:
                 ret = 10.0
@@ -252,12 +303,12 @@ class GridDetector(object):
         print "\nMatching Result: (", matching_result[min_index], ")\nangle: ", angle
         empty_img = np.zeros((self.height,self.width,1), np.uint8)
         contour_img = cv2.merge((bw_img1, empty_img, empty_img))
-        plot_img = deepcopy(img)
+        plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
         cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
         cv2.imshow('current_image', plot_img)
-        cv2.waitKey(20)
-        return cx, cy, angle
-    '''
+        cv2.waitKey(0)
+        return matching_result[min_index]
+    
     
     def contour_match(self, img, tmpl_bw_img, mask_img, rect):
         
@@ -282,6 +333,7 @@ class GridDetector(object):
                                             
         counter = 0
         matching_result = []
+        plot_img = cv2.merge((bw_img1, bw_img1, bw_img1))
         for cnt in contours:
             
             mom = cv2.moments(cnt)
@@ -294,16 +346,17 @@ class GridDetector(object):
             matching_result.append([ret,cnt])
             
             counter = counter + 1
-        sorted_list = sorted(matching_result,key=lambda x: x[0])        
+        sorted_list = sorted(matching_result,key=lambda x: x[0])
         new_list = sorted_list[0:5]
         if new_list[0][0]>0.1:
-            print "Can't find item"
-            cv2.imshow('current_image', img)
+            print "Can't find item", new_list[0][0]
+            cv2.imshow('current_image', plot_img)
             cv2.waitKey(10)
             return None
         dist_list = []
         new_rect = None
-        plot_img = deepcopy(img)
+        #plot_img = deepcopy(img)
+        
         if rect == None:
             print "None Image"
             new_rect = cv2.minAreaRect(new_list[0][1])
@@ -342,10 +395,8 @@ class GridDetector(object):
         
     #def get_new_rect(self, rect):
     
-    def fine_ture_position(self):
-        pass
     
-    def check_grid(self, ):
+    
         
     def integer_box(self, box, width, height):
         
@@ -573,12 +624,20 @@ class GridDetector(object):
         while key != key_pressed:
             key = cv2.waitKey(10)
     
-    
+    def record_grid_rois(self):
+        if self.GridRoiLocations == []:
+            print "Grid Roi Location not Loaded..."
+            return
+        
+        for i in range(0,9):
+            pass
+        
     def check_grid(self, side):
         
         
         
-        task_dropping = self.current_task_dropping
+        grid_status = []
+        task_dropping = False
         while (not task_dropping):
             
             task_dropping = self.current_task_dropping
@@ -586,13 +645,103 @@ class GridDetector(object):
             if img == None:
                 rospy.sleep(0.05)
                 continue
+            for mask_img in self.RoiMaskImages:
+                
+                roi_img = cv2.bitwise_and(img,img,mask = mask_img)
+                result_list = []
+                object_names = self.template_imgs.keys()
+                for object_name in object_names:
+                    if object_name != 'grid':
+                        tmpl_img = self.template_imgs[object_name]
+                        result = self.contour_matching1(img, tmpl_img, mask_img)
+                        result_list.append(result)
+                
+                min_index = result_list.index(min(result_list))
+                if result_list[min_index]<0.1:
+                    grid_status.append(object_names[min_index])
+                else:
+                    grid_status.append("blank")
             
-            cv2.imshow('current_image', img)
-            cv2.waitKey(10)
+            task_dropping = True
+            print "Grid Status", grid_status
+            msg_string = side + ':grid_status:'
+            for status in grid_status:
+                msg_string = msg_string + status + ' '
+            
+            print "grid checking reply: ", msg_string
+            self.rb_cmd_pub.publish(msg_string)
+            #cv2.imshow('current_image', img)
+            #cv2.waitKey(10)
+            #rospy.sleep(0.05)
+            
+    def fine_tune_location(self, side, object_type):
+        
+        img = self.get_image()
+        
+        if img == None:
             rospy.sleep(0.05)
+            return
+        
+        height, width, channel = img.shape
+        min_x = min(self.GripperRect_x)-10
+        max_x = max(self.GripperRect_x)+10
+        min_y = min(self.GripperRect_y)-10
+        max_y = max(self.GripperRect_y)+10
+        
+        mask_img = np.ones((height,width,1), np.uint8)
+        
+        tmpl_bw_img = self.template_imgs[object_type]
+        rect = self.contour_match(img, tmpl_bw_img, mask_img, None)
+        #print rect
+        counter = 0
+        result_x = 0
+        result_y = 0
+        angle = 0.0
+        task_dropping = self.current_task_dropping
+        number_of_pick = 15
+        print "Task Dropping Status: ", task_dropping
+        while (not task_dropping) and (counter <number_of_pick):
+            
+            img = self.get_image()
+            if img == None:
+                rospy.sleep(0.05)
+                continue
+            
+            rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
+            rect = rect1
+            print rect
+            if rect != None:
+                #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                
+                result_x = result_x + rect[0][0]
+                result_y = result_y + rect[0][1]
+                angle = angle + rect[2]
+                counter = counter + 1
+                
+                #self.rb_cmd_pub.publish(msg_string)
+            #cv2.imshow('current_image', new_img)
+            #cv2.waitKey(10)
+            rospy.sleep(0.05)
+            
+        
+        self.current_task_dropping = True
+        dx = int(float(result_x)/number_of_pick)-self.Gripper_x
+        dy = int(float(result_y)/number_of_pick)-self.Gripper_y
+        angle = int(float(angle)/number_of_pick)
+        msg_string = side + ':' + \
+                     object_type + \
+                     ':' + str(dx) + ',' + str(dy) + \
+                     ',' + str(round(angle, 4))
+        self.rb_cmd_pub.publish(msg_string)
+        return  dx,  dy, angle
+        
 
     def run(self):
         
+        print "Loading Roi Locations..."
+        self.load_roi_location()
+        print "Create Roi Mask Images..."
+        self.create_roi_masks()
         print "Vision Detecting and Tracking Starts"
         while not rospy.is_shutdown():
             
@@ -603,23 +752,31 @@ class GridDetector(object):
                 continue
             self.current_vision_cmd = ''
             side, action, target = self.interpret_vision_cmd(c_cmd)
-            print "Target : ", target
+            print "Cmd : ", c_cmd
             if target == 'grid':
                 
                 self.track_contour(side, 'grid')
                 
-            elif target == 'x':
+            elif action == 'detect' and target == 'x':
                 self.track_contour(side, 'x')
             
-            elif target == 'o':
+            elif action == 'detect' and target == 'o':
                 pass
             
-            elif target == 'status':
+            elif action == 'detect' and target == 'status':
                 
-                self.check_grid(side)
+                #self.check_grid(side)
+                pass
             
-            
-            
+            elif target == 'record':
+                
+                self.record_grid_rois()
+            elif action=='fine_tune' and target == 'x':
+                print "Fine tune position"
+                self.fine_tune_location(side, 'x')
+            elif action=='fine_tune' and target == 'o':
+                print "Fine tune position"
+                self.fine_tune_location(side, 'o')
             rospy.sleep(0.1)
             
     
