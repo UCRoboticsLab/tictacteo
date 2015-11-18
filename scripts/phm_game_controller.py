@@ -251,7 +251,7 @@ class TigTagToe(object):
         
     def pick_item(self, side, target_name):
         
-        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.23, self.TableZ+0.1, 0.0, 1.0, 0.0, 0.0])
+        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.23, self.TableZ+0.10, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
         msg_string = side+':detect:'+ target_name
         self.VisionCmdPub.publish(msg_string)
@@ -264,11 +264,12 @@ class TigTagToe(object):
         self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.03, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
         
-        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight-0.02, 0.0, 1.0, 0.0, 0.0])
+        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight-0.01, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
         self.gripper_control('left', 'close')
         rospy.sleep(1)
         self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.06, 0.0, 1.0, 0.0, 0.0])
+        
         '''
         msg_string = side+':fine_tune:'+ target_name
         print "Fine tune Cmd: ", msg_string
@@ -325,7 +326,7 @@ class TigTagToe(object):
             return
         print "about to place..."
         
-        self.move_arm(side, [x, y, self.TableZ+self.BlockHeight+0.15, 0.0, 1.0, 0.0, 0.0])
+        self.move_arm(side, [x, y, self.TableZ+self.BlockHeight+0.2, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(1.5)
         
         pose_list = self.GridLocations[col + row*3]
@@ -335,10 +336,13 @@ class TigTagToe(object):
         rospy.sleep(1.5)
         
         pose_list1 = list(pose_list)
-        pose_list1[2] = pose_list1[2]+0.01
+        pose_list1[2] = pose_list1[2]+0.03
         self.move_arm(side, pose_list1)
         rospy.sleep(1.5)
         self.gripper_control(side, 'open')
+        pose_list1 = list(pose_list)
+        pose_list1[2] = pose_list1[2]+0.15
+        self.move_arm(side, pose_list1)
         
         
     def load_location_data(self):
@@ -437,7 +441,7 @@ class TigTagToe(object):
                 
                 if grid == 'b':
                     print "Pick and place item..."
-                    self.pick_item('left', 'x')
+                    self.pick_item('left', 'o')
                     col = grid_xy[counter][0]
                     row = grid_xy[counter][1]
                     self.place_item('left', col, row)

@@ -82,7 +82,7 @@ class GridDetector(object):
         
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 20
+        self._camera.gain = 5
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.045                      # camera gripper offset
         self.cam_y_offset = -0.01
@@ -92,8 +92,8 @@ class GridDetector(object):
         self.ImageThreadLock = threading.Lock()
         
         self.image_names = {'grid':'template_grid_white_center.png', \
-                            'o':'template_grid_white_center.png', \
-                            'x':'template_x02.png'}
+                            'o':'template_o_outside_contour3.png', \
+                            'x':'template_x03.png'}
                             
         self.image_folder = './src/phm/images/'
     
@@ -496,7 +496,7 @@ class GridDetector(object):
 
     def pixel_to_baxter(self, px, dist):
         
-        x1 = self.current_poses[self.arm].pose.position.x 
+        x1 = self.current_poses[self.arm].pose.position.x
         y1 = self.current_poses[self.arm].pose.position.y
         print "\nCurrent Pose x, y:", x1, y1, "\n"
         print "Current Cx, Cy: ", px[0], px[1], "\n"
@@ -761,7 +761,7 @@ class GridDetector(object):
                 self.track_contour(side, 'x')
             
             elif action == 'detect' and target == 'o':
-                pass
+                self.track_contour(side, 'o')
             
             elif action == 'detect' and target == 'status':
                 

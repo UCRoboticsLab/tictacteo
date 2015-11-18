@@ -199,7 +199,7 @@ class GameCalibrator(object):
                 self.TempGridList.append([x,y])
                 self.GridRoiCounter = self.GridRoiCounter + 1
             if self.GridRoiCounter == 4:
-                self.TempGridList.append([x,y])
+                #self.TempGridList.append([x,y])
                 if len(self.GridRois)<9:
                     self.GridRois.append(self.TempGridList)
                 else:
@@ -227,7 +227,7 @@ class GameCalibrator(object):
             for item in r:
                 x = item[0]
                 y = item[1]
-                file.write("%d %d" % (x,y))
+                file.write("%d %d " % (x,y))
             file.write('\n')
         pose = self.GridRoiPose
         x = pose.pose.position.x
@@ -238,7 +238,7 @@ class GameCalibrator(object):
         oz = pose.pose.orientation.z
         ow = pose.pose.orientation.w
         
-        file.write("%.4f,%.4f,%.4f,%.4f,%4f,%.4f,%.4f" % (x, y, z, ox, oy, oz, ow))
+        file.write("%.4f %.4f %.4f %.4f %4f %.4f %.4f" % (x, y, z, ox, oy, oz, ow))
         file.close()
     
     def grids_roi_recorder(self):
@@ -260,6 +260,8 @@ class GameCalibrator(object):
             key = cv2.waitKey(10)
             if key == 27:
                 print "Quiting Roi Recording..."
+                self.GridRoiPose = self.current_poses[self.arm]
+                print "Pose to Capture Roi: ", self.GridRoiPose
                 done_flag = True
                 
             elif key == 13:
