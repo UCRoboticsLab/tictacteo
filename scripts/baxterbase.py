@@ -49,9 +49,10 @@ class BaxterBase:
         
         
         
-        rospy.init_node("baxter_test")
+        
         self.OcvBridge = CvBridge()
         self.init_camera()
+        self.init_endpoints()
                 
 
     
@@ -118,13 +119,14 @@ class BaxterBase:
     
     def init_endpoints(self):
         
+        self.current_poses = None
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
         ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
         ts.registerCallback(self._pose_callback)
 
 
-    def pose_callback(self, left_msg, right_msg):
+    def _pose_callback(self, left_msg, right_msg):
     
         pose1 = left_msg.pose
         pose2 = right_msg.pose
@@ -183,6 +185,9 @@ class BaxterBase:
                 c_img = deepcopy(self.right_cur_img)
         
         return c_img
+    
+    def get_pose(self, side):
+        cur_pose = self.current_poses[side]
 
 def signal_handler(signal, frame):
     print 'You pressed Ctrl+C!'
@@ -191,7 +196,7 @@ def signal_handler(signal, frame):
 def main():
     
     signal.signal(signal.SIGINT, signal_handler)
-    #rospy.init_node("baxter_test")
+    rospy.init_node("baxter_test")
     
     t1 = BaxterBase()
     #t1.init_camera()

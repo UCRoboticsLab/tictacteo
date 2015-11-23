@@ -82,7 +82,7 @@ class GridDetector(object):
         
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 5
+        self._camera.gain = 8
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.045                      # camera gripper offset
         self.cam_y_offset = -0.01
@@ -471,9 +471,21 @@ class GridDetector(object):
             rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
             rect = rect1
             print rect
+            cur_pose = self.current_poses[side]
+            x = cur_pose.pose.position.x
+            y = cur_pose.pose.position.y
+            z = cur_pose.pose.position.z
+            ox = cur_pose.pose.orientation.x
+            oy = cur_pose.pose.orientation.y
+            oz = cur_pose.pose.orientation.z
+            ow = cur_pose.pose.orientation.w
+            table_z = -0.1203-0.096 ## Hard coded 
+            block_height = 0.03
             if rect != None:
-                x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
-                
+                #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], math.fabs(z-table_z)-block_height)
+                print "Current Z: ", z
+                print "Distance IR: ", self.get_ir_range(side), " Distance Z: ", math.fabs(z-table_z)-block_height
                 result_x = result_x + x
                 result_y = result_y + y
                 counter = counter + 1
@@ -632,10 +644,9 @@ class GridDetector(object):
         for i in range(0,9):
             pass
         
+    
     def check_grid(self, side):
-        
-        
-        
+
         grid_status = []
         task_dropping = False
         while (not task_dropping):
@@ -765,7 +776,7 @@ class GridDetector(object):
             
             elif action == 'detect' and target == 'status':
                 
-                #self.check_grid(side)
+                self.check_grid(side)
                 pass
             
             elif target == 'record':
