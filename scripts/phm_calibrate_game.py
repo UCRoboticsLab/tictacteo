@@ -274,8 +274,8 @@ class GameCalibrator(object):
 
     def run(self):
         
-        #print "Recording Grids Location..."
-        #self.grids_location_recorder()
+        print "Recording Grids Location..."
+        self.grids_location_recorder()
         print "Recording Grid Roi..."
         self.grids_roi_recorder()
         

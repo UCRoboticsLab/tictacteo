@@ -60,8 +60,8 @@ class GridDetector(object):
         #    self.tmpl_bw_img = None
         self.GridRois = []
         self.GridRoiLocations = []
-        self.GripperRect_x = [394, 666, 667, 393]
-        self.GripperRect_y = [59, 70, 226, 217]
+        self.GripperRect_x = [398, 662, 664, 398]
+        self.GripperRect_y = [58, 72, 229, 219]
         self.Gripper_x = int(max(self.GripperRect_x)/2 + min(self.GripperRect_x)/2)
         self.Gripper_y = int(max(self.GripperRect_y)/2 + min(self.GripperRect_y)/2)
         self.RoiMaskImages = []
