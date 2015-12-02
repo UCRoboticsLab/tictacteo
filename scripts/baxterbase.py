@@ -118,8 +118,8 @@ class BaxterBase:
 
     
     def init_endpoints(self):
-        
-        self.current_poses = None
+        self.PoseThreadLock = threading.Lock()
+        self.current_poses = {'left':'', 'right':''}
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
         ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
@@ -150,7 +150,8 @@ class BaxterBase:
                                      pose2.orientation.w], \
                                      header)
         
-        self.current_poses = {'left':cp1, 'right':cp2}
+        with self.PoseThreadLock:
+            self.current_poses = {'left':cp1, 'right':cp2}
         
         
         #print self.current_poses
@@ -171,7 +172,7 @@ class BaxterBase:
                                          z = pose_list[5], \
                                          w = pose_list[6], )
         
-        return ps 
+        return ps
     
     def get_img(self, side):
         
@@ -187,7 +188,13 @@ class BaxterBase:
         return c_img
     
     def get_pose(self, side):
-        cur_pose = self.current_poses[side]
+        
+        cur_pose = None
+        with self.PoseThreadLock:
+            cur_pose = self.current_poses[side]
+        
+        return cur_pose    
+    
 
 def signal_handler(signal, frame):
     print 'You pressed Ctrl+C!'
@@ -197,7 +204,7 @@ def main():
     
     signal.signal(signal.SIGINT, signal_handler)
     rospy.init_node("baxter_test")
-    
+    side = sys.argv[1]
     t1 = BaxterBase()
     #t1.init_camera()
     
@@ -205,10 +212,12 @@ def main():
     
     while not rospy.is_shutdown():
             
-        img = t1.get_img('right')
+        img = t1.get_img(side)
         if img != None:
             cv2.imshow('current_image', img)
             cv2.waitKey(5)
+        print "Left Pose: \n", t1.get_pose('left')
+        print "Right Pose: \n", t1.get_pose('right')
         rospy.sleep(0.1)
 
 

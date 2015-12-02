@@ -305,7 +305,7 @@ class GridDetector(object):
         contour_img = cv2.merge((bw_img1, empty_img, empty_img))
         plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
         cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-        cv2.imshow('current_image', plot_img)
+        cv2.imshow('current_image', plot_img) #plot_img)
         cv2.waitKey(0)
         return matching_result[min_index]
     
@@ -645,10 +645,19 @@ class GridDetector(object):
             pass
         
     
-    def check_grid(self, side):
+    def check_grid(self, side, ids):
 
+        if ids == []:
+            print "Error in check_grid: ids is empty"
+            return
         grid_status = []
         task_dropping = False
+        
+        roi_mask_images = []
+        for id in ids:
+            mask_img = self.RoiMaskImages[id]
+            roi_mask_images.append(mask_img)
+        
         while (not task_dropping):
             
             task_dropping = self.current_task_dropping
@@ -656,11 +665,11 @@ class GridDetector(object):
             if img == None:
                 rospy.sleep(0.05)
                 continue
-            for mask_img in self.RoiMaskImages:
+            for mask_img in roi_mask_images:
                 
                 roi_img = cv2.bitwise_and(img,img,mask = mask_img)
                 result_list = []
-                object_names = self.template_imgs.keys()
+                object_names = ['x', 'o'] #self.template_imgs.keys()
                 for object_name in object_names:
                     if object_name != 'grid':
                         tmpl_img = self.template_imgs[object_name]
@@ -670,6 +679,11 @@ class GridDetector(object):
                 min_index = result_list.index(min(result_list))
                 if result_list[min_index]<0.1:
                     grid_status.append(object_names[min_index])
+                    print "Find object: ", object_names[min_index]
+##                    #empty_img = np.zeros((self.height,self.width,1), np.uint8)
+##                    contour_img = cv2.merge((bw_img1, empty_img, empty_img))
+##                    plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
+##                    cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
                 else:
                     grid_status.append("blank")
             
@@ -774,9 +788,12 @@ class GridDetector(object):
             elif action == 'detect' and target == 'o':
                 self.track_contour(side, 'o')
             
-            elif action == 'detect' and target == 'status':
+            elif action == 'check':
                 
-                self.check_grid(side)
+                ids_string = target.split(',')
+                ids = [int(i) for i in ids_string]
+                print "Check Grid Ids: ", ids
+                self.check_grid(side, ids)
                 pass
             
             elif target == 'record':

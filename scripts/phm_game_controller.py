@@ -235,19 +235,39 @@ class TigTagToe(object):
     def check_grid(self, side):
         
         print "Checking Grid Status..."
-        self.move_arm(side, self.GridRoiPose)
-        rospy.sleep(1)
-        msg_string = side+ ':detect:status'
-        self.VisionCmdPub.publish(msg_string)
+        center_pose = self.GridLocations[4]
+        x = center_pose[0]
+        y = center_pose[1]
+        z = center_pose[2]
+        ox = center_pose[3]
+        oy = center_pose[4]
+        oz = center_pose[5]
+        ow = center_pose[6]
         
-        cv_reply = self.get_vision_reply()
+        pose_list1 = [x-0.02, y, z+0.1, ox, oy, oz, ow]
+        pose_list2 = [x+0.1, y, z+0.1, ox, oy, oz, ow]
+        pose_list3 = [x+0.22, y, z+0.1, ox, oy, oz, ow]
+        poses = []
+        poses.append(pose_list1)
+        poses.append(pose_list2)
+        poses.append(pose_list3)
         
-        reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
-        print "Grid Check result: ", grid_status
-        #if reply_cmd == 'grid_status':
-        return grid_status
-        #else:
-        #    return ''
+        roi_order_list = [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
+        
+        for pose in poses:
+            self.move_arm(side, pose)
+            rospy.sleep(1)
+            grid_ids = roi_order_list[poses.index(pose)]
+            msg_string = side+':check:'+str(grid_ids[0])+','+str(grid_ids[1])+','+str(grid_ids[2])
+            print "Check Grid Cmd: ", msg_string
+            self.VisionCmdPub.publish(msg_string)
+            
+            cv_reply = self.get_vision_reply()
+        
+            reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
+            print "Grid Status: ", grid_status
+        
+
         
     def pick_item(self, side, target_name):
         
