@@ -84,8 +84,8 @@ class GridDetector(object):
         self._camera.resolution = [self.width, self.height]
         self._camera.gain = 8
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
-        self.cam_x_offset = 0.045                      # camera gripper offset
-        self.cam_y_offset = -0.01
+        self.cam_x_offset = 0.025 #Phm baxter left arm value                  # camera gripper offset
+        self.cam_y_offset = -0.02 #Phm baxter left arm value
         
         
         self.cur_img = None                             
@@ -304,9 +304,9 @@ class GridDetector(object):
         empty_img = np.zeros((self.height,self.width,1), np.uint8)
         contour_img = cv2.merge((bw_img1, empty_img, empty_img))
         plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
-        cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-        cv2.imshow('current_image', plot_img) #plot_img)
-        cv2.waitKey(0)
+        #cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
+        #cv2.imshow('current_image', plot_img) #plot_img)
+        #cv2.waitKey(0)
         return matching_result[min_index]
     
     
@@ -479,7 +479,7 @@ class GridDetector(object):
             oy = cur_pose.pose.orientation.y
             oz = cur_pose.pose.orientation.z
             ow = cur_pose.pose.orientation.w
-            table_z = -0.1203-0.096 ## Hard coded 
+            table_z = -0.20-0.096 ## Hard coded 
             block_height = 0.03
             if rect != None:
                 #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
@@ -505,6 +505,82 @@ class GridDetector(object):
                      ',' + str(round(self.get_ir_range(side), 4))
         self.rb_cmd_pub.publish(msg_string)
         return  result_x/30, result_y/30
+    
+    def track_contour1(self, side, object_type):
+        img = self.get_image()
+        if img == None:
+            rospy.sleep(0.05)
+            return
+        
+        height, width, channel = img.shape
+        mask_img = np.ones((height,width,1), np.uint8)
+        
+        tmpl_bw_img = self.template_imgs[object_type]
+        rect = self.contour_match(img, tmpl_bw_img, mask_img, None)
+        #print rect
+        counter = 0
+        result_x = 0
+        result_y = 0
+        task_dropping = self.current_task_dropping
+        counter = 0
+        print "Task Dropping Status: ", task_dropping
+        while (not task_dropping) and (not task_dropping):
+            
+            img = self.get_image()
+            if img == None:
+                rospy.sleep(0.05)
+                continue
+            
+            #new_h = rect[1][0]+rect[1][0]/2.0
+            #new_w = rect[1][1]+rect[1][1]/2.0
+            #center = (rect[0][0], rect[0][1])
+            #size = (new_h, new_w)
+            #new_rect = (center, size, rect[2])
+            #box = cv2.cv.BoxPoints(new_rect)
+            #int_box = self.integer_box(box, width, height)
+            #print type(box), box
+            #temp_img = np.zeros((height,width,3), np.uint8)
+            #cv2.rectangle(temp_img, tuple(int_box[0]), tuple(int_box[2]), (255, 255, 255), -1, 8, 0)
+            #mask_img, g, r = cv2.split(temp_img)
+            #new_img = cv2.bitwise_and(img,img,mask = mask_img)
+            
+            rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
+            rect = rect1
+            print rect
+            cur_pose = self.current_poses[side]
+            x = cur_pose.pose.position.x
+            y = cur_pose.pose.position.y
+            z = cur_pose.pose.position.z
+            ox = cur_pose.pose.orientation.x
+            oy = cur_pose.pose.orientation.y
+            oz = cur_pose.pose.orientation.z
+            ow = cur_pose.pose.orientation.w
+            
+            block_height = 0.03
+            dx = 0
+            dy = 0
+            angle = 0.0
+            if rect != None:
+                #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], math.fabs(z-table_z)-block_height)
+                dx = rect[0][0]-self.Gripper_x
+                dy = rect[0][1]-self.Gripper_y
+                angle = rect[2]
+                counter = counter + 1
+                print x, y, angle
+                
+            if counter>10:
+                task_dropping = True
+                #self.rb_cmd_pub.publish(msg_string)
+            #cv2.imshow('current_image', new_img)
+            #cv2.waitKey(10)
+            rospy.sleep(0.05)
+            
+        
+        self.current_task_dropping = True
+        
+        
+        return  dx, dy, angle
 
     def pixel_to_baxter(self, px, dist):
         
@@ -685,7 +761,7 @@ class GridDetector(object):
 ##                    plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
 ##                    cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
                 else:
-                    grid_status.append("blank")
+                    grid_status.append("b")
             
             task_dropping = True
             print "Grid Status", grid_status
@@ -707,56 +783,16 @@ class GridDetector(object):
             rospy.sleep(0.05)
             return
         
-        height, width, channel = img.shape
-        min_x = min(self.GripperRect_x)-10
-        max_x = max(self.GripperRect_x)+10
-        min_y = min(self.GripperRect_y)-10
-        max_y = max(self.GripperRect_y)+10
+        dx, dy, angle = self.track_contour1(side, object_type)
+        print "Fine Tune Ongoing: ", dx, dy, angle
+        dx_string = str(dx)
+        dy_string = str(dy)
+        angle_string = str(round(angle, 4))
         
-        mask_img = np.ones((height,width,1), np.uint8)
-        
-        tmpl_bw_img = self.template_imgs[object_type]
-        rect = self.contour_match(img, tmpl_bw_img, mask_img, None)
-        #print rect
-        counter = 0
-        result_x = 0
-        result_y = 0
-        angle = 0.0
-        task_dropping = self.current_task_dropping
-        number_of_pick = 15
-        print "Task Dropping Status: ", task_dropping
-        while (not task_dropping) and (counter <number_of_pick):
-            
-            img = self.get_image()
-            if img == None:
-                rospy.sleep(0.05)
-                continue
-            
-            rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
-            rect = rect1
-            print rect
-            if rect != None:
-                #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
-                
-                result_x = result_x + rect[0][0]
-                result_y = result_y + rect[0][1]
-                angle = angle + rect[2]
-                counter = counter + 1
-                
-                #self.rb_cmd_pub.publish(msg_string)
-            #cv2.imshow('current_image', new_img)
-            #cv2.waitKey(10)
-            rospy.sleep(0.05)
-            
-        
-        self.current_task_dropping = True
-        dx = int(float(result_x)/number_of_pick)-self.Gripper_x
-        dy = int(float(result_y)/number_of_pick)-self.Gripper_y
-        angle = int(float(angle)/number_of_pick)
         msg_string = side + ':' + \
                      object_type + \
-                     ':' + str(dx) + ',' + str(dy) + \
-                     ',' + str(round(angle, 4))
+                     ':' + dx_string + ',' + dy_string + \
+                     ',' + angle_string
         self.rb_cmd_pub.publish(msg_string)
         return  dx,  dy, angle
         

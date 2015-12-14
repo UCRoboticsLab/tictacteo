@@ -276,8 +276,8 @@ class GameCalibrator(object):
         
         print "Recording Grids Location..."
         self.grids_location_recorder()
-        print "Recording Grid Roi..."
-        self.grids_roi_recorder()
+        #print "Recording Grid Roi..."
+        #self.grids_roi_recorder()
         
         
         while not rospy.is_shutdown():

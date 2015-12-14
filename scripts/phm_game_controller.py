@@ -49,11 +49,14 @@ class TigTagToe(object):
         self.GameArray = np.zeros((3,3,1), np.uint8)
         self.ArmCmdPub = rospy.Publisher('robot_arms_cmd', String, queue_size=10)
         self.VisionCmdPub = rospy.Publisher('robot_vision_cmd', String, queue_size=10)
+        self.GridStatusPub = rospy.Publisher('game_engine_cmd', String, queue_size=10)
         self.VisionReply = ''
         self.ArmReply = ''
+        self.NextMoveReply = ''
         rospy.init_node("game_controller")
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
+        rospy.Subscriber('next_move', String, self.next_move_callback)
         self.GridCenter = []
         self.TableHeight = 0.0
         self.GripperLength = 0.125
@@ -106,7 +109,7 @@ class TigTagToe(object):
             return '', []
         
         grid_status = msg_segment[2].split()
-        if len(grid_status) != 9:
+        if len(grid_status) != 3:
             rospy.logerr("Vision Reply Failure: number of grids not right")
             return '', []
         
@@ -254,6 +257,7 @@ class TigTagToe(object):
         
         roi_order_list = [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
         
+        grid_final_status = []
         for pose in poses:
             self.move_arm(side, pose)
             rospy.sleep(1)
@@ -265,13 +269,19 @@ class TigTagToe(object):
             cv_reply = self.get_vision_reply()
         
             reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
+            grid_final_status.extend(grid_status)
             print "Grid Status: ", grid_status
         
+        if len(grid_final_status) == 9:
+            return grid_final_status
+        else:
+            return ''
+            #send the grid status to game engine
 
         
     def pick_item(self, side, target_name):
         
-        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.23, self.TableZ+0.10, 0.0, 1.0, 0.0, 0.0])
+        self.move_arm(side, [self.GridCenter[0], self.GridCenter[1]+0.3, self.TableZ+0.10, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
         msg_string = side+':detect:'+ target_name
         self.VisionCmdPub.publish(msg_string)
@@ -281,25 +291,24 @@ class TigTagToe(object):
         item_name, item_pose = self.interpret_vision_reply(cv_reply)
         cur_pose = self.current_poses[side]
         self.gripper_control('left', 'open')
-        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.03, 0.0, 1.0, 0.0, 0.0])
+        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.02, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
         
-        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight-0.01, 0.0, 1.0, 0.0, 0.0])
-        rospy.sleep(2)
-        self.gripper_control('left', 'close')
-        rospy.sleep(1)
-        self.move_arm(side, [item_pose[0], item_pose[1], self.TableZ+self.BlockHeight+0.06, 0.0, 1.0, 0.0, 0.0])
         
         '''
         msg_string = side+':fine_tune:'+ target_name
         print "Fine tune Cmd: ", msg_string
         self.VisionCmdPub.publish(msg_string)
         cv_reply = self.get_vision_reply()
+        print "Fine tune Reply: ", cv_reply
+        item_name, item_pose = self.interpret_vision_reply(cv_reply)
         dx = item_pose[0]
         dy = item_pose[1]
         angle = item_pose[2]
-        
-        while (math.fabs(dx)>5 or math.fabs(dy)>5) and not rospy.is_shutdown():
+        print "Fine tune parameters: ", dx, dy, angle
+        sign_x = 1.0
+        sign_y = 1.0
+        while (math.fabs(dx)>15 or math.fabs(dy)>15) and not rospy.is_shutdown():
             
             cur_pose = self.current_poses[side]
             x = cur_pose.pose.position.x
@@ -309,23 +318,57 @@ class TigTagToe(object):
             oy = cur_pose.pose.orientation.y
             oz = cur_pose.pose.orientation.z
             ow = cur_pose.pose.orientation.w
-            if dx>0:
-                x1 = x-0.005
-            elif dx<0:
-                x1 = x+0.005
-            if dy>0:
-                y1 = y+0.005
-            elif dy<0:
-                y1 = y-0.005
+            if math.fabs(dy)>15:
+                
+                x1 = x+0.004*sign_x
+            else:
+                x1 = x
+            if math.fabs(dx)>15:
+                
+                y1 = y+0.004*sign_y
+            else:
+                y1 = y
+                
             self.move_arm(side, [x1, y1, z, ox, oy, oz, ow])
+            print "Fine Tuning Moving..."
             rospy.sleep(0.2)
             msg_string = side+':fine_tune:'+ target_name
             self.VisionCmdPub.publish(msg_string)
             cv_reply = self.get_vision_reply()
-            dx = item_pose[0]
-            dy = item_pose[1]
-            angle = item_pose[2]
+            item_name, item_pose = self.interpret_vision_reply(cv_reply)
+            dx1 = item_pose[0]
+            dy1 = item_pose[1]
+            angle1 = item_pose[2]
+            if math.fabs(dx)>math.fabs(dx1):
+                sign_x = sign_x * -1.0
+            
+            if math.fabs(dy)>math.fabs(dy1):
+                sign_x = sign_x * -1.0
+                
+            dx = dx1
+            dy = dy1
+            angle = angle1
+            
+            print "Fine Tuning Parameters: ", dx, dy, angle
+            rospy.sleep(2)
+            
+        print "Fine Tuning Is Done..."  
         '''
+        
+        init_pose = self.current_poses[side]
+        x = init_pose.pose.position.x
+        y = init_pose.pose.position.y
+        z = init_pose.pose.position.z
+        ox = init_pose.pose.orientation.x
+        oy = init_pose.pose.orientation.y
+        oz = init_pose.pose.orientation.z
+        ow = init_pose.pose.orientation.w
+        
+        self.move_arm(side, [x, y, self.TableZ+self.BlockHeight-0.01, 0.0, 1.0, 0.0, 0.0])
+        rospy.sleep(2)
+        self.gripper_control('left', 'close')
+        rospy.sleep(1)
+        self.move_arm(side, [x, y, self.TableZ+self.BlockHeight+0.06, 0.0, 1.0, 0.0, 0.0])
         
         #self.move_arm(side, [item_pose[0], item_pose[1], self.TableHeight+self.GripperLength+0.05, 0.0, 1.0, 0.0, 0.0])
         rospy.sleep(2)
@@ -439,7 +482,43 @@ class TigTagToe(object):
         init_pose_list = [x, y, z, ox, oy, oz, ow]
         self.move_arm('left', init_pose_list)
         rospy.sleep(1)
+    
+    def next_move_callback(self, msg):
         
+        self.NextMoveReply = msg.data
+    
+    
+    def wait_for_next_move(self):
+        
+        print "Wait For Next Move Reply..."
+        next_move_reply = self.NextMoveReply
+        
+        while next_move_reply == '':
+            next_move_reply = self.NextMoveReply
+            rospy.sleep(0.1)
+            
+        self.NextMoveReply = ''
+        
+        return next_move_reply
+        
+    def interpret_next_move(self, msg_string):
+        if msg_string == '':
+            rospy.logerr("Next Move Reply Failure: msg is empty")
+        
+        msg_segments = msg_string.split()
+        
+        if len(msg_segments)!= 2:
+            rospy.logerr("Next Move Reply Failure: msg segment not correct")
+            return '', -1
+            
+        item = msg_segments[0]
+        id = int(msg_segments[1]) # grid id: 0~8
+        if item in ['x', 'o']:
+            return item, id
+        else:
+            return '', -1
+            
+    
     def run(self):
         
         
@@ -457,21 +536,38 @@ class TigTagToe(object):
         print "Grid Status: ", grid_status
         grid_xy = [[0,0], [1,0], [2,0], [0,1], [1,1], [2,1], [0,2], [1,2], [2,2]]
         counter = 0
-        for grid in grid_status:
-                
-                if grid == 'b':
-                    print "Pick and place item..."
-                    self.pick_item('left', 'o')
-                    col = grid_xy[counter][0]
-                    row = grid_xy[counter][1]
-                    self.place_item('left', col, row)
-                    
-                    break
-                
-                counter = counter + 1
+
+        msg_string = 'game_status:x:'
+        
+        for item in grid_status:
+            msg_string = msg_string+item + ' '
+            
+        self.GridStatusPub.publish(msg_string)
+        
         while not rospy.is_shutdown():
             
-            grid_status1 = self.check_grid('left')
+            item, id = self.interpret_next_move(self.wait_for_next_move())
+            if item == '':
+                rospy.sleep(0.1)
+                continue
+            
+            self.pick_item('left', item)
+            col = grid_xy[id][0]
+            row = grid_xy[id][1]
+            self.place_item('left', col, row)
+            rospy.sleep(4)
+            grid_status = self.check_grid('left')
+            
+            msg_string = 'game_status:x:'
+        
+            for item in grid_status:
+                msg_string = msg_string+item + ' '
+                
+            self.GridStatusPub.publish(msg_string)
+            
+            
+            '''
+            grid_status = self.check_grid('left')
             print "previous grid status: ", grid_status
             print "Current grid status: ", grid_status1
             if grid_status1 == grid_status:
@@ -493,6 +589,7 @@ class TigTagToe(object):
                 counter = counter + 1
             
             grid_status = list(grid_status1)
+            '''
             
             rospy.sleep(0.1)
         
