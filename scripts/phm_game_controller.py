@@ -247,9 +247,9 @@ class TigTagToe(object):
         oz = center_pose[5]
         ow = center_pose[6]
         
-        pose_list1 = [x-0.02, y, z+0.1, ox, oy, oz, ow]
-        pose_list2 = [x+0.1, y, z+0.1, ox, oy, oz, ow]
-        pose_list3 = [x+0.22, y, z+0.1, ox, oy, oz, ow]
+        pose_list1 = [x-0.02, y, z+0.12, ox, oy, oz, ow]
+        pose_list2 = [x+0.1, y, z+0.12, ox, oy, oz, ow]
+        pose_list3 = [x+0.22, y, z+0.12, ox, oy, oz, ow]
         poses = []
         poses.append(pose_list1)
         poses.append(pose_list2)

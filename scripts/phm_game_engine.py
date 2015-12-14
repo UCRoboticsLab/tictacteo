@@ -260,7 +260,7 @@ class GameEngine:
                 msg_string = turn + ' ' + str(self.ConvertIndex[bot_move])
                 self.GridStatusPub.publish(msg_string)
                 
-                #print "Bot Move: ", msg_string
+                print "Bot Move: ", bot_move, "Bot Move Converted: ", msg_string
                 print "Current Board after the move: ", self.board
                 self.isThisRoundDone = True
                 if (self.is_winner(self.board, self.bot_marker)):
