@@ -238,7 +238,7 @@ class ImageCollecting(object):
             oy = cur_pose.pose.orientation.y
             oz = cur_pose.pose.orientation.z
             ow = cur_pose.pose.orientation.w
-            self.move_arm('left', [x, y, z, 0.0, 1.0, 0.0, 0.0])
+            #self.move_arm('left', [x, y, z, 0.0, 1.0, 0.0, 0.0])
             rospy.sleep(1)
             
     
@@ -263,7 +263,7 @@ class ImageCollecting(object):
         
         self.init_msgs()
         rospy.sleep(1)
-        self.init_pose()
+        #self.init_pose()
         img_folder = './src/phm/images/'
         self.up_recording(img_folder)
         while not rospy.is_shutdown():

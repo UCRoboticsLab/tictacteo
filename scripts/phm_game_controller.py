@@ -57,6 +57,8 @@ class TigTagToe(object):
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         rospy.Subscriber('next_move', String, self.next_move_callback)
+        rospy.Subscriber('next_move', String, self.next_move_callback)
+        
         self.GridCenter = []
         self.TableHeight = 0.0
         self.GripperLength = 0.125
@@ -109,7 +111,7 @@ class TigTagToe(object):
             return '', []
         
         grid_status = msg_segment[2].split()
-        if len(grid_status) != 3:
+        if len(grid_status) != 1:
             rospy.logerr("Vision Reply Failure: number of grids not right")
             return '', []
         
@@ -251,18 +253,24 @@ class TigTagToe(object):
         pose_list2 = [x+0.1, y, z+0.12, ox, oy, oz, ow]
         pose_list3 = [x+0.22, y, z+0.12, ox, oy, oz, ow]
         poses = []
-        poses.append(pose_list1)
-        poses.append(pose_list2)
-        poses.append(pose_list3)
+        #poses.append(pose_list1)
+        #poses.append(pose_list2)
+        #poses.append(pose_list3)
+        for item in self.GridLocations:
+            
+            new_list = list(item)
+            new_list[2] = z + 0.13
+            poses.append(new_list)
         
-        roi_order_list = [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
+        
+        roi_order_list = [0, 3, 6, 1, 4, 7, 2, 5, 8]
         
         grid_final_status = []
         for pose in poses:
             self.move_arm(side, pose)
-            rospy.sleep(1)
-            grid_ids = roi_order_list[poses.index(pose)]
-            msg_string = side+':check:'+str(grid_ids[0])+','+str(grid_ids[1])+','+str(grid_ids[2])
+            rospy.sleep(0.5)
+            grid_id = roi_order_list[poses.index(pose)]
+            msg_string = side+':check:'+str(grid_id)
             print "Check Grid Cmd: ", msg_string
             self.VisionCmdPub.publish(msg_string)
             
@@ -399,7 +407,7 @@ class TigTagToe(object):
         rospy.sleep(1.5)
         
         pose_list1 = list(pose_list)
-        pose_list1[2] = pose_list1[2]+0.03
+        pose_list1[2] = pose_list1[2]+0.025
         self.move_arm(side, pose_list1)
         rospy.sleep(1.5)
         self.gripper_control(side, 'open')
@@ -550,7 +558,8 @@ class TigTagToe(object):
             if item == '':
                 rospy.sleep(0.1)
                 continue
-            
+            #elif id>9:
+                
             self.pick_item('left', item)
             col = grid_xy[id][0]
             row = grid_xy[id][1]

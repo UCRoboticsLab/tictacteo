@@ -305,8 +305,8 @@ class GridDetector(object):
         contour_img = cv2.merge((bw_img1, empty_img, empty_img))
         plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
         cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-        cv2.imshow('current_image', plot_img) #plot_img)
-        cv2.waitKey(0)
+        #cv2.imshow('current_image', plot_img) #plot_img)
+        #cv2.waitKey(0)
         return matching_result[min_index]
     
     
@@ -724,7 +724,7 @@ class GridDetector(object):
     def check_grid(self, side, ids):
 
         if ids == []:
-            print "Error in check_grid: ids is empty"
+            print "Error in check_grid: id is not correctr"
             return
         grid_status = []
         task_dropping = False
@@ -826,10 +826,15 @@ class GridDetector(object):
             
             elif action == 'check':
                 
-                ids_string = target.split(',')
-                ids = [int(i) for i in ids_string]
-                print "Check Grid Ids: ", ids
-                self.check_grid(side, ids)
+                #ids_string = target.split(',')
+                #ids = [int(i) for i in ids_string]
+                id = int(target)
+                print "Check Grid Id: ", id
+                if id not in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                    print "Check Grid id not correct..."
+                    rospy.sleep(0.1)
+                    continue
+                self.check_grid(side, [id])
                 pass
             
             elif target == 'record':
