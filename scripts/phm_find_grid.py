@@ -82,7 +82,7 @@ class GridDetector(object):
         
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 8
+        self._camera.gain = 10
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.025 #Phm baxter left arm value                  # camera gripper offset
         self.cam_y_offset = -0.02 #Phm baxter left arm value
@@ -92,7 +92,7 @@ class GridDetector(object):
         self.ImageThreadLock = threading.Lock()
         
         self.image_names = {'grid':'template_grid_white_center.png', \
-                            'o':'template_o_inside_contour1.png', \
+                            'o':'template_o_outside_contour3.png', \
                             'x':'template_x03.png'}
                             
         self.image_folder = './src/phm/images/'
@@ -294,20 +294,26 @@ class GridDetector(object):
             #cv2.imshow('current_image', contour_img)
             #cv2.waitKey(0)
             #rospy.sleep(0.1)
+        if matching_result != []:
+            min_index = matching_result.index(min(matching_result))
+            rect = cv2.minAreaRect(contours[min_index])
+            angle = rect[2]
+            cx = math.floor(rect[0][0])
+            cy = math.floor(rect[0][1])
+            print "\nMatching Result: (", matching_result[min_index], ")\nangle: ", angle
+            
         
-        min_index = matching_result.index(min(matching_result))
-        rect = cv2.minAreaRect(contours[min_index])
-        angle = rect[2]
-        cx = math.floor(rect[0][0])
-        cy = math.floor(rect[0][1])
-        print "\nMatching Result: (", matching_result[min_index], ")\nangle: ", angle
-        empty_img = np.zeros((self.height,self.width,1), np.uint8)
-        contour_img = cv2.merge((bw_img1, empty_img, empty_img))
-        plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
-        cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-        #cv2.imshow('current_image', plot_img) #plot_img)
-        #cv2.waitKey(0)
-        return matching_result[min_index]
+        
+            empty_img = np.zeros((self.height,self.width,1), np.uint8)
+            contour_img = cv2.merge((bw_img1, empty_img, empty_img))
+            plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
+            cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
+            #cv2.imshow('current_image', plot_img) #plot_img)
+            #cv2.waitKey(0)
+            return matching_result[min_index]
+        
+        return 10
+        
     
     
     def contour_match(self, img, tmpl_bw_img, mask_img, rect):

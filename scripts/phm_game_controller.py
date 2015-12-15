@@ -57,7 +57,7 @@ class TigTagToe(object):
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         rospy.Subscriber('next_move', String, self.next_move_callback)
-        rospy.Subscriber('next_move', String, self.next_move_callback)
+        rospy.Subscriber('/robot/digital_io/right_itb_button0/state', String, self.button_callback)
         
         self.GridCenter = []
         self.TableHeight = 0.0
@@ -76,7 +76,15 @@ class TigTagToe(object):
         left = baxter_interface.Gripper('left', CHECK_VERSION)
         right = baxter_interface.Gripper('right', CHECK_VERSION)
         self.baxter_grippers = {'left':left, 'right':right}
+    
+    def button_callback(self, msg):
         
+        button_state = msg.data
+        print "Button State", button_state
+        
+        return
+    
+    
     def get_vision_reply(self):
         
         cv_reply = self.VisionReply
