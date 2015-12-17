@@ -30,6 +30,8 @@ from sensor_msgs.msg import Image
 from sensor_msgs.msg import Range
 from std_msgs.msg import Header
 from baxter_core_msgs.msg import EndpointState
+#from baxter_interface import DigitalIO
+from baxter_core_msgs.msg import DigitalIOState
 import message_filters
 from geometry_msgs.msg import (
     PoseStamped,
@@ -53,11 +55,14 @@ class TigTagToe(object):
         self.VisionReply = ''
         self.ArmReply = ''
         self.NextMoveReply = ''
+        self.AllOpositions = ['','','','','']
+        self.AllXpositions = ['','','','','']
+        self.GridStatus = ['b','b','b','b','b','b','b','b','b']
         rospy.init_node("game_controller")
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         rospy.Subscriber('next_move', String, self.next_move_callback)
-        rospy.Subscriber('/robot/digital_io/right_itb_button0/state', String, self.button_callback)
+        #rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
         
         self.GridCenter = []
         self.TableHeight = 0.0
@@ -79,8 +84,8 @@ class TigTagToe(object):
     
     def button_callback(self, msg):
         
-        button_state = msg.data
-        print "Button State", button_state
+        #button_state = msg.data
+        #print "Button State", msg.state
         
         return
     
@@ -244,6 +249,47 @@ class TigTagToe(object):
         self.GridCenter = self.GridLocations[4]
         
         # Up to here, the center of the Grid Pattern is found.
+        
+    def check_one_grid(self, side, grid_id):
+        
+        print "Checking Grid Status of grid id : ", grid_id
+        center_pose = self.GridLocations[4]
+        x = center_pose[0]
+        y = center_pose[1]
+        z = center_pose[2]
+        ox = center_pose[3]
+        oy = center_pose[4]
+        oz = center_pose[5]
+        ow = center_pose[6]
+        
+        new_pose = list(self.self.GridLocations[grid_id])
+        
+        new_pose[2] = new_pose[2] + 0.12
+        
+        self.move_arm(side, pose)
+        
+        rospy.sleep(0.5)
+        
+        msg_string = side+':check:'+str(grid_id)
+        print "Check Grid Cmd: ", msg_string
+        self.VisionCmdPub.publish(msg_string)
+        
+        cv_reply = self.get_vision_reply()
+    
+        reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
+        
+        return grid_status
+    
+    # Place all the blocks in the grids back to start position    
+    # Assume a block can be in the grids or already at the start positions
+    def place_all_blocks(self): 
+        
+        grid_ids = [0, 3, 6, 1, 4, 7, 2, 5, 8]
+        for id in grid_ids:
+            grid_status = self.check_one_grid('left', id)
+            print grid_status
+        return    
+    
           
     def check_grid(self, side):
         
@@ -267,7 +313,7 @@ class TigTagToe(object):
         for item in self.GridLocations:
             
             new_list = list(item)
-            new_list[2] = z + 0.13
+            new_list[2] = z + 0.15
             poses.append(new_list)
         
         
@@ -287,6 +333,7 @@ class TigTagToe(object):
             reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
             grid_final_status.extend(grid_status)
             print "Grid Status: ", grid_status
+            
         
         if len(grid_final_status) == 9:
             return grid_final_status

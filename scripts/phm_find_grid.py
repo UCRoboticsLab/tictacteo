@@ -92,8 +92,8 @@ class GridDetector(object):
         self.ImageThreadLock = threading.Lock()
         
         self.image_names = {'grid':'template_grid_white_center.png', \
-                            'o':'template_o_outside_contour3.png', \
-                            'x':'template_x03.png'}
+                            'o':'template_o01.png', \
+                            'x':'template_x05.png'}
                             
         self.image_folder = './src/phm/images/'
     
@@ -308,8 +308,8 @@ class GridDetector(object):
             contour_img = cv2.merge((bw_img1, empty_img, empty_img))
             plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
             cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-            #cv2.imshow('current_image', plot_img) #plot_img)
-            #cv2.waitKey(0)
+            cv2.imshow('current_image', plot_img) #plot_img)
+            cv2.waitKey(0)
             return matching_result[min_index]
         
         return 10
