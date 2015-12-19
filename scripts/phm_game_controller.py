@@ -62,13 +62,14 @@ class TigTagToe(object):
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         rospy.Subscriber('next_move', String, self.next_move_callback)
-        #rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
+        rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
         
+        self.ButtonStatus = 0
         self.GridCenter = []
         self.TableHeight = 0.0
         self.GripperLength = 0.125
-        self.LeftArmInitPose = [0.5, 0.6, 0.0, 0.0, 1.0, 0.0, 0.0]
-        self.RightArmInitPose = [0.5, -0.6, 0.0, 0.0, 1.0, 0.0, 0.0]
+        self.LeftArmInitPose = [0.5, 0.6, 0.05, 0.0, 1.0, 0.0, 0.0]
+        self.RightArmInitPose = [0.5, -0.6, 0.05, 0.0, 1.0, 0.0, 0.0]
         self.current_poses = None
         self.GridLocations = []
         self.GridRoiLocations = []
@@ -86,9 +87,34 @@ class TigTagToe(object):
         
         #button_state = msg.data
         #print "Button State", msg.state
-        
+        self.ButtonStatus = msg.state
         return
     
+    def get_button_status(self):
+        
+        button_status = self.ButtonStatus
+        
+        return button_status
+    
+    # wait for button on for second
+    def wait_button_on(self, seconds):
+        
+        button_status = self.ButtonStatus
+        counter = 0 
+        max_count = math.floor(seconds/0.1)
+        while counter<max_count:
+            
+            button_status = self.ButtonStatus
+            print "Button Status: ", button_status
+            if (button_status == 1):
+                counter = counter + 1
+            else:
+                counter = 0
+            rospy.sleep(0.1)
+            
+        return
+            
+        
     
     def get_vision_reply(self):
         
@@ -129,6 +155,28 @@ class TigTagToe(object):
             return '', []
         
         return msg_segment[0], grid_status
+    
+    def interpret_grid_checking_reply1(self, msg_string):
+        
+        msg_segment = msg_string.split(':')
+        print msg_segment
+        if len(msg_segment)!= 4:
+            rospy.logerr("Vision Reply Failure: msg segment not right")
+            return '', [], []
+        
+        if msg_segment[1] != 'grid_status':
+            rospy.logerr("Vision Reply Failure: msg type not right")
+            return '', [], []
+        
+        grid_status = msg_segment[2].split()
+        item_xy = msg_segment[3].split(',')
+        xy_list = [float(item_xy[0]), float(item_xy[1])]
+        #item_xy.remove('')
+        if len(grid_status) != 1:
+            rospy.logerr("Vision Reply Failure: number of grids not right")
+            return '', [],[]
+        
+        return msg_segment[0], grid_status, xy_list
         
     def gripper_control(self, side, action):
         gripper = self.baxter_grippers[side]
@@ -262,33 +310,68 @@ class TigTagToe(object):
         oz = center_pose[5]
         ow = center_pose[6]
         
-        new_pose = list(self.self.GridLocations[grid_id])
+        new_pose = list(self.GridLocations[grid_id])
         
-        new_pose[2] = new_pose[2] + 0.12
+        new_pose[2] = new_pose[2] + 0.15
         
-        self.move_arm(side, pose)
+        self.move_arm(side, new_pose)
         
-        rospy.sleep(0.5)
+        rospy.sleep(2)
         
-        msg_string = side+':check:'+str(grid_id)
-        print "Check Grid Cmd: ", msg_string
+        msg_string = side+':check1:'+str(grid_id)
+        print "Check Grid1 Cmd: ", msg_string
         self.VisionCmdPub.publish(msg_string)
         
         cv_reply = self.get_vision_reply()
     
-        reply_cmd, grid_status = self.interpret_grid_checking_reply(cv_reply)
+        reply_cmd, grid_status, xy_list = self.interpret_grid_checking_reply1(cv_reply)
         
-        return grid_status
+        return grid_status, xy_list
     
     # Place all the blocks in the grids back to start position    
     # Assume a block can be in the grids or already at the start positions
+    # will check each grid first, pick away one type('x'/'o') with one arm, then pick 
+    # all the other type with the other arm
     def place_all_blocks(self): 
         
         grid_ids = [0, 3, 6, 1, 4, 7, 2, 5, 8]
+        grid_status_list = []
         for id in grid_ids:
-            grid_status = self.check_one_grid('left', id)
-            print grid_status
+            grid_status, xy_list = self.check_one_grid('left', id)
+            print "Grid is : ", grid_status
+            print "Item xy: ", xy_list
+            grid_status_list.append(grid_status)
+            print "Move arm closer"
+            self.move_arm('left', self.LeftArmInitPose)
+            self.move_arm('right', [round(xy_list[0], 4), round(xy_list[1], 4), self.GridLocations[id][2] + 0.15, 0.0, 1.0, 0.0, 0.0])
+            self.move_arm('right', [round(xy_list[0], 4), round(xy_list[1], 4), self.GridLocations[id][2] + 0.03, 0.0, 1.0, 0.0, 0.0])
+            rospy.sleep(3)
+                
+            
+        
+        for item in grid_status_list:
+            
+            if item == 'x':
+                
+                pass
+            elif item == 'o':
+                
+                pass
+                
+            elif item == 'b':
+                
+                pass
+        
+        
+            
         return    
+    
+    def pick_one_grid(self, side):
+        
+        
+        
+        
+        return
     
           
     def check_grid(self, side):
@@ -313,7 +396,7 @@ class TigTagToe(object):
         for item in self.GridLocations:
             
             new_list = list(item)
-            new_list[2] = z + 0.15
+            new_list[2] = z + 0.14
             poses.append(new_list)
         
         
@@ -580,6 +663,7 @@ class TigTagToe(object):
             return item, id
         else:
             return '', -1
+    
             
     
     def run(self):
@@ -590,22 +674,23 @@ class TigTagToe(object):
         #self.pick_test(1,0)
         
         self.init_game()
-        print "Game Initilized"
-        
+        print "Game Initilized, Wait For Start Button"
+        ###self.wait_button_on(1.0) # User has to keep pressing the button for at least 1 second
         ##self.pick_item('left', 'x')
         ##self.place_item('left', 1, 1)
         #self.check_grid('left')
-        grid_status = self.check_grid('left')
-        print "Grid Status: ", grid_status
+        #grid_status = self.check_grid('left')
+        #print "Grid Status: ", grid_status
+        self.place_all_blocks()
         grid_xy = [[0,0], [1,0], [2,0], [0,1], [1,1], [2,1], [0,2], [1,2], [2,2]]
         counter = 0
 
-        msg_string = 'game_status:x:'
+        #msg_string = 'game_status:x:'
         
-        for item in grid_status:
-            msg_string = msg_string+item + ' '
+        #for item in grid_status:
+        #    msg_string = msg_string+item + ' '
             
-        self.GridStatusPub.publish(msg_string)
+        #self.GridStatusPub.publish(msg_string)
         
         while not rospy.is_shutdown():
             

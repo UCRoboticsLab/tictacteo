@@ -82,7 +82,7 @@ class GridDetector(object):
         
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 10
+        self._camera.gain = 8
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.025 #Phm baxter left arm value                  # camera gripper offset
         self.cam_y_offset = -0.02 #Phm baxter left arm value
@@ -314,7 +314,74 @@ class GridDetector(object):
         
         return 10
         
+    def contour_matching2(self, img, tmpl_bw_img, mask_img):
     
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        kernel_smooth = np.ones((5,5),np.float32)/25
+        gray_img = cv2.filter2D(gray_img, -1, kernel_smooth)
+        
+        bw_img = cv2.adaptiveThreshold(gray_img,255,\
+                                       cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+                                       cv2.THRESH_BINARY,103,1)
+                                       
+                                       
+        bw_img1 = cv2.bitwise_not(bw_img)
+        
+        bw_img2 = cv2.bitwise_and(bw_img1,bw_img1,mask = mask_img)#deepcopy(bw_img1)
+        
+        contours, hierarchy = cv2.findContours(bw_img2, cv2.RETR_TREE, \
+                                               cv2.CHAIN_APPROX_SIMPLE)
+        counter = 0
+        
+        tmpl_contours, tmpl_hierarchy = cv2.findContours \
+                                                (tmpl_bw_img, \
+                                                 cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) 
+        
+        #print "\n...Start with a new image...\n"
+        matching_result = []
+        for cnt in contours:
+
+            #contour_area = cv2.contourArea(cnt)
+            mom = cv2.moments(cnt)
+            contour_area = mom['m00']
+            #print "\nContourArea: ", contour_area, "Moments: ", contour_area1
+            #if contour_area<100:
+            #    matching_result.append(10.0) # a large number to fill the list
+            #    continue
+            empty_img = np.zeros((self.height,self.width,1), np.uint8)
+            contour_img = cv2.merge((bw_img1, empty_img, empty_img)) #np.zeros((self.height,self.width,3), np.uint8)
+            cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
+            ret = cv2.matchShapes(cnt,tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
+            #print ret, "\nContour Area: \n", contour_area
+            if ret == 0.0 or contour_area<300:
+                ret = 10.0
+            matching_result.append(ret)
+            #plot_img = np.zeros((self.height,self.width,3), np.uint8)
+            
+            counter = counter + 1
+            #cv2.imshow('current_image', contour_img)
+            #cv2.waitKey(0)
+            #rospy.sleep(0.1)
+        if matching_result != []:
+            min_index = matching_result.index(min(matching_result))
+            rect = cv2.minAreaRect(contours[min_index])
+            angle = rect[2]
+            cx = math.floor(rect[0][0])
+            cy = math.floor(rect[0][1])
+            print "\nMatching Result: (", matching_result[min_index], ")\nangle: ", angle
+            
+        
+        
+            empty_img = np.zeros((self.height,self.width,1), np.uint8)
+            contour_img = cv2.merge((bw_img1, empty_img, empty_img))
+            plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
+            cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
+            cv2.imshow('current_image', plot_img) #plot_img)
+            cv2.waitKey(0)
+            return matching_result[min_index], rect
+        
+        return 10, []
+
     
     def contour_match(self, img, tmpl_bw_img, mask_img, rect):
         
@@ -587,6 +654,86 @@ class GridDetector(object):
         
         
         return  dx, dy, angle
+    
+    def track_contour2(self, side, object_type, mask):
+        img = self.get_image()
+        if img == None:
+            rospy.sleep(0.05)
+            return
+        
+        height, width, channel = img.shape
+        mask_img = np.ones((height,width,1), np.uint8)
+        
+        tmpl_bw_img = self.template_imgs[object_type]
+        rect = self.contour_match(img, tmpl_bw_img, mask_img, None)
+        #print rect
+        counter = 0
+        result_x = 0
+        result_y = 0
+        result_angle = 0.0
+        task_dropping = self.current_task_dropping
+        print "Task Dropping Status: ", task_dropping
+        while (not task_dropping) and (counter <5):
+            
+            img = self.get_image()
+            if img == None:
+                rospy.sleep(0.05)
+                continue
+            
+            #new_h = rect[1][0]+rect[1][0]/2.0
+            #new_w = rect[1][1]+rect[1][1]/2.0
+            #center = (rect[0][0], rect[0][1])
+            #size = (new_h, new_w)
+            #new_rect = (center, size, rect[2])
+            #box = cv2.cv.BoxPoints(new_rect)
+            #int_box = self.integer_box(box, width, height)
+            #print type(box), box
+            #temp_img = np.zeros((height,width,3), np.uint8)
+            #cv2.rectangle(temp_img, tuple(int_box[0]), tuple(int_box[2]), (255, 255, 255), -1, 8, 0)
+            #mask_img, g, r = cv2.split(temp_img)
+            #new_img = cv2.bitwise_and(img,img,mask = mask_img)
+            
+            rect1 = self.contour_match(img, tmpl_bw_img, mask_img, rect)
+            rect = rect1
+            print rect
+            cur_pose = self.current_poses[side]
+            x = cur_pose.pose.position.x
+            y = cur_pose.pose.position.y
+            z = cur_pose.pose.position.z
+            ox = cur_pose.pose.orientation.x
+            oy = cur_pose.pose.orientation.y
+            oz = cur_pose.pose.orientation.z
+            ow = cur_pose.pose.orientation.w
+            table_z = -0.20-0.096 ## Hard coded 
+            block_height = 0.05
+            if rect != None:
+                #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], math.fabs(z-table_z)-block_height)
+                print "Current Z: ", z
+                print "Distance IR: ", self.get_ir_range(side), " Distance Z: ", math.fabs(z-table_z)-block_height
+                result_x = result_x + x
+                result_y = result_y + y
+                result_angle = result_angle + rect[2]
+                counter = counter + 1
+                print x, y
+                #self.rb_cmd_pub.publish(msg_string)
+            #cv2.imshow('current_image', new_img)
+            #cv2.waitKey(10)
+            rospy.sleep(0.05)
+            
+        
+        self.current_task_dropping = True
+        result_x = round(result_x/5, 4)
+        result_y = round(result_y/5, 4)
+        result_angle = round(result_angle/5, 4)
+        msg_string = side + ':' + \
+                     object_type + \
+                     ':' + str(result_x) + ',' + str(result_y) + \
+                     ',' + str(result_angle) + \
+                     ',' + str(round(self.get_ir_range(side), 4))
+        self.rb_cmd_pub.publish(msg_string)
+        return  result_x, result_y, result_angle
+
 
     def pixel_to_baxter(self, px, dist):
         
@@ -777,9 +924,105 @@ class GridDetector(object):
             
             print "grid checking reply: ", msg_string
             self.rb_cmd_pub.publish(msg_string)
+            
             #cv2.imshow('current_image', img)
             #cv2.waitKey(10)
             #rospy.sleep(0.05)
+    
+    def check_grid1(self, side, ids):
+
+        if ids == []:
+            print "Error in check_grid: id is not correctr"
+            return
+        grid_status = []
+        grid_rect_list = []
+        xy_list = []
+        task_dropping = False
+        
+        roi_mask_images = []
+        for id in ids:
+            mask_img = self.RoiMaskImages[id]
+            roi_mask_images.append(mask_img)
+        
+        while (not task_dropping):
+            
+            task_dropping = self.current_task_dropping
+            img = self.get_image()
+            if img == None:
+                rospy.sleep(0.05)
+                continue
+            
+            for mask_img in roi_mask_images:
+                
+                roi_img = cv2.bitwise_and(img,img,mask = mask_img)
+                result_list = []
+                rect_list = []
+                object_names = ['x', 'o'] #self.template_imgs.keys()
+                for object_name in object_names:
+                    if object_name != 'grid':
+                        tmpl_img = self.template_imgs[object_name]
+                        result, rect = self.contour_matching2(img, tmpl_img, mask_img)
+                        result_list.append(result)
+                        rect_list.append(rect)
+                cur_pose = self.current_poses[side]
+                x = cur_pose.pose.position.x
+                y = cur_pose.pose.position.y
+                z = cur_pose.pose.position.z
+                ox = cur_pose.pose.orientation.x
+                oy = cur_pose.pose.orientation.y
+                oz = cur_pose.pose.orientation.z
+                ow = cur_pose.pose.orientation.w
+                table_z = -0.079-0.096 ## Hard coded 
+                
+                block_height = 0.05
+                
+                msg_string = side + ':grid_status:'
+                
+                min_index = result_list.index(min(result_list))
+                if result_list[min_index]<0.1:
+                    grid_status.append(object_names[min_index])
+                    rect = rect_list[min_index]
+                    grid_rect_list.append(rect)
+                    print "Find object: ", object_names[min_index]
+                    
+                    if rect != None or rect != []:
+                        #x, y = self.pixel_to_baxter([rect[0][0], rect[0][1]], self.get_ir_range(side))
+                        x1, y1 = self.pixel_to_baxter([rect[0][0], rect[0][1]], math.fabs(z-table_z)-block_height)
+                        xy_list.append([x1, y1])
+                        #print "Current Z: ", z
+                        #print "Distance IR: ", self.get_ir_range(side), " Distance Z: ", math.fabs(z-table_z)-block_height
+                        
+                        #print x, y
+                        
+##                    #empty_img = np.zeros((self.height,self.width,1), np.uint8)
+##                    contour_img = cv2.merge((bw_img1, empty_img, empty_img))
+##                    plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
+##                    cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
+                else:
+                    
+                    grid_status.append("b")
+                    xy_list.append([10000.0, 10000.0])
+                    
+            
+            task_dropping = True
+            
+            
+            for status in grid_status:
+                msg_string = msg_string + status + ' '
+            
+            msg_string = msg_string + ':'
+            for xy in xy_list:
+                
+                msg_string = msg_string + str(xy[0]) + ',' + str(xy[1])
+            
+            
+            print "grid checking reply: ", msg_string
+            self.rb_cmd_pub.publish(msg_string)
+            
+            #cv2.imshow('current_image', img)
+            #cv2.waitKey(10)
+            #rospy.sleep(0.05)
+    
             
     def fine_tune_location(self, side, object_type):
         
@@ -841,6 +1084,19 @@ class GridDetector(object):
                     rospy.sleep(0.1)
                     continue
                 self.check_grid(side, [id])
+                pass
+            
+            elif action == 'check1':
+                
+                #ids_string = target.split(',')
+                #ids = [int(i) for i in ids_string]
+                id = int(target)
+                print "Check Grid Id: ", id
+                if id not in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                    print "Check Grid id not correct..."
+                    rospy.sleep(0.1)
+                    continue
+                self.check_grid1(side, [id])
                 pass
             
             elif target == 'record':
