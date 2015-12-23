@@ -82,7 +82,7 @@ class GridDetector(object):
         
         self._camera.open()
         self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 8
+        self._camera.gain = 32
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.025 #Phm baxter left arm value                  # camera gripper offset
         self.cam_y_offset = -0.02 #Phm baxter left arm value
@@ -336,6 +336,7 @@ class GridDetector(object):
         tmpl_contours, tmpl_hierarchy = cv2.findContours \
                                                 (tmpl_bw_img, \
                                                  cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) 
+        tmpl_rect = cv2.minAreaRect(tmpl_contours[0])
         
         #print "\n...Start with a new image...\n"
         matching_result = []
@@ -353,6 +354,7 @@ class GridDetector(object):
             cv2.drawContours(contour_img, contours, counter, (255,255,255), 2)
             ret = cv2.matchShapes(cnt,tmpl_contours[0], cv2.cv.CV_CONTOURS_MATCH_I1, 0.0)
             #print ret, "\nContour Area: \n", contour_area
+            
             if ret == 0.0 or contour_area<300:
                 ret = 10.0
             matching_result.append(ret)
@@ -365,6 +367,9 @@ class GridDetector(object):
         if matching_result != []:
             min_index = matching_result.index(min(matching_result))
             rect = cv2.minAreaRect(contours[min_index])
+            tmpl_rect_area = tmpl_rect[1][0]*tmpl_rect[1][1]
+            obj_rect_area = rect[1][0]*rect[1][1]
+            
             angle = rect[2]
             cx = math.floor(rect[0][0])
             cy = math.floor(rect[0][1])
@@ -376,8 +381,11 @@ class GridDetector(object):
             contour_img = cv2.merge((bw_img1, empty_img, empty_img))
             plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
             cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-            cv2.imshow('current_image', plot_img) #plot_img)
-            cv2.waitKey(0)
+            #cv2.imshow('current_image', plot_img) #plot_img)
+            #cv2.waitKey(0)
+            if (obj_rect_area/tmpl_rect_area)>1.2:
+                print "Object too big..."
+                return 10, rect
             return matching_result[min_index], rect
         
         return 10, []

@@ -150,22 +150,22 @@ class GameEngine:
                 return True
         return False
     
-    def get_bot_move(self):
+    def get_bot_move(self, marker1, marker2):
         
         # check if bot can win in the next move
         for i in range(0,len(self.board)):
             board_copy = copy.deepcopy(self.board)
             if self.is_space_free(board_copy, i):
-                self.make_move(board_copy,i,self.bot_marker)
-                if self.is_winner(board_copy, self.bot_marker):
+                self.make_move(board_copy,i,marker1)
+                if self.is_winner(board_copy, marker1):
                     return i
                 
         # check if player could win on his next move
         for i in range(0,len(self.board)):
             board_copy = copy.deepcopy(self.board)
             if self.is_space_free(board_copy, i):
-                self.make_move(board_copy,i,self.player_marker)
-                if self.is_winner(board_copy, self.player_marker):
+                self.make_move(board_copy,i, marker2)
+                if self.is_winner(board_copy, marker2):
                     return i
 
         # check for space in the corners, and take it
@@ -234,7 +234,9 @@ class GameEngine:
         while (not self.isThisRoundDone) and (not self.QuitCurrentSession):
             if player == 'h':
                 #user_input = self.get_player_move()
+                player_move =  self.get_bot_move(self.play_marker, self.bot_marker)
                 self.make_move(self.board,new_id, self.player_marker)
+                self.isThisRoundDone = True
                 if(self.is_winner(self.board, self.player_marker)):
                     self.print_board()
                     print "\n\tCONGRATULATIONS %s, YOU HAVE WON THE GAME!!! \\tn" % self.player_name
@@ -253,7 +255,7 @@ class GameEngine:
             # bot's turn to play
             else:
                 print "Robot Move..."
-                bot_move =  self.get_bot_move()
+                bot_move =  self.get_bot_move(self.bot_marker, self.player_marker)
                 
                 print "Current Board before make move: ", self.board
                 self.make_move(self.board, bot_move, self.bot_marker)
