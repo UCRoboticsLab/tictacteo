@@ -44,7 +44,7 @@ class GameEngine:
         rospy.Subscriber('game_engine_cmd', String, self.game_engine_cmd_callback)
         self.GameEngineCmd = ''
         self.QuitCurrentSession = False
-        self.ConvertIndex = [6, 3, 0, 7, 4, 1, 8, 5, 2]
+        self.ConvertIndex = [6, 3, 0, 7, 4, 1, 8, 5, 2] #[6, 3, 0, 7, 4, 1, 8, 5, 2]
         self.isThisRoundDone = False
         self.board = [' '] * 9
         self.player_name = ''
@@ -125,17 +125,22 @@ class GameEngine:
                     #new_board[new_list.index(item)] = 'b'
                 #else:
                     #new_board[new_list.index(item)] = 'h'
-            self.board[0] = new_board[6]
-            self.board[1] = new_board[3]
-            self.board[2] = new_board[0]
-            self.board[3] = new_board[7]
-            self.board[4] = new_board[4]
-            self.board[5] = new_board[1]
-            self.board[6] = new_board[8]
-            self.board[7] = new_board[5]
-            self.board[8] = new_board[2]
+            new_board1 = [' '] * 9
+            new_board1[2] = new_board[0]
+            new_board1[5] = new_board[1]
+            new_board1[8] = new_board[2]
+            new_board1[1] = new_board[3]
+            new_board1[4] = new_board[4]
+            new_board1[7] = new_board[5]
+            new_board1[0] = new_board[6]
+            new_board1[3] = new_board[7]
+            new_board1[6] = new_board[8]
+            
+            
+            print "Incoming New Board..."
+            self.print_board(new_board1)
                     
-            return 'game_status', cmd_segments[1],new_board
+            return 'game_status', cmd_segments[1],new_board1
         elif cmd_segments[0] == 'game_engine':
             
             return 'game_engine', cmd_segments[1], cmd_segments[2]
@@ -143,7 +148,7 @@ class GameEngine:
         return '', '', []
     
     def is_winner(self, board, marker):
-        "check if this marker will win the game"
+        print "check if this marker will win the game"
         
         for combo in self.winning_combos:
             if (board[combo[0]] == board[combo[1]] == board[combo[2]] == marker):
@@ -159,7 +164,8 @@ class GameEngine:
                 self.make_move(board_copy,i,marker1)
                 if self.is_winner(board_copy, marker1):
                     return i
-                
+        
+              
         # check if player could win on his next move
         for i in range(0,len(self.board)):
             board_copy = copy.deepcopy(self.board)
@@ -167,6 +173,7 @@ class GameEngine:
                 self.make_move(board_copy,i, marker2)
                 if self.is_winner(board_copy, marker2):
                     return i
+        
 
         # check for space in the corners, and take it
         move = self.choose_random_move(self.corners)
@@ -217,9 +224,13 @@ class GameEngine:
     
     def find_new_move(self, new_list):
         
+        counter = 0 
         for item in self.board:
-            if item != new_list[self.board.index(item)]:
-                return self.board.index(item)
+            #print "item: ", item
+            if item != new_list[counter]:
+                #print "Find it", new_list[counter]
+                return counter
+            counter = counter + 1
         
         return -1
                 
@@ -231,55 +242,61 @@ class GameEngine:
         player = turn #h for human, b for bot
         print "Player is: ", player
         #isThisRound = True
+        msg_string = ''
+        print "New Id: ", new_id
         while (not self.isThisRoundDone) and (not self.QuitCurrentSession):
-            if player == 'h':
+            if player == 'x':
                 #user_input = self.get_player_move()
-                player_move =  self.get_bot_move(self.play_marker, self.bot_marker)
-                self.make_move(self.board,new_id, self.player_marker)
-                self.isThisRoundDone = True
-                if(self.is_winner(self.board, self.player_marker)):
-                    self.print_board()
-                    print "\n\tCONGRATULATIONS %s, YOU HAVE WON THE GAME!!! \\tn" % self.player_name
-                   #self.incr_score(self.player_name)
-                    #isThisRound = True
-                   #break
-                else:
-                    if self.is_board_full():
-                        self.print_board()
-                        print "\n\t-- Match Draw --\t\n"
-                        self.QuitCurrentSession = True
-                       #break
-                    else:
-                        self.print_board()
-                        player = 'b'
-            # bot's turn to play
-            else:
-                print "Robot Move..."
-                bot_move =  self.get_bot_move(self.bot_marker, self.player_marker)
+                self.make_move(self.board,new_id, 'x')
+                self.print_board()
                 
-                print "Current Board before make move: ", self.board
-                self.make_move(self.board, bot_move, self.bot_marker)
-                msg_string = turn + ' ' + str(self.ConvertIndex[bot_move])
+                if self.is_winner(self.board, 'x') or self.is_winner(self.board, 'o'):
+                    print "x won..."
+                    msg_string = 'win 0'
+                elif self.is_board_full():
+                    self.print_board()
+                    print "\n\t-- Match Draw --\t\n"
+                    msg_string = 'draw 0'
+                    self.QuitCurrentSession = True
+                else:
+                    player_move =  self.get_bot_move('o', 'x')
+                    #self.make_move(self.board,player_move, 'o')
+                    msg_string = 'o' + ' ' + str(self.ConvertIndex[player_move])
+                    
+                    #print "new move o to : ", self.ConvertIndex[player_move]
+                    self.print_board()
+                    
                 self.GridStatusPub.publish(msg_string)
                 
-                print "Bot Move: ", bot_move, "Bot Move Converted: ", msg_string
-                print "Current Board after the move: ", self.board
                 self.isThisRoundDone = True
-                if (self.is_winner(self.board, self.bot_marker)):
+            
+            elif player == 'o':
+                
+                self.make_move(self.board,new_id, 'o')
+                self.print_board()
+                
+                if self.is_winner(self.board, 'x') or self.is_winner(self.board, 'o'):
+                    print "o won..."
+                    msg_string = 'win 1'
+                elif self.is_board_full():
                     self.print_board()
-                    print "\n\t%s HAS WON!!!!\t\n" % self.bot_name
-                  #self.incr_score(self.bot_name)
-                    
-                    break
+                    print "\n\t-- Match Draw --\t\n"
+                    msg_string = 'draw 0'
+                    self.QuitCurrentSession = True
                 else:
-                    if self.is_board_full():
-                        self.print_board()
-                        print "\n\t -- Match Draw -- \n\t"
-                        self.QuitCurrentSession = True
-                      #break
-                    else:
-                        self.print_board()
-                        #player = 'h'
+                    player_move =  self.get_bot_move('x', 'o')
+                    #self.make_move(self.board,player_move, 'x')
+                    msg_string = 'x' + ' ' + str(self.ConvertIndex[player_move])
+                    print "new move x to : ", self.ConvertIndex[player_move]
+                    
+                    #self.print_board()
+                
+            
+                self.GridStatusPub.publish(msg_string)
+    
+                
+                self.isThisRoundDone = True
+
 
     def reset_game(self):
         
@@ -317,9 +334,14 @@ class GameEngine:
             elif action == 'game_status':
                 
                 self.isThisRoundDone = False
+                print "Grid Status: ", self.board
+                print "New Grid Status: ", target_list
                 new_id = self.find_new_move(target_list)
                 
+                #if turn == 'o':
                 self.enter_game_loop(turn, new_id)
+                #elif turn == 'x':
+                    #self.enter_game_loop('o', new_id)
             
             
             

@@ -94,7 +94,7 @@ class TigTagToe(object):
         
         
         self.LeftSlotsLocation = [ [0.3951, 0.2694, -0.0749, 0.0147, 0.9999, -0.0085, -0.0051], \
-                                    [0.5089, 0.2679, -0.0734, -0.0001, 0.9996, -0.0093, -0.0243], \
+                                    [0.5089, 0.2679+0.01, -0.0734, -0.0001, 0.9996, -0.0093, -0.0243], \
                                     [0.6177, 0.2716, -0.0753, 0.0166, 0.9995, -0.0033, -0.0266], \
                                     [0.5031, 0.3795, -0.0745, 0.0153, 0.9998, -0.0091, -0.0435], \
                                     [0.6150-0.005, 0.3809, -0.0763, 0.0033, 0.9998, 0.0030, -0.0086] ]
@@ -105,7 +105,7 @@ class TigTagToe(object):
                                     [0.5224, -0.3682, -0.0716, -0.0186, 0.9997, 0.0058, -0.0127], \
                                     [0.6285, -0.3660, -0.0699, 0.0031, 0.9998, 0.0031, 0.0191] ]
         
-        self.GridForLeftArm = [ [0.3965-0.003, -0.1069, -0.0736, 0.03617, 0.9991, -0.0098, -0.0198], \
+        self.GridForLeftArm = [ [0.3965-0.003, -0.1069-0.005, -0.0736, 0.03617, 0.9991, -0.0098, -0.0198], \
                                 [0.5040, -0.1058, -0.0775, 0.0147, 0.9994, 0.0002, -0.0316], \
                                 [0.6115, -0.0908-0.01, -0.0875, 0.0146, 0.9999, 0.0064, -0.0047], \
                                 [0.3917, 0.0117, -0.0796, 0.0073, 0.9993, 0.0042, -0.0364], \
@@ -126,10 +126,10 @@ class TigTagToe(object):
                                 [0.6169, 0.0147+0.005, -0.0764, -0.0059, 0.9999, 0.0022, -0.0015], \
                                 [0.3948, 0.1160+0.01, -0.0815, -0.0070, 0.9998, -0.0034, -0.0180], \
                                 [0.5042, 0.1188, -0.0818, -0.0058, 0.9999, -0.0073, 0.0087], \
-                                [0.6150, 0.1181, -0.0811, -0.0235, 0.9995, -0.0124, 0.0146] ]
+                                [0.6150, 0.1181+0.005, -0.0811, -0.0235, 0.9995, -0.0124, 0.0146] ]
                                 
-        self.LeftSlots = ['o', 'o', 'o', 'o', 'o']
-        self.RightSlots = ['x', 'x', 'x', 'x', 'x']
+        self.RightSlots = ['o', 'o', 'o', 'o', 'o']
+        self.LeftSlots = ['x', 'x', 'x', 'x', 'x']
         self.GridStatus = ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b']
         
     def robot_state_callback(self, msg):
@@ -314,6 +314,9 @@ class TigTagToe(object):
             
             # if e stop is on
             if self.GameState == 'Estop_on':
+                self.LeftSlots = ['x','x','x','x','x']
+                self.RightSlots = ['o','o','o','o','o']
+                self.GridStatus = ['b','b','b','b','b','b','b','b','b']
                 return
             
             cur_pose = self.current_poses[side]
@@ -438,7 +441,7 @@ class TigTagToe(object):
         
         pose_list = [x, y, z + 0.15, ox, oy, oz, ow]
         self.move_arm(side, pose_list)
-        rospy.sleep(2)
+        rospy.sleep(1)
         self.gripper_control(side, 'open')
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
@@ -464,14 +467,14 @@ class TigTagToe(object):
         
         pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
         self.move_arm(side, pose_list)
-        rospy.sleep(2)
+        rospy.sleep(1)
         
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
         
-        pose_list1 = [x, y, z +0.035 , ox, oy, oz, ow]
+        pose_list1 = [x, y, z +0.028 , ox, oy, oz, ow]
         self.move_arm(side, pose_list1)
-        rospy.sleep(2)
+        rospy.sleep(1)
         
         self.gripper_control(side, 'open')
         rospy.sleep(1)
@@ -481,7 +484,7 @@ class TigTagToe(object):
         #rospy.sleep(2)
         
         self.move_arm(side, pose_list)
-        rospy.sleep(2)
+        #rospy.sleep(2)
         
         
         
@@ -880,6 +883,72 @@ class TigTagToe(object):
             return_string = return_string + item + ' '
             
         return return_string
+
+    def find_empty_slot(self, item):
+        
+        counter = 0
+        if item == 'x':
+            for item in self.LeftSlots:
+                if self.LeftSlots[counter] == 'b':
+                    return counter
+                counter = counter + 1
+        
+        elif item == 'o':
+            
+            for item in self.RightSlots:
+                if self.RightSlots[counter] == 'b':
+                    return counter
+                
+                counter = counter + 1
+                
+        return -1
+    
+    def place_all_blocks1(self):
+        
+        #self.LeftSlots = ['x','x','x','x','x']
+        #self.RightSlots = ['o','o','o','o','o']
+        #self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+        
+        
+        grid_ids = [0, 3, 6, 1, 4, 7, 2, 5, 8]
+        grid_status_list = []
+        xy_list = []
+        
+        counter = 0
+        for item in self.GridStatus:
+            
+            if item == 'x':
+                
+                self.move_arm('right', self.RightArmInitPose)
+                self.pick_from_xy('left', self.GridForRightArm[counter])
+                
+                slot_id = self.find_empty_slot('x')
+                self.place_to_xy('left', self.LeftSlotsLocation[slot_id])
+                self.LeftSlots[slot_id] = 'x'
+                self.GridStatus[counter] = 'b'
+                
+            elif item == 'o':
+                
+                self.move_arm('left', self.LeftArmInitPose)
+                
+                self.pick_from_xy('right', self.GridForRightArm[counter])
+                
+                slot_id = self.find_empty_slot('o')
+                self.place_to_xy('right', self.RightSlotsLocation[slot_id])
+                
+                self.RightSlots[slot_id] = 'o'
+                self.GridStatus[counter] = 'b'
+                
+            elif item == 'b':
+                
+                pass
+                
+            counter = counter + 1
+        
+        
+            
+        return
+    
     
     def demo_play(self):
         
@@ -887,13 +956,15 @@ class TigTagToe(object):
         
         print "Entering Demo Mode..."
         
-        self.LeftSlots = ['b','b','b','b','x']
-        self.RightSlots = ['o','b','b','o','o']
+        self.LeftSlots = ['x','x','x','x','x']
+        self.RightSlots = ['o','o','o','o','o']
+        self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+        
         
         while self.GameState != 'Estop_on':
             
-            first_play_id = 1  #randint(0,1)
-            first_grid_id = 8 #randint(0,8)
+            first_play_id = randint(0,1)
+            first_grid_id = randint(0,8)
             
             msg_string = ''
             next_move = ''
@@ -905,12 +976,16 @@ class TigTagToe(object):
                 self.GridStatus[first_grid_id] = 'o'
                 self.GridStatusPub.publish(msg_string)
                 msg_string = 'game_status:o:' + self.get_grid_status_string()
-                id = self.find_in_slots('right', 'o')
-                if id in range(0, 6):
+                slot_id = self.find_in_slots('right', 'o')
+                
+                if slot_id in range(0, 6):
                     
-                    self.pick_from_xy('right', self.RightSlotsLocation[id])
+                    self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
                     self.place_to_xy('right', self.GridForRightArm[first_grid_id])
                     
+                    self.move_arm('right', self.RightArmInitPose)
+                    
+                self.RightSlots[slot_id] = 'b'
                 
             else: # 'x' placed first
                 
@@ -922,11 +997,15 @@ class TigTagToe(object):
                 self.GridStatusPub.publish(msg_string)
                 msg_string = 'game_status:x:' + self.get_grid_status_string()
                 
-                id = self.find_in_slots('left', 'x')
-                if id in range(0, 6):
+                slot_id = self.find_in_slots('left', 'x')
+                if slot_id in range(0, 6):
                     
-                    self.pick_from_xy('left', self.LeftSlotsLocation[id])
+                    self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
                     self.place_to_xy('left', self.GridForLeftArm[first_grid_id])
+                    
+                    self.move_arm('left', self.LeftArmInitPose)
+                self.LeftSlots[slot_id] = 'b'
+            self.GridStatusPub.publish(msg_string)
             
             sessionDone = False
             while not sessionDone:
@@ -935,22 +1014,53 @@ class TigTagToe(object):
                 
                 if next_move == 'Estop_on':
                     
+                    self.LeftSlots = ['x','x','x','x','x']
+                    self.RightSlots = ['o','o','o','o','o']
+                    self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+                    
                     return
                 
                 item, id = self.interpret_next_move(next_move)
+                print "Item: ", item, "Id: ", id
                 
-                if item in ['x', 'o'] and id in range(0, 9):
+                if item in ['x'] and id in range(0, 9):
                     
+                    slot_id = self.find_in_slots('left', 'x')
+                    print "Pick x from left slot: ", self.LeftSlots[slot_id]
+                    print "place it to: ", self.GridForLeftArm[id]
+                    self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
+                    self.place_to_xy('left', self.GridForLeftArm[id])
+                    self.move_arm('left', self.LeftArmInitPose)
+                    self.LeftSlots[slot_id] = 'b'
                     self.GridStatus[id] = item
+                    msg_string = 'game_status:x:' + self.get_grid_status_string()
+                    self.GridStatusPub.publish(msg_string)
+                    
+                elif item in ['o'] and id in range(0, 9):
+                    slot_id = self.find_in_slots('right', 'o')
+                    print "Pick o from right slot: ", self.LeftSlots[slot_id]
+                    print "place it to: ", self.GridForRightArm[id]
+                    self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
+                    self.place_to_xy('right', self.GridForRightArm[id])
+                    self.move_arm('right', self.RightArmInitPose)
+                    self.GridStatus[id] = item
+                    self.RightSlots[slot_id] = 'b'
+                    msg_string = 'game_status:o:' + self.get_grid_status_string()
+                    self.GridStatusPub.publish(msg_string)
                 
                 elif item == 'draw':
                     sessionDone = True
+                    self.GameStatus = 'Done'
+                    break
                     
                 elif item == 'win':
                     sessionDone = True
+                    self.GameStatus = 'Done'
+                    break
+            
                     
             
-                
+            self.place_all_blocks1()
             
             
             
@@ -1007,6 +1117,11 @@ class TigTagToe(object):
                     
                     self.place_all_blocks()
                 self.GameState = 'InitDone'
+            
+            elif self.GameState == 'Done':
+                
+                self.GameState = 'InitDone'
+                rospy.sleep(5)
                 
             elif self.GameState == 'InitDone':
                 
