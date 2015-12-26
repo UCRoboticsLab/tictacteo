@@ -148,7 +148,7 @@ class GameEngine:
         return '', '', []
     
     def is_winner(self, board, marker):
-        print "check if this marker will win the game"
+        #print "check if this marker will win the game"
         
         for combo in self.winning_combos:
             if (board[combo[0]] == board[combo[1]] == board[combo[2]] == marker):
