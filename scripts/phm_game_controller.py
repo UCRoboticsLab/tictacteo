@@ -92,42 +92,78 @@ class TigTagToe(object):
         right = baxter_interface.Gripper('right', CHECK_VERSION)
         self.baxter_grippers = {'left':left, 'right':right}
         
+        left_arm = baxter_interface.Limb("left")
+        right_arm = baxter_interface.Limb("right")
+        self.arms = {'left':left_arm, 'right':right_arm}
         
-        
-        self.LeftSlotsLocation = [ [0.3951-0.01, 0.2694, -0.0749+0.005, 0.0147, 0.9999, -0.0085, -0.0051], \
-                                    [0.5089-0.01, 0.2679+0.005, -0.0734, -0.0001, 0.9996, -0.0093, -0.0243], \
-                                    [0.6177-0.013, 0.2716+0.005, -0.0753-0.004, 0.0166, 0.9995, -0.0033, -0.0266], \
-                                    [0.5031-0.007, 0.3795, -0.0745, 0.0153, 0.9998, -0.0091, -0.0435], \
-                                    [0.6150-0.005, 0.3809+0.015, -0.0763, 0.0033, 0.9998, 0.0030, -0.0086] ]
-        
-        self.RightSlotsLocation = [ [0.4040+0.005, -0.2569, -0.0756, -0.0206, 0.9997, 0.0018, 0.0164], \
-                                    [0.5131+0.01, -0.2545, -0.0737, -0.0057, 0.9998, 0.0029, 0.0198], \
-                                    [0.6174+0.015, -0.2559+0.005, -0.0784, -0.0179, 0.9996, -0.0142, -0.0104], \
-                                    [0.5224, -0.3682+0.005, -0.0716, -0.0186, 0.9997, 0.0058, -0.0127], \
-                                    [0.6285+0.005, -0.3660-0.005, -0.0699, 0.0031, 0.9998, 0.0031, 0.0191] ]
-        
-        self.GridForLeftArm = [ [0.3965-0.01, -0.1069+0.008, -0.0736-0.003, 0.03617, 0.9991, -0.0098, -0.0198], \
-                                [0.5040-0.005, -0.1058+0.005, -0.0775, 0.0147, 0.9994, 0.0002, -0.0316], \
-                                [0.6115+0.002, -0.0908-0.007, -0.0875, 0.0146, 0.9999, 0.0064, -0.0047], \
-                                [0.3917, 0.0117+0.002, -0.0796, 0.0073, 0.9993, 0.0042, -0.0364], \
-                                [0.4983+0.004, 0.0108+0.005, -0.0821, -0.0066, 0.9999, 0.0015, -0.0127], \
-                                [0.6093, 0.0097, -0.0855+0.002, 0.0154, 0.9997, 0.0029, -0.0194], \
-                                [0.3914-0.015, 0.1200-0.003, -0.0779, 0.0126, 0.9994, -0.0002, -0.0333], \
-                                [0.5029, 0.1203, -0.0811+0.005, 0.0020, 0.9993, 0.0008, -0.0378], \
-                                [0.6103+0.002, 0.1161+0.003, -0.0835+0.005, 0.0195, 0.9992, -0.0010, -0.0352], \
-        
+        #pick
+        self.LeftSlotsLocation = [ [0.3951-0.01, 0.2694, -0.080, 0.0147, 0.9999, -0.0085, -0.0051], \
+                                    [0.5089-0.01, 0.2679, -0.080, -0.0001, 0.9996, -0.0093, -0.0243], \
+                                    [0.6177-0.013, 0.2716+0.003, -0.080, 0.0166, 0.9995, -0.0033, -0.0266], \
+                                    [0.5031-0.007, 0.3795-0.003, -0.080, 0.0153, 0.9998, -0.0091, -0.0435], \
+                                    [0.6150-0.005, 0.3809+0.015, -0.080, 0.0033, 0.9998, 0.0030, -0.0086] ]
+        #place                            
+        self.LeftSlotsLocation1 = [ [0.3951-0.01, 0.2694, -0.080, 0.0147, 0.9999, -0.0085, -0.0051], \
+                                    [0.5089-0.01, 0.2679, -0.080, -0.0001, 0.9996, -0.0093, -0.0243], \
+                                    [0.6177-0.013, 0.2716+0.003, -0.080, 0.0166, 0.9995, -0.0033, -0.0266], \
+                                    [0.5031-0.007, 0.3795, -0.080, 0.0153, 0.9998, -0.0091, -0.0435], \
+                                    [0.6150-0.005, 0.3809+0.015, -0.080, 0.0033, 0.9998, 0.0030, -0.0086] ]
+        #pick
+        self.RightSlotsLocation = [ [0.4040+0.005, -0.2569, -0.076, -0.0206, 0.9997, 0.0018, 0.0164], \
+                                    [0.5131+0.01, -0.2545-0.001, -0.076, -0.0057, 0.9998, 0.0029, 0.0198], \
+                                    [0.6174+0.015, -0.2559+0.002, -0.076, -0.0179, 0.9996, -0.0142, -0.0104], \
+                                    [0.5224, -0.3682+0.003, -0.076, -0.0186, 0.9997, 0.0058, -0.0127], \
+                                    [0.6285+0.005, -0.3660-0.008, -0.076, 0.0031, 0.9998, 0.0031, 0.0191] ]
+        #place                            
+        self.RightSlotsLocation1 = [ [0.4040+0.005, -0.2569-0.002, -0.076, -0.0206, 0.9997, 0.0018, 0.0164], \
+                                    [0.5131+0.01, -0.2545-0.003, -0.076, -0.0057, 0.9998, 0.0029, 0.0198], \
+                                    [0.6174+0.015, -0.2559+0.005, -0.076, -0.0179, 0.9996, -0.0142, -0.0104], \
+                                    [0.5224, -0.3682+0.005, -0.076, -0.0186, 0.9997, 0.0058, -0.0127], \
+                                    [0.6285+0.005, -0.3660-0.008, -0.076, 0.0031, 0.9998, 0.0031, 0.0191] ]
+        #pick
+        self.GridForLeftArm = [ [0.3965-0.02, -0.1069+0.008, -0.076, 0.03617, 0.9991, -0.0098, -0.0198], \
+                                [0.5040-0.01, -0.1058+0.005, -0.076, 0.0147, 0.9994, 0.0002, -0.0316], \
+                                [0.6115+0.002, -0.0908-0.01, -0.076, 0.0146, 0.9999, 0.0064, -0.0047], \
+                                [0.3917, 0.0117-0.002, -0.076, 0.0073, 0.9993, 0.0042, -0.0364], \
+                                [0.4983+0.004, 0.0108-0.003, -0.076, -0.0066, 0.9999, 0.0015, -0.0127], \
+                                [0.6093, 0.0097-0.005, -0.076, 0.0154, 0.9997, 0.0029, -0.0194], \
+                                [0.3914-0.015, 0.1200+0.001, -0.076, 0.0126, 0.9994, -0.0002, -0.0333], \
+                                [0.5029, 0.1203-0.008, -0.076, 0.0020, 0.9993, 0.0008, -0.0378], \
+                                [0.6103+0.002, 0.1161-0.002, -0.076, 0.0195, 0.9992, -0.0010, -0.0352], \
         
                                 ]
+        #place                        
+        self.GridForLeftArm1 = [ [0.3965-0.01, -0.1069+0.008, -0.076, 0.03617, 0.9991, -0.0098, -0.0198], \
+                                [0.5040-0.005, -0.1058+0.005, -0.076, 0.0147, 0.9994, 0.0002, -0.0316], \
+                                [0.6115+0.002, -0.0908-0.01, -0.076, 0.0146, 0.9999, 0.0064, -0.0047], \
+                                [0.3917, 0.0117-0.005, -0.076, 0.0073, 0.9993, 0.0042, -0.0364], \
+                                [0.4983+0.004, 0.0108-0.001, -0.076, -0.0066, 0.9999, 0.0015, -0.0127], \
+                                [0.6093, 0.0097-0.005, -0.076, 0.0154, 0.9997, 0.0029, -0.0194], \
+                                [0.3914-0.01, 0.1200+0.001, -0.076, 0.0126, 0.9994, -0.0002, -0.0333], \
+                                [0.5029, 0.1203-0.008, -0.076, 0.0020, 0.9993, 0.0008, -0.0378], \
+                                [0.6103+0.002, 0.1161, -0.076, 0.0195, 0.9992, -0.0010, -0.0352], \
         
-        self.GridForRightArm =[ [0.4019+0.002, -0.0972, -0.0746, -0.0221, 0.9997, 0.0069, -0.0032], \
-                                [0.5125+0.002, -0.0957, -0.0741, -0.0178, 0.9996, 0.0053, -0.0213], \
-                                [0.6169+0.005, -0.0947+0.005, -0.0760-0.003, -0.0172, 0.9996, -0.0009, 0.0209], \
-                                [0.3964,  0.0073+0.005, -0.0801, -0.0174, 0.9998, -0.0050, -0.0050], \
-                                [0.5020+0.005, 0.0090+0.005, -0.0802, -0.0068, 0.9998, -0.0050, 0.0195], \
-                                [0.6169, 0.0147+0.005, -0.0764, -0.0059, 0.9999, 0.0022, -0.0015], \
-                                [0.3948+0.002, 0.1160+0.01, -0.0815+0.005, -0.0070, 0.9998, -0.0034, -0.0180], \
-                                [0.5042+0.002, 0.1188+0.008, -0.0818, -0.0058, 0.9999, -0.0073, 0.0087], \
-                                [0.6150+0.007, 0.1181+0.005, -0.0811+0.005, -0.0235, 0.9995, -0.0124, 0.0146] ]
+                                ]
+        #pick
+        self.GridForRightArm =[ [0.4019+0.007, -0.0972, -0.076, -0.0221, 0.9997, 0.0069, -0.0032], \
+                                [0.5125+0.002, -0.0957, -0.076, -0.0178, 0.9996, 0.0053, -0.0213], \
+                                [0.6169+0.004, -0.0947+0.001, -0.076, -0.0172, 0.9996, -0.0009, 0.0209], \
+                                [0.3964,  0.0073+0.005, -0.076, -0.0174, 0.9998, -0.0050, -0.0050], \
+                                [0.5020+0.005, 0.0090+0.005, -0.076, -0.0068, 0.9998, -0.0050, 0.0195], \
+                                [0.6169, 0.0147, -0.076, -0.0059, 0.9999, 0.0022, -0.0015], \
+                                [0.3948+0.002, 0.1160+0.008, -0.076, -0.0070, 0.9998, -0.0034, -0.0180], \
+                                [0.5042+0.002, 0.1188+0.006, -0.076, -0.0058, 0.9999, -0.0073, 0.0087], \
+                                [0.6150+0.012, 0.1181+0.005, -0.076, -0.0235, 0.9995, -0.0124, 0.0146] ]
+        #place                        
+        self.GridForRightArm1 =[ [0.4019+0.007, -0.0972, -0.076, -0.0221, 0.9997, 0.0069, -0.0032], \
+                                [0.5125+0.002, -0.0957, -0.076, -0.0178, 0.9996, 0.0053, -0.0213], \
+                                [0.6169+0.004, -0.0947-0.001, -0.076, -0.0172, 0.9996, -0.0009, 0.0209], \
+                                [0.3964,  0.0073+0.005, -0.076, -0.0174, 0.9998, -0.0050, -0.0050], \
+                                [0.5020+0.005, 0.0090+0.005, -0.076, -0.0068, 0.9998, -0.0050, 0.0195], \
+                                [0.6169, 0.0147, -0.076, -0.0059, 0.9999, 0.0022, -0.0015], \
+                                [0.3948+0.002, 0.1160+0.01, -0.076, -0.0070, 0.9998, -0.0034, -0.0180], \
+                                [0.5042+0.002, 0.1188+0.008, -0.076, -0.0058, 0.9999, -0.0073, 0.0087], \
+                                [0.6150+0.012, 0.1181+0.005, -0.076, -0.0235, 0.9995, -0.0124, 0.0146] ]
                                 
         self.RightSlots = ['o', 'o', 'o', 'o', 'o']
         self.LeftSlots = ['x', 'x', 'x', 'x', 'x']
@@ -311,6 +347,7 @@ class TigTagToe(object):
         dist_y = math.fabs(cur_pose.pose.position.y-y)
         dist_z = math.fabs(cur_pose.pose.position.z-z)
         
+        counter = 0
         while dist_x>0.005 or dist_y>0.005 or dist_z>0.005:
             
             # if e stop is on
@@ -325,6 +362,9 @@ class TigTagToe(object):
             dist_x = math.fabs(cur_pose.pose.position.x-x)
             dist_y = math.fabs(cur_pose.pose.position.y-y)
             dist_z = math.fabs(cur_pose.pose.position.z-z)
+            if counter > 50:
+                return
+            counter = counter +1
             rospy.sleep(0.1)
         #print "Postion Reached", dist_x, dist_y, dist_z
         #print target_pose
@@ -391,8 +431,10 @@ class TigTagToe(object):
         self.gripper_control('right', 'open')
         rospy.sleep(1)
         print "Game Init Starts"
-        self.move_arm('left', [0.0, 0.6, 0.2, 0.0, 1.0, 0.0, 0.0])
-        self.move_arm('left', self.LeftArmInitPose)
+        #self.move_arm('left', [0.0, 0.6, 0.2, 0.0, 1.0, 0.0, 0.0])
+        #self.move_arm('left', self.LeftArmInitPose)
+        sefl.arms['left'].set_joint_position_speed(0.3)
+        self.arms['left'].move_to_joint_positions([
         rospy.sleep(2)
         self.move_arm('right', [0.0, -0.6, 0.2, 0.0, 1.0, 0.0, 0.0])
         self.move_arm('right', self.RightArmInitPose)
@@ -442,13 +484,13 @@ class TigTagToe(object):
         oz = 0.0 #pose[5]
         ow = 0.0 #pose[6]
         
-        pose_list = [x, y, z + 0.15, ox, oy, oz, ow]
+        pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
         self.move_arm(side, pose_list)
         rospy.sleep(1)
         self.gripper_control(side, 'open')
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
-        pose_list1 = [x, y, z + 0.01 , ox, oy, oz, ow]
+        pose_list1 = [x, y, z + 0.015 , ox, oy, oz, ow]
         self.move_arm(side, pose_list1)
         rospy.sleep(1)
         self.gripper_control(side, 'close')
@@ -475,7 +517,7 @@ class TigTagToe(object):
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
         
-        pose_list1 = [x, y, z +0.028 , ox, oy, oz, ow]
+        pose_list1 = [x, y, z +0.03 , ox, oy, oz, ow]
         self.move_arm(side, pose_list1)
         rospy.sleep(1)
         
@@ -531,8 +573,8 @@ class TigTagToe(object):
                 
                 self.move_arm('right', self.RightArmInitPose)
                 self.pick_from_xy('left', self.GridForRightArm[grid_id])
-                x1 = self.GridForRightArm[6][0]
-                y1 = self.GridForRightArm[6][1]+0.16
+                x1 = self.GridForRightArm1[6][0]
+                y1 = self.GridForRightArm1[6][1]+0.16
                 left_slot = [x1, y1, -0.0740, 0.0, 1.0, 0.0111, 0.0]
                 self.place_to_xy('left', left_slot)
                 
@@ -926,7 +968,7 @@ class TigTagToe(object):
                 self.pick_from_xy('left', self.GridForRightArm[counter])
                 
                 slot_id = self.find_empty_slot('x')
-                self.place_to_xy('left', self.LeftSlotsLocation[slot_id])
+                self.place_to_xy('left', self.LeftSlotsLocation1[slot_id])
                 self.LeftSlots[slot_id] = 'x'
                 self.GridStatus[counter] = 'b'
                 
@@ -937,7 +979,7 @@ class TigTagToe(object):
                 self.pick_from_xy('right', self.GridForRightArm[counter])
                 
                 slot_id = self.find_empty_slot('o')
-                self.place_to_xy('right', self.RightSlotsLocation[slot_id])
+                self.place_to_xy('right', self.RightSlotsLocation1[slot_id])
                 
                 self.RightSlots[slot_id] = 'o'
                 self.GridStatus[counter] = 'b'
@@ -984,7 +1026,7 @@ class TigTagToe(object):
                 if slot_id in range(0, 5):
                     
                     self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
-                    self.place_to_xy('right', self.GridForRightArm[first_grid_id])
+                    self.place_to_xy('right', self.GridForRightArm1[first_grid_id])
                     
                     self.move_arm('right', self.RightArmInitPose)
                     
@@ -1004,7 +1046,7 @@ class TigTagToe(object):
                 if slot_id in range(0, 6):
                     
                     self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
-                    self.place_to_xy('left', self.GridForLeftArm[first_grid_id])
+                    self.place_to_xy('left', self.GridForLeftArm1[first_grid_id])
                     
                     self.move_arm('left', self.LeftArmInitPose)
                 self.LeftSlots[slot_id] = 'b'
@@ -1032,7 +1074,7 @@ class TigTagToe(object):
                     print "Pick x from left slot: ", self.LeftSlots[slot_id]
                     print "place it to: ", self.GridForLeftArm[id]
                     self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
-                    self.place_to_xy('left', self.GridForLeftArm[id])
+                    self.place_to_xy('left', self.GridForLeftArm1[id])
                     self.move_arm('left', self.LeftArmInitPose)
                     self.LeftSlots[slot_id] = 'b'
                     self.GridStatus[id] = item
@@ -1044,7 +1086,7 @@ class TigTagToe(object):
                     print "Pick o from right slot: ", self.LeftSlots[slot_id]
                     print "place it to: ", self.GridForRightArm[id]
                     self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
-                    self.place_to_xy('right', self.GridForRightArm[id])
+                    self.place_to_xy('right', self.GridForRightArm1[id])
                     self.move_arm('right', self.RightArmInitPose)
                     self.GridStatus[id] = item
                     self.RightSlots[slot_id] = 'b'

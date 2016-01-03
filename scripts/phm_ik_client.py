@@ -231,7 +231,8 @@ class MoveArms(object):
         except (rospy.ServiceException, rospy.ROSException), e:
             rospy.logerr("Service call failed: %s" % (e,))
             return 0
-            
+        
+        print "IK Response", resp
         limb_joints = None
         if (resp.isValid[0]):
             limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
