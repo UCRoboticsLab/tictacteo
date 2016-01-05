@@ -239,9 +239,10 @@ class MoveArms(object):
             print "\nFinish IK moving\n"
             
         else:
+            print "Can't Get IK Result"
             return 0
         
-        print "IK Result", limb_joints
+        #print "IK Result", limb_joints
         #joints_right_list = {'right_s0':-2.0944, 'right_s1':0.0, 'right_e0':0.0, 'right_e1':1.5708, 'right_w0':0.0, 'right_w1':0.0, 'right_w2':1.5708}
         #joints_left_list = {'left_s0':2.0944, 'left_s1':0.0, 'left_e0':1.5708, 'left_e1':1.0472, 'left_w0':0.0, 'left_w1':0.0, 'left_w2':0.0}
         self.arms[arm].move_to_joint_positions(limb_joints)  

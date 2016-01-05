@@ -96,6 +96,85 @@ class TigTagToe(object):
         right_arm = baxter_interface.Limb("right")
         self.arms = {'left':left_arm, 'right':right_arm}
         
+        pose_left_front = [0.6159, 0.2300, -0.0250, 0.0513, 0.9981, 0.0099, -0.0321]
+        pose_right_front = [0.6093, -0.2895, -0.0181, 0.0008, 0.9998, -0.0151, 0.0127]
+        
+        pose_left_back = [0.3919, 0.2404, -0.0215, 0.0423, 0.9991, 0.0055, -0.0065]
+        pose_right_back = [0.3933, -0.2885, -0.0233, 0.0187, 0.9996, 0.011, -0.0167]
+        
+        lb = pose_left_back
+        lf = pose_left_front
+        
+        self.LeftSlotsLocation = [ \
+                                    [lb[0], lb[1], lb[2], lb[3], lb[4], lb[5], lb[6]], \
+                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0], lf[1], lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2+0.11, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0], lf[1]+0.11, lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    
+                                    
+                                    
+                                ]
+        
+        self.LeftSlotsLocation1 = self.LeftSlotsLocation
+        
+        lb = pose_right_back
+        lf = pose_right_front
+
+        
+        self.RightSlotsLocation = [ \
+                                    [lb[0], lb[1], lb[2], lb[3], lb[4], lb[5], lb[6]], \
+                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0], lf[1], lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2-0.11, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0], lf[1]-0.11, lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    
+                                    
+                                    
+                                ]
+        
+        self.RightSlotsLocation1 = self.RightSlotsLocation
+        
+        
+        
+        lf = pose_left_front
+        rf = pose_right_front
+        
+        lb = pose_left_back
+        rb = pose_right_back
+        
+        center_x = (rb[0]+lb[0]+rf[0]+lf[0])/4
+        center_y = (rb[1]+lb[1]+rf[1]+lf[1])/4
+        center_z = (rb[2]+lb[2]+rf[2]+lf[2])/4
+        center_ox = (rb[3]+lb[3]+rf[3]+lf[3])/4
+        center_oy = (rb[4]+lb[4]+rf[4]+lf[4])/4
+        center_oz = (rb[5]+lb[5]+rf[5]+lf[5])/4
+        center_ow = (rb[6]+lb[6]+rf[6]+lf[6])/4
+        
+        self.GridForLeftArm = [ \
+                                [rb[0], (lb[1]+rb[1])/2-0.11, rb[2], rb[3], rb[4], rb[5], rb[6] ], \
+                                [(rb[0]+rf[0])/2, (lf[1]+rf[1])/2-0.11, (rf[2]+rb[2])/2, rb[3],rb[4],rb[5],rb[6] ], \
+                                [rf[0], (lf[1]+rf[1])/2-0.11, rf[2], rf[3], rf[4], rf[5], rf[6] ], \
+                                [(rb[0]+lb[0])/2, (rb[1]+lb[1])/2, (rb[2]+lb[2])/2, rb[3], rb[4], rb[5], rb[6] ], \
+                                [center_x, center_y,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [(rf[0]+lf[0])/2, (rf[1]+lf[1])/2, (rf[2]+lf[2])/2, rf[3], rf[4], rf[5], rf[6] ], \
+                                [lb[0], (lb[1]+rb[1])/2+0.11, lb[2], lb[3], lb[4], lb[5], lb[6] ], \
+                                [(lf[0]+lb[0])/2, (lf[1]+rf[1])/2+0.11, (lf[2]+lb[2])/2, lf[3],lf[4], lf[5], lf[6] ], \
+                                [(lf[0]+rf[0])/2, (lf[1]+rf[1])/2+0.11, lf[2], lf[3],lf[4],lf[5],lf[6] ], \
+                                
+                              ]
+                            
+        
+        self.GridForLeftArm1 = self.GridForLeftArm
+        
+        
+        self.GridForRightArm = self.GridForLeftArm
+        
+        self.GridForRightArm1 = self.GridForLeftArm
+        
+                                    
+                                    
+        '''
         #pick
         self.LeftSlotsLocation = [ [0.3951+0.007, 0.2694, -0.080, 0.0147, 0.9999, -0.0085, -0.0051], \
                                     [0.5089, 0.2679, -0.080, -0.0001, 0.9996, -0.0093, -0.0243], \
@@ -164,6 +243,7 @@ class TigTagToe(object):
                                 [0.3948+0.002, 0.1160+0.01, -0.076, -0.0070, 0.9998, -0.0034, -0.0180], \
                                 [0.5042+0.005, 0.1188+0.008, -0.076, -0.0058, 0.9999, -0.0073, 0.0087], \
                                 [0.6150+0.012, 0.1181+0.005, -0.076, -0.0235, 0.9995, -0.0124, 0.0146] ]
+        '''
                                 
         self.RightSlots = ['o', 'o', 'o', 'o', 'o']
         self.LeftSlots = ['x', 'x', 'x', 'x', 'x']
@@ -362,10 +442,10 @@ class TigTagToe(object):
             dist_x = math.fabs(cur_pose.pose.position.x-x)
             dist_y = math.fabs(cur_pose.pose.position.y-y)
             dist_z = math.fabs(cur_pose.pose.position.z-z)
-            if counter > 50:
+            if counter > 100:
                 return
             counter = counter +1
-            rospy.sleep(0.1)
+            rospy.sleep(0.05)
         #print "Postion Reached", dist_x, dist_y, dist_z
         #print target_pose
     
@@ -490,10 +570,10 @@ class TigTagToe(object):
         x = pose[0]
         y = pose[1]
         z = pose[2]
-        ox = 0.0 #pose[3]
-        oy = 1.0 # pose[4]
-        oz = 0.0 #pose[5]
-        ow = 0.0 #pose[6]
+        ox = pose[3]
+        oy = pose[4]
+        oz = pose[5]
+        ow = pose[6]
         
         pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
         self.move_arm(side, pose_list)
@@ -501,7 +581,7 @@ class TigTagToe(object):
         self.gripper_control(side, 'open')
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
-        pose_list1 = [x, y, z + 0.015 , ox, oy, oz, ow]
+        pose_list1 = [x, y, z  , ox, oy, oz, ow]
         self.move_arm(side, pose_list1)
         rospy.sleep(1)
         self.gripper_control(side, 'close')
@@ -513,13 +593,17 @@ class TigTagToe(object):
         
     def place_to_xy(self, side, pose):
         
+        if len(pose)!= 7:
+            print "Place to xy error, pose list length incorrect"
+            return
+        
         x = pose[0]
         y = pose[1]
         z = pose[2]
-        ox = 0.0 #pose[3]
-        oy = 1.0 #pose[4]
-        oz = 0.0 #pose[5]
-        ow = 0.0 #pose[6]
+        ox = pose[3]
+        oy = pose[4]
+        oz = pose[5]
+        ow = pose[6]
         
         pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
         self.move_arm(side, pose_list)
@@ -528,7 +612,7 @@ class TigTagToe(object):
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
         
-        pose_list1 = [x, y, z +0.03 , ox, oy, oz, ow]
+        pose_list1 = [x, y, z +0.015 , ox, oy, oz, ow]
         self.move_arm(side, pose_list1)
         rospy.sleep(1)
         
