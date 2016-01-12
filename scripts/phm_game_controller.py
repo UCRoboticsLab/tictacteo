@@ -96,21 +96,21 @@ class TigTagToe(object):
         right_arm = baxter_interface.Limb("right")
         self.arms = {'left':left_arm, 'right':right_arm}
         
-        pose_left_front = [0.6159, 0.2300, -0.0250, 0.0513, 0.9981, 0.0099, -0.0321]
-        pose_right_front = [0.6093, -0.2895, -0.0181, 0.0008, 0.9998, -0.0151, 0.0127]
+        pose_left_front = [0.6085+0.01, 0.2332, -0.0263, 0.05, 0.9999, -0.0005, 0.0002]
+        pose_right_front = [0.6076, -0.2891, -0.0254, 0.01, 0.9999, 0.0003, -0.0011]
         
-        pose_left_back = [0.3919, 0.2404, -0.0215, 0.0423, 0.9991, 0.0055, -0.0065]
-        pose_right_back = [0.3933, -0.2885, -0.0233, 0.0187, 0.9996, 0.011, -0.0167]
+        pose_left_back = [0.3871+0.01, 0.2413, -0.0252, 0.04, 0.9999, 0.0005, -0.0012]
+        pose_right_back = [0.3910, -0.2889, -0.0247, 0.01, 0.9999, -0.0003, 0.0005]
         
         lb = pose_left_back
         lf = pose_left_front
         
         self.LeftSlotsLocation = [ \
                                     [lb[0], lb[1], lb[2], lb[3], lb[4], lb[5], lb[6]], \
-                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
-                                    [lf[0], lf[1], lf[2], lf[3], lf[4], lf[5], lf[6]], \
-                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2+0.11, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
-                                    [lf[0], lf[1]+0.11, lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    [(lf[0]+lb[0])/2+0.005, (lf[1]+lb[1])/2, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0]+0.005, lf[1], lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    [(lf[0]+lb[0])/2+0.01, (lf[1]+lb[1])/2+0.11, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0]+0.01, lf[1]+0.11, lf[2], lf[3], lf[4], lf[5], lf[6]], \
                                     
                                     
                                     
@@ -123,11 +123,11 @@ class TigTagToe(object):
 
         
         self.RightSlotsLocation = [ \
-                                    [lb[0], lb[1], lb[2], lb[3], lb[4], lb[5], lb[6]], \
-                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
-                                    [lf[0], lf[1], lf[2], lf[3], lf[4], lf[5], lf[6]], \
-                                    [(lf[0]+lb[0])/2, (lf[1]+lb[1])/2-0.11, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
-                                    [lf[0], lf[1]-0.11, lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    [lb[0]+0.005, lb[1], lb[2], lb[3], lb[4], lb[5], lb[6]], \
+                                    [(lf[0]+lb[0])/2+0.005, (lf[1]+lb[1])/2, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0]+0.008, lf[1]-0.005, lf[2], lf[3], lf[4], lf[5], lf[6]], \
+                                    [(lf[0]+lb[0])/2+0.003, (lf[1]+lb[1])/2-0.11-0.002, (lf[2]+lb[2])/2, lf[3], lf[4], lf[5], lf[6]], \
+                                    [lf[0]+0.005, lf[1]-0.11-0.006, lf[2], lf[3], lf[4], lf[5], lf[6]], \
                                     
                                     
                                     
@@ -152,15 +152,15 @@ class TigTagToe(object):
         center_ow = (rb[6]+lb[6]+rf[6]+lf[6])/4
         
         self.GridForLeftArm = [ \
-                                [rb[0], (lb[1]+rb[1])/2-0.11, rb[2], rb[3], rb[4], rb[5], rb[6] ], \
-                                [(rb[0]+rf[0])/2, (lf[1]+rf[1])/2-0.11, (rf[2]+rb[2])/2, rb[3],rb[4],rb[5],rb[6] ], \
-                                [rf[0], (lf[1]+rf[1])/2-0.11, rf[2], rf[3], rf[4], rf[5], rf[6] ], \
-                                [(rb[0]+lb[0])/2, (rb[1]+lb[1])/2, (rb[2]+lb[2])/2, rb[3], rb[4], rb[5], rb[6] ], \
-                                [center_x, center_y,center_z, center_ox, center_oy,center_oz,center_ow ], \
-                                [(rf[0]+lf[0])/2, (rf[1]+lf[1])/2, (rf[2]+lf[2])/2, rf[3], rf[4], rf[5], rf[6] ], \
-                                [lb[0], (lb[1]+rb[1])/2+0.11, lb[2], lb[3], lb[4], lb[5], lb[6] ], \
-                                [(lf[0]+lb[0])/2, (lf[1]+rf[1])/2+0.11, (lf[2]+lb[2])/2, lf[3],lf[4], lf[5], lf[6] ], \
-                                [(lf[0]+rf[0])/2, (lf[1]+rf[1])/2+0.11, lf[2], lf[3],lf[4],lf[5],lf[6] ], \
+                                [center_x-0.11-0.01, center_y-0.11,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x-0.005, center_y-0.11-0.005,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.11-0.01, center_y-0.11-0.015,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x-0.11-0.005, center_y, center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x, center_y-0.007, center_z, center_ox, center_oy, center_oz, center_ow ], \
+                                [center_x+0.11, center_y-0.01, center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x-0.11, center_y+0.11-0.002,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x, center_y+0.11-0.007,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.11+0.003, center_y+0.11-0.01,center_z, center_ox, center_oy,center_oz,center_ow ], \
                                 
                               ]
                             
@@ -168,9 +168,20 @@ class TigTagToe(object):
         self.GridForLeftArm1 = self.GridForLeftArm
         
         
-        self.GridForRightArm = self.GridForLeftArm
+        self.GridForRightArm = [ \
+                                [center_x-0.11+0.003, center_y-0.11+0.012,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.003, center_y-0.11+0.005,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.11, center_y-0.11+0.003,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x-0.11, center_y+0.013, center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.002, center_y+0.008, center_z, center_ox, center_oy, center_oz, center_ow ], \
+                                [center_x+0.11, center_y+0.003, center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x-0.11, center_y+0.11+0.015,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.003, center_y+0.11+0.01,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                [center_x+0.11+0.005, center_y+0.11+0.002,center_z, center_ox, center_oy,center_oz,center_ow ], \
+                                
+                              ]
         
-        self.GridForRightArm1 = self.GridForLeftArm
+        self.GridForRightArm1 = self.GridForRightArm
         
                                     
                                     
@@ -314,7 +325,29 @@ class TigTagToe(object):
             
         return 0 # return 0 : time out, return 1, button pressed correctly
             
+    def wait_button_on1(self, min_seconds):
         
+        button_status = self.ButtonStatus
+        counter = 0
+        counter1 = 0
+       
+        min_count = math.floor(min_seconds/0.1)
+        while not rospy.is_shutdown():
+            
+            if self.GameState == 'Estop_on':
+                return -1
+            button_status = self.ButtonStatus
+            #print "Button Status: ", button_status
+            if (button_status == 0):
+                counter1 = counter1 + 1
+            else:
+                counter1 = 0
+            rospy.sleep(0.1)
+            counter = counter + 1
+            if counter1>=min_count:
+                return 1
+            
+        return 0 # return 0 : time out, return 1, button pressed correctly    
     
     def get_vision_reply(self):
         
@@ -595,6 +628,7 @@ class TigTagToe(object):
         
         if len(pose)!= 7:
             print "Place to xy error, pose list length incorrect"
+            print "Pose List: ", pose
             return
         
         x = pose[0]
@@ -1243,7 +1277,7 @@ class TigTagToe(object):
         
         #self.pick_test(1,0)
         print "Wait For Button"
-        self.wait_button_on(0.1, 100) # User has to keep pressing the button for at least 1 second
+        self.wait_button_on1(0.1) # User has to keep pressing the button for at least 1 second
         
         ##self.pck_item('left', 'x')
         ##self.place_item('left', 1, 1)
@@ -1300,7 +1334,7 @@ class TigTagToe(object):
             elif self.GameState == 'Estop_reset':
                 
                 print "Press Button to Re enalbe robot"
-                self.wait_button_on(0.2, 200000)
+                self.wait_button_on1(0.1)
                 rs = baxter_interface.RobotEnable(CHECK_VERSION)
                 restart_status = False
                 while not restart_status:

@@ -253,10 +253,10 @@ class MoveArms(object):
         
     def run(self):
     
-        self.init_angle('left')
-        self.init_angle('right')
+        #self.init_angle('left')
+        #self.init_angle('right')
         #self.move_distance([0.0, 0.5, 0.0], 'right') #[0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0
-        self.move_to([0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'left')
+        #self.move_to([0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'left')
         rospy.sleep(2)
         while not rospy.is_shutdown():
         

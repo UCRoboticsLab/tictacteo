@@ -56,6 +56,8 @@ class GameCalibrator(object):
         self.cur_img = None                             
         self.ImageThreadLock = threading.Lock()
         
+        self.ArmCmdPub = rospy.Publisher('robot_arms_cmd', String, queue_size=10)
+        
         camera_sub = rospy.Subscriber('/cameras/'+ self.arm + '_hand_camera/image', \
                                        Image, self._camera_callback)
                                     
@@ -84,10 +86,12 @@ class GameCalibrator(object):
         
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
-        ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
+        left_ir_msg = message_filters.Subscriber('/robot/range/left_hand_range/state',Range)
+        right_ir_msg = message_filters.Subscriber('/robot/range/right_hand_range/state',Range)
+        ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg, left_ir_msg, right_ir_msg], 10, 0.05)
         ts.registerCallback(self.pose_callback)    
     
-    def pose_callback(self, left_msg, right_msg):
+    def pose_callback(self, left_msg, right_msg, left_ir_msg, right_ir_msg):
     
         pose1 = left_msg.pose
         pose2 = right_msg.pose
@@ -274,13 +278,165 @@ class GameCalibrator(object):
 
     def run(self):
         
-        print "Recording Grids Location..."
-        self.grids_location_recorder()
+        #print "Recording Grids Location..."
+        #self.grids_location_recorder()
         #print "Recording Grid Roi..."
         #self.grids_roi_recorder()
         
+        cur_arm = 'left'
         
+        step = 0.004
+        print "Input: "
         while not rospy.is_shutdown():
+            
+            
+            
+            c = baxter_external_devices.getch(1.0)
+            
+            
+            if c:
+                if c in ['w']:
+                    
+                    pose = self.current_poses['left']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    
+                    print " "
+                    print "Get w"
+                    x = x + step
+                    cur_arm = 'left'
+                
+                elif c in ['z']:
+                    
+                    pose = self.current_poses['left']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    print " "
+                    print "Get z"
+                    x = x - step
+                    cur_arm = 'left'
+                    
+                elif c in ['a']:
+                    pose = self.current_poses['left']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    print " "
+                    print "Get a"
+                    y = y + step
+                    cur_arm = 'left'
+                    
+                elif c in ['s']:
+                    
+                    pose = self.current_poses['left']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    
+                    print " "
+                    print "Get s"
+                    y = y - step
+                    cur_arm = 'left'
+                    
+                if c in ['i']:
+                    
+                    pose = self.current_poses['right']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    print " "
+                    print "Get i"
+                    x = x + step
+                    cur_arm = 'right'
+                
+                elif c in ['m']:
+                    
+                    pose = self.current_poses['right']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    print " "
+                    print "Get m"
+                    x = x - step
+                    cur_arm = 'right'
+                    
+                elif c in ['j']:
+                    
+                    pose = self.current_poses['right']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    print " "
+                    print "Get j"
+                    y = y + step
+                    cur_arm = 'right'
+                    
+                elif c in ['k']:
+                    
+                    pose = self.current_poses['right']
+                    x = pose.pose.position.x
+                    y = pose.pose.position.y
+                    z = -0.0247 #pose.pose.position.z
+                    ox = 0.0
+                    oy = 1.0
+                    oz = 0.0
+                    ow = 0.0
+                    y = y - step
+                    cur_arm = 'right'  
+                    print " "
+                    print "Get k"
+                
+                
+            else:
+                rospy.sleep(0.1)
+                continue
+                    
+                    
+            msg_string = cur_arm + ':move_to:' + \
+                      str(x) + \
+                      ',' + \
+                      str(y) + \
+                      ',' + \
+                      str(z) + \
+                      ',' + \
+                      str(ox) + \
+                      ',' + \
+                      str(oy) + \
+                      ',' + \
+                      str(oz) + \
+                      ',' + \
+                      str(ow)
+            self.ArmCmdPub.publish(msg_string) 
             
             rospy.sleep(0.1)
         
@@ -298,6 +454,7 @@ def main():
     gc = GameCalibrator('left')
     gc.init_msgs()
     
+    rospy.sleep(2)
     gc.run()
     
 
