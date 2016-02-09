@@ -258,7 +258,8 @@ class TigTagToe(object):
         
                                 ]
         #place                        
-        self.GridForLeftArm1 = [ [0.3965, -0.1069-0.003, -0.076, 0.03617, 0.9991, -0.0098, -0.0198], \
+        self.GridForLeftArm1 = [ 
+                                [0.3965, -0.1069-0.003, -0.076, 0.03617, 0.9991, -0.0098, -0.0198], \
                                 [0.5040-0.005, -0.1058, -0.076, 0.0147, 0.9994, 0.0002, -0.0316], \
                                 [0.6115+0.002, -0.0908-0.018, -0.076, 0.0146, 0.9999, 0.0064, -0.0047], \
                                 [0.3917, 0.0117-0.01, -0.076, 0.0073, 0.9993, 0.0042, -0.0364], \
@@ -267,10 +268,10 @@ class TigTagToe(object):
                                 [0.3914+0.012, 0.1200-0.01, -0.076, 0.0126, 0.9994, -0.0002, -0.0333], \
                                 [0.5029, 0.1203-0.008, -0.076, 0.0020, 0.9993, 0.0008, -0.0378], \
                                 [0.6103+0.009, 0.1161-0.005, -0.076, 0.0195, 0.9992, -0.0010, -0.0352], \
-        
-                                ]
+                                
+                               ]
         #pick
-        self.GridForRightArm =[ [0.4019+0.007, -0.0972, -0.076, -0.0221, 0.9997, 0.0069, -0.0032], \
+        self.GridForRightArm = [ [0.4019+0.007, -0.0972, -0.076, -0.0221, 0.9997, 0.0069, -0.0032], \
                                 [0.5125+0.002, -0.0957, -0.076, -0.0178, 0.9996, 0.0053, -0.0213], \
                                 [0.6169+0.004, -0.0947-0.004, -0.076, -0.0172, 0.9996, -0.0009, 0.0209], \
                                 [0.3964,  0.0073+0.005, -0.076, -0.0174, 0.9998, -0.0050, -0.0050], \
@@ -278,7 +279,8 @@ class TigTagToe(object):
                                 [0.6169+0.006, 0.0147, -0.076, -0.0059, 0.9999, 0.0022, -0.0015], \
                                 [0.3948+0.01, 0.1160+0.008, -0.076, -0.0070, 0.9998, -0.0034, -0.0180], \
                                 [0.5042+0.002, 0.1188+0.006, -0.076, -0.0058, 0.9999, -0.0073, 0.0087], \
-                                [0.6150+0.012, 0.1181+0.005, -0.076, -0.0235, 0.9995, -0.0124, 0.0146] ]
+                                [0.6150+0.012, 0.1181+0.005, -0.076, -0.0235, 0.9995, -0.0124, 0.0146], \ 
+                               ]
         #place                        
         self.GridForRightArm1 =[ [0.4019+0.007, -0.0972, -0.076, -0.0221, 0.9997, 0.0069, -0.0032], \
                                 [0.5125+0.008, -0.0957, -0.076, -0.0178, 0.9996, 0.0053, -0.0213], \
@@ -335,7 +337,10 @@ class TigTagToe(object):
         if self.EstopStatus.enabled == True:
             return
         
+        reset_flag = False
         while self.EstopStatus.estop_button == 2 or self.EstopStatus.estop_button == 1:
+            if self.EstopStatus.estop_button == 2:
+                self.reset_estop()
             rospy.sleep(0.1)
         
         #while self.ButtonStatus == 0:
@@ -1204,6 +1209,7 @@ class TigTagToe(object):
         grid_status_list = []
         xy_list = []
         
+        self.move_arm('right', self.RightArmInitPose)
         counter = 0
         for item in self.GridStatus:
             
@@ -1215,7 +1221,7 @@ class TigTagToe(object):
                 
                 if self.GameState == 'Estop_on':
                     return
-                self.move_arm('right', self.RightArmInitPose)
+                #self.move_arm('right', self.RightArmInitPose)
                 if self.GameState == 'Estop_on':
                     return
                 self.pick_from_xy('left', self.GridForLeftArm[counter])
@@ -1229,12 +1235,27 @@ class TigTagToe(object):
                 self.LeftSlots[slot_id] = 'x'
                 self.GridStatus[counter] = 'b'
                 
-            elif item == 'o':
+            
+                
+            elif item == 'b':
+                
+                pass
+                
+            counter = counter + 1
+        
+        self.move_arm('left', self.LeftArmInitPose)
+        counter = 0
+        for item in self.GridStatus:
+            
+            if self.GameState == 'Estop_on':
+                return
+            
+            if item == 'o':
                 
                 if self.GameState == 'Estop_on':
                     return
                 
-                self.move_arm('left', self.LeftArmInitPose)
+                #self.move_arm('left', self.LeftArmInitPose)
                 if self.GameState == 'Estop_on':
                     return
                 
@@ -1255,7 +1276,6 @@ class TigTagToe(object):
                 pass
                 
             counter = counter + 1
-        
         
             
         return
@@ -1491,6 +1511,7 @@ class TigTagToe(object):
                     print "E Stop is on, waiting for a reset"
                     self.wait_for_estop()
                     rs.reset()
+                    self.GameState = 'Estop_reset'
                     
                 rs.enable()
                 restart_status = True
@@ -1526,7 +1547,9 @@ class TigTagToe(object):
         restart_status = False
         while not restart_status:
             try:
+                rs.reset()
                 rs.enable()
+                
                 restart_status = True
                 #self.display_image('running')
             except Exception, e:
@@ -1562,8 +1585,20 @@ class TigTagToe(object):
 ##                print "Not in working time period"
 ##                rospy.sleep(1)
 ##                continue
-            
-            if self.GameState == 'NoInit':
+            if self.GameState == 'WaitForButton':
+                
+                print "Enter WaitForButton Step"
+                wait_status = self.wait_button_on1(0.1)
+                if wait_status == -1 and self.GameState!='Estop_on':
+                    self.GameState = 'Estop_reset'
+                    rospy.sleep(1)
+                    continue
+                elif wait_status ==-1 and self.GameState=='Estop_on':
+                    #rospy.sleep(0.1)
+                    continue
+                pass
+                
+            elif self.GameState == 'NoInit':
                 
                 print "Enter NoInit Step"
                 self.init_game()
@@ -1573,7 +1608,7 @@ class TigTagToe(object):
                 
                 
             
-            
+        
             elif self.GameState == 'Init':
                 
                 print "Enter Init Step"
@@ -1585,7 +1620,8 @@ class TigTagToe(object):
                     continue
                 if 'o' in self.GridStatus or 'x' in self.GridStatus:
                     
-                    self.place_all_blocks()
+                    #self.place_all_blocks()
+                    pass
                 self.GameState = 'InitDone'
             
             elif self.GameState == 'Done':
