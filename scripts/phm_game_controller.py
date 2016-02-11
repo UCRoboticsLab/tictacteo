@@ -1489,7 +1489,99 @@ class TigTagToe(object):
         return    
             
     
+    def game_play(self):
         
+        
+        print "Entering Demo Mode..."
+        
+        self.LeftSlots = ['x','x','x','x','x']
+        self.RightSlots = ['o','o','o','o','o']
+        self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+        
+        
+        while self.GameState != 'Estop_on':
+##            t = time.localtime(time.time())
+##            print "Current Time: ", t.tm_hour, ":", t.tm_min
+##            if (t.tm_hour >= 16 and t.tm_min>45) or (t.tm_hour<=9 and t.tm_min<30):
+##                print "Not in working time period"
+##                rospy.sleep(1)
+##                continue
+            
+            first_play_id = randint(0,1)
+            first_grid_id = randint(0,8)
+            
+            msg_string = ''
+            next_move = ''
+            if first_play_id == 0: # 'o' placed first
+                
+                self.display_image('rightplay')
+                print "First Place is 'o' at %d" % first_grid_id
+                self.FirstPlayMarker = 'o'
+                msg_string = 'game_engine:o:start'
+                self.GridStatus[first_grid_id] = 'o'
+                self.GridStatusPub.publish(msg_string)
+                msg_string = 'game_status:o:' + self.get_grid_status_string()
+                slot_id = self.find_in_slots('right', 'o')
+                
+                if slot_id in range(0, 5):
+                    
+                    if self.GameState == 'Estop_on':
+                        return
+                    self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
+                    if self.GameState == 'Estop_on':
+                        return
+                    
+                    self.place_to_xy('right', self.GridForRightArm1[first_grid_id])
+                    if self.GameState == 'Estop_on':
+                        return
+                    
+                    self.move_arm('right', self.RightArmInitPose)
+                    if self.GameState == 'Estop_on':
+                        return
+                    #self.move_to_init('right')
+                    
+                self.RightSlots[slot_id] = 'b'
+                
+            else: # 'x' placed first
+                
+                self.display_image('leftplay')
+                print "First Place is 'x' at %d" % first_grid_id
+                
+                self.FirstPlayMarker = 'x'
+                msg_string = 'game_engine:x:start'
+                self.GridStatus[first_grid_id] = 'x'
+                self.GridStatusPub.publish(msg_string)
+                msg_string = 'game_status:x:' + self.get_grid_status_string()
+                
+                slot_id = self.find_in_slots('left', 'x')
+                if slot_id in range(0, 6):
+                    
+                    if self.GameState == 'Estop_on':
+                        return
+                    self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
+                    if self.GameState == 'Estop_on':
+                        return
+                    self.place_to_xy('left', self.GridForLeftArm1[first_grid_id])
+                    if self.GameState == 'Estop_on':
+                        return
+                    
+                    self.move_arm('left', self.LeftArmInitPose)
+                    if self.GameState == 'Estop_on':
+                        return
+                    #self.move_to_init('left')
+                self.LeftSlots[slot_id] = 'b'
+            self.GridStatusPub.publish(msg_string)
+            
+            sessionDone = False
+            while not sessionDone:
+                
+                
+                pass
+                
+        
+        
+        
+        return
         
     
     def run(self):
