@@ -75,18 +75,19 @@ class TigTagToe(object):
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         rospy.Subscriber('next_move', String, self.next_move_callback)
-        rospy.Subscriber('/robot/digital_io/right_shoulder_button/state', DigitalIOState, self.button_callback)
+        #rospy.Subscriber('/robot/digital_io/right_shoulder_button/state', DigitalIOState, self.button_callback)
+        rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
         rospy.Subscriber('/robot/state', AssemblyState, self.robot_state_callback)
         
-        display_image_paths = {'running':'/home/ruser/ros_ws/src/phm/images/running.png', \
-                                'estop':'/home/ruser/ros_ws/src/phm/images/estop.png', \
-                                'waitforbutton':'/home/ruser/ros_ws/src/phm/images/waitforbutton.png', \
-                                'leftwin':'/home/ruser/ros_ws/src/phm/images/baxter_left_won.png', \
-                                'rightwin':'/home/ruser/ros_ws/src/phm/images/baxter_right_won.png', \
-                                'draw':'/home/ruser/ros_ws/src/phm/images/baxter_draw.png', \
-                                'leftplay':'/home/ruser/ros_ws/src/phm/images/baxter_left_play.png', \
-                                'rightplay':'/home/ruser/ros_ws/src/phm/images/baxter_right_play.png', \
-                                'resettable':'/home/ruser/ros_ws/src/phm/images/baxter_clean.png', \
+        display_image_paths = {'running':'/home/zzz/ros_ws/src/phm/images/running.png', \
+                                'estop':'/home/zzz/ros_ws/src/phm/images/estop.png', \
+                                'waitforbutton':'/home/zzz/ros_ws/src/phm/images/waitforbutton.png', \
+                                'leftwin':'/home/zzz/ros_ws/src/phm/images/baxter_left_won.png', \
+                                'rightwin':'/home/zzz/ros_ws/src/phm/images/baxter_right_won.png', \
+                                'draw':'/home/zzz/ros_ws/src/phm/images/baxter_draw.png', \
+                                'leftplay':'/home/zzz/ros_ws/src/phm/images/baxter_left_play.png', \
+                                'rightplay':'/home/zzz/ros_ws/src/phm/images/baxter_right_play.png', \
+                                'resettable':'/home/zzz/ros_ws/src/phm/images/baxter_clean.png', \
                                 }
                                 
         img1 = cv2.imread(display_image_paths['running'])
@@ -402,7 +403,7 @@ class TigTagToe(object):
             
             button_status = self.ButtonStatus
             #print "Button Status: ", button_status
-            if (button_status == 0):
+            if (button_status == 1):
                 counter1 = counter1 + 1
             else:
                 counter1 = 0
@@ -662,6 +663,34 @@ class TigTagToe(object):
         #self.GridCenter = self.GridLocations[4]
         
         # Up to here, the center of the Grid Pattern is found.
+    
+    def check_one_grid1(self, side, pose_list, grid_id):
+        
+        x = pose_list[0]
+        y = pose_list[1]
+        z = pose_list[2]
+        ox = pose_list[3]
+        oy = pose_list[4]
+        oz = pose_list[5]
+        ow = pose_list[6]
+        
+        new_pose = list(pose_list)
+        
+        new_pose[2] = new_pose[2] + 0.17
+        
+        self.move_arm(side, new_pose)
+        
+        rospy.sleep(2)
+        
+        msg_string = side+':check1:'+str(grid_id)
+        print "Check Grid1 Cmd: ", msg_string
+        self.VisionCmdPub.publish(msg_string)
+        
+        cv_reply = self.get_vision_reply()
+    
+        reply_cmd, grid_status, xy_list = self.interpret_grid_checking_reply1(cv_reply)
+        
+        return grid_status, xy_list
         
     def check_one_grid(self, side, grid_id):
         
@@ -1487,16 +1516,128 @@ class TigTagToe(object):
         
         
         return    
+    
+    def check_all_grids(self, side):
+        
+        grid_ids = range(0,9)
+        pose_list = []
+        grid_results = ['b','b','b','b','b','b','b','b','b']
+        counter = 0
+        for id in grid_ids:
+            if side=='left':
+                pose_list = self.GridForLeftArm[id]
+            elif side =='right':
+                pose_list = self.GridForRightArm[id]
+                
+            grid_status, xy_list = self.check_one_grid1(side, pose_list, id)
+            if grid_status[0] in ['x', 'o']:
+                grid_results[counter] = grid_status[0]
+                
+            counter = counter + 1    
             
+        self.move_arm('left', self.LeftArmInitPose)
+        return list(grid_results)
+    
+    def update_grid_status(self, side):
+        
+        counter = 0
+        pose_list = []
+        for grid in self.GridStatus:
+            
+            if grid == 'b':
+                
+                if side=='left':
+                    pose_list = self.GridForLeftArm[counter]
+                elif side =='right':
+                    pose_list = self.GridForRightArm[counter]
+                grid_status, xy_list = self.check_one_grid1(side, pose_list, counter)
+                
+                if grid_status[0] in ['x', 'o', 'b']:
+                    
+                    self.GridStatus[counter] = grid_status[0]
+                    
+                
+            counter = counter + 1
+            
+        self.move_arm('left', self.LeftArmInitPose)
+        return
+    
+    def check_left_slots(self):
+
+        left_slot_result = ['x', 'x', 'x', 'x', 'x']
+        slot_ids = range(0, 5)
+        counter = 0
+        for id in slot_ids:
+            
+            pose_list = self.LeftSlotsLocation[id]
+                
+            slot_status, xy_list = self.check_one_grid1('left', pose_list, 0)
+            if slot_status[0] in ['x', 'o', 'b']:
+                left_slot_result[counter] = slot_status[0]
+                
+            counter = counter + 1
+        self.move_arm('left', self.LeftArmInitPose)
+        return list(left_slot_result)
+    
+    def update_left_slots(self):
+        
+        pose_list = []
+        counter = 0
+        
+        for slot in self.LeftSlots:
+            pose_list = self.LeftSlotsLocation[counter]
+            slot_status, xy_list = self.check_one_grid1('left', pose_list, counter)
+            if slot_status[0] in ['x', 'o', 'b']:
+                self.LeftSlots[counter] = slot_status[0]
+            counter = counter + 1    
+        
+        self.move_arm('left', self.LeftArmInitPose)
+        return        
+        
+    def check_right_slots(self):
+
+        right_slot_result = ['o', 'o', 'o', 'o', 'o']
+        slot_ids = range(0, 5)
+        counter = 0
+        for id in slot_ids:
+            
+            pose_list = self.RightSlotsLocation[id]
+                
+            slot_status, xy_list = self.check_one_grid1('right', pose_list, 0)
+            if slot_status[0] in ['x', 'o', 'b']:
+                right_slot_result[counter] = slot_status[0]
+                
+            counter = counter + 1
+        
+        
+        self.move_arm('right', self.RightArmInitPose)
+        return list(right_slot_result) 
+    
+    def update_right_slots(self):
+        
+        pose_list = []
+        counter = 0
+        
+        for slot in self.RightSlots:
+            pose_list = self.RightSlotsLocation[counter]
+            slot_status, xy_list = self.check_one_grid1('right', pose_list, counter)
+            if slot_status[0] in ['x', 'o', 'b']:
+                self.RightSlots[counter] = slot_status[0]
+            counter = counter + 1
+        self.move_arm('right', self.RightArmInitPose)    
+        return
     
     def game_play(self):
         
         
-        print "Entering Demo Mode..."
+        print "Entering Play Mode..."
         
-        self.LeftSlots = ['x','x','x','x','x']
-        self.RightSlots = ['o','o','o','o','o']
-        self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+        print "Check Table..."
+        self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
+        self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
+        
+        self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+        
         
         
         while self.GameState != 'Estop_on':
@@ -1506,13 +1647,22 @@ class TigTagToe(object):
 ##                print "Not in working time period"
 ##                rospy.sleep(1)
 ##                continue
+
+            print "Place a block to start first, then press the button"
+            print "Or press the button , let robot place block first"
+            
+            
+            
+            #check all slots at the beginning of each game session
+            #self.update_grid_status('left')
+            #if (not 'x' in self.GridStatus) and (not 'o' in self.GridStatus):
             
             first_play_id = randint(0,1)
             first_grid_id = randint(0,8)
             
             msg_string = ''
             next_move = ''
-            if first_play_id == 0: # 'o' placed first
+            if first_play_id == 0: # 'o' Human First
                 
                 self.display_image('rightplay')
                 print "First Place is 'o' at %d" % first_grid_id
@@ -1542,7 +1692,7 @@ class TigTagToe(object):
                     
                 self.RightSlots[slot_id] = 'b'
                 
-            else: # 'x' placed first
+            else: # 'x' Robot First
                 
                 self.display_image('leftplay')
                 print "First Place is 'x' at %d" % first_grid_id
@@ -1724,7 +1874,8 @@ class TigTagToe(object):
             elif self.GameState == 'InitDone':
                 
                 self.display_image('running')
-                self.demo_play()
+                #self.demo_play()
+                self.game_play()
                 
             elif self.GameState == 'Estop_on':
                 

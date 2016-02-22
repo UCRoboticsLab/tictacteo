@@ -72,25 +72,36 @@ class GridDetector(object):
         
         
         
-        left_camera_sub = rospy.Subscriber('/cameras/'+ self.arm + '_hand_camera/image', \
-                                       Image, self._camera_callback)
+        left_camera_sub = rospy.Subscriber('/cameras/'+ 'left_hand_camera/image', \
+                                       Image, self.left_camera_callback)
+                                    
+        right_camera_sub = rospy.Subscriber('/cameras/right_hand_camera/image', \
+                                       Image, self.right_camera_callback)
                                     
         self.height = 600
         self.width = 960
-        self._camera = baxter_interface.CameraController(self.arm + '_hand_camera')
+        self.left_camera = baxter_interface.CameraController('left_hand_camera')
+        
+        self.right_camera = baxter_interface.CameraController('right_hand_camera')
         
         
-        self._camera.open()
-        self._camera.resolution = [self.width, self.height]
-        self._camera.gain = 32
+        self.left_camera.open()
+        self.left_camera.resolution = [self.width, self.height]
+        self.left_camera.gain = 32
+        self.right_camera.open()
+        self.right_camera.resolution = [self.width, self.height]
+        self.right_camera.gain = 32
+        
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.025 #Phm baxter left arm value                  # camera gripper offset
         self.cam_y_offset = -0.02 #Phm baxter left arm value
         
         
-        self.cur_img = None                             
-        self.ImageThreadLock = threading.Lock()
-        
+        self.cur_left_img = None
+        self.cur_right_img = None                            
+        self.LeftImageThreadLock = threading.Lock()
+        self.RightImageThreadLock = threading.Lock()
+                
         self.image_names = {'grid':'template_grid_white_center.png', \
                             'o':'template_o01.png', \
                             'x':'template_x05.png'}
@@ -102,8 +113,9 @@ class GridDetector(object):
         self.GridRoiLocations = []
         
         file = open("./src/phm/grids_roi_location.txt", "r")
-        for i in range(0, 9):
+        for i in range(0, 10):
             line = file.readline()
+            print "Read Line: ", line
             temp_list = []
             for j in line.split():
                 
@@ -114,7 +126,9 @@ class GridDetector(object):
             p3 = [temp_list[4], temp_list[5]]
             p4 = [temp_list[6], temp_list[7]]
             self.GridRoiLocations.append([p1, p2, p3, p4])    
+            
         print "Rois: ", self.GridRoiLocations
+        print "Total Rois: ", len(self.GridRoiLocations)
         file.close()
     
     def create_roi_masks(self):
@@ -144,7 +158,7 @@ class GridDetector(object):
         types = self.image_names.keys()
         for type in types:
             filename = self.image_folder + self.image_names[type]
-            print "add template image" + filename
+            print "add template image " + filename
             tmpl_img = cv2.imread(filename)
             tmpl_width, tmpl_height, tmpl_channel = tmpl_img.shape
             
@@ -229,19 +243,32 @@ class GridDetector(object):
         self.current_ir_ranges={'left':left_msg.range, 'right':right_msg.range}
         return
     
-    def _camera_callback(self, image):
-        with self.ImageThreadLock:
+    def left_camera_callback(self, image):
+        with self.LeftImageThreadLock:
             try:
-                self.cur_img = self.OcvBridge.imgmsg_to_cv2(image, desired_encoding="bgr8")
+                self.cur_left_img = self.OcvBridge.imgmsg_to_cv2(image, desired_encoding="bgr8")
+                #cv_img = deepcopy(self.cur_img)
+            except Exception:
+                
+                print 'OH NO - IMAGE WENT WRONG!!'
+                
+    def right_camera_callback(self, image):
+        with self.LeftImageThreadLock:
+            try:
+                self.cur_right_img = self.OcvBridge.imgmsg_to_cv2(image, desired_encoding="bgr8")
                 #cv_img = deepcopy(self.cur_img)
             except Exception:
                 
                 print 'OH NO - IMAGE WENT WRONG!!'
         
-    def get_image(self):
+    def get_image(self, side):
         c_img = None
-        with self.ImageThreadLock:
-            c_img = deepcopy(self.cur_img)
+        if side=='left':
+            with self.LeftImageThreadLock:
+                c_img = deepcopy(self.cur_left_img)
+        elif side == 'right':
+            with self.RightImageThreadLock:
+                c_img = deepcopy(self.cur_right_img)
         
         return c_img
         
@@ -381,8 +408,8 @@ class GridDetector(object):
             contour_img = cv2.merge((bw_img1, empty_img, empty_img))
             plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
             cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-            #cv2.imshow('current_image', plot_img) #plot_img)
-            #cv2.waitKey(0)
+            cv2.imshow('current_image', plot_img) #plot_img)
+            cv2.waitKey(0)
             if (obj_rect_area/tmpl_rect_area)>1.2:
                 print "Object too big..."
                 return 10, rect
@@ -513,7 +540,7 @@ class GridDetector(object):
         return int_box
         
     def track_contour(self, side, object_type):
-        img = self.get_image()
+        img = self.get_image(side)
         if img == None:
             rospy.sleep(0.05)
             return
@@ -531,7 +558,7 @@ class GridDetector(object):
         print "Task Dropping Status: ", task_dropping
         while (not task_dropping) and (counter <30):
             
-            img = self.get_image()
+            img = self.get_image(side)
             if img == None:
                 rospy.sleep(0.05)
                 continue
@@ -588,7 +615,7 @@ class GridDetector(object):
         return  result_x/30, result_y/30
     
     def track_contour1(self, side, object_type):
-        img = self.get_image()
+        img = self.get_image(side)
         if img == None:
             rospy.sleep(0.05)
             return
@@ -607,7 +634,7 @@ class GridDetector(object):
         print "Task Dropping Status: ", task_dropping
         while (not task_dropping) and (not task_dropping):
             
-            img = self.get_image()
+            img = self.get_image(side)
             if img == None:
                 rospy.sleep(0.05)
                 continue
@@ -664,7 +691,7 @@ class GridDetector(object):
         return  dx, dy, angle
     
     def track_contour2(self, side, object_type, mask):
-        img = self.get_image()
+        img = self.get_image(side)
         if img == None:
             rospy.sleep(0.05)
             return
@@ -683,7 +710,7 @@ class GridDetector(object):
         print "Task Dropping Status: ", task_dropping
         while (not task_dropping) and (counter <5):
             
-            img = self.get_image()
+            img = self.get_image(side)
             if img == None:
                 rospy.sleep(0.05)
                 continue
@@ -898,7 +925,7 @@ class GridDetector(object):
         while (not task_dropping):
             
             task_dropping = self.current_task_dropping
-            img = self.get_image()
+            img = self.get_image(side)
             if img == None:
                 rospy.sleep(0.05)
                 continue
@@ -955,7 +982,7 @@ class GridDetector(object):
         while (not task_dropping):
             
             task_dropping = self.current_task_dropping
-            img = self.get_image()
+            img = self.get_image(side)
             if img == None:
                 rospy.sleep(0.05)
                 continue
@@ -1002,10 +1029,12 @@ class GridDetector(object):
                         
                         #print x, y
                         
-##                    #empty_img = np.zeros((self.height,self.width,1), np.uint8)
+                    #empty_img = np.zeros((self.height,self.width,1), np.uint8)
 ##                    contour_img = cv2.merge((bw_img1, empty_img, empty_img))
 ##                    plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
 ##                    cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
+##                    cv2.imshow('current_image', img)
+##                    cv2.waitKey(0)
                 else:
                     
                     grid_status.append("b")
@@ -1034,7 +1063,7 @@ class GridDetector(object):
             
     def fine_tune_location(self, side, object_type):
         
-        img = self.get_image()
+        img = self.get_image(side)
         
         if img == None:
             rospy.sleep(0.05)
@@ -1100,7 +1129,7 @@ class GridDetector(object):
                 #ids = [int(i) for i in ids_string]
                 id = int(target)
                 print "Check Grid Id: ", id
-                if id not in [0, 1, 2, 3, 4, 5, 6, 7, 8]:
+                if id not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                     print "Check Grid id not correct..."
                     rospy.sleep(0.1)
                     continue
