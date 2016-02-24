@@ -87,10 +87,10 @@ class GridDetector(object):
         
         self.left_camera.open()
         self.left_camera.resolution = [self.width, self.height]
-        self.left_camera.gain = 32
+        self.left_camera.gain = 20
         self.right_camera.open()
         self.right_camera.resolution = [self.width, self.height]
-        self.right_camera.gain = 32
+        self.right_camera.gain = 20
         
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.025 #Phm baxter left arm value                  # camera gripper offset
@@ -342,6 +342,8 @@ class GridDetector(object):
         return 10
         
     def contour_matching2(self, img, tmpl_bw_img, mask_img):
+        
+        
     
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         kernel_smooth = np.ones((5,5),np.float32)/25
@@ -407,9 +409,11 @@ class GridDetector(object):
             empty_img = np.zeros((self.height,self.width,1), np.uint8)
             contour_img = cv2.merge((bw_img1, empty_img, empty_img))
             plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
-            cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-            cv2.imshow('current_image', plot_img) #plot_img)
-            cv2.waitKey(0)
+            #cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
+            #cv2.imshow('current_image', plot_img) #plot_img)
+            #cv2.imwrite('current_img.png', img)
+            #cv2.waitKey(0)
+            
             if (obj_rect_area/tmpl_rect_area)>1.2:
                 print "Object too big..."
                 return 10, rect
@@ -1014,7 +1018,7 @@ class GridDetector(object):
                 msg_string = side + ':grid_status:'
                 
                 min_index = result_list.index(min(result_list))
-                if result_list[min_index]<0.1:
+                if result_list[min_index]<0.15:
                     grid_status.append(object_names[min_index])
                     rect = rect_list[min_index]
                     grid_rect_list.append(rect)

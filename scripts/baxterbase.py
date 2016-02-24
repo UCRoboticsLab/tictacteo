@@ -362,12 +362,12 @@ def main():
     
     while not rospy.is_shutdown():
             
-##        img = t1.get_img(side)
-##        if img != None:
-##            cv2.imshow('current_image', img)
-##            cv2.waitKey(5)
-##        print "Left Pose: \n", t1.get_pose('left')
-##        print "Right Pose: \n", t1.get_pose('right')
+        img = t1.get_img(side)
+        if img != None:
+            cv2.imshow('current_image', img)
+            cv2.waitKey(5)
+        #print "Left Pose: \n", t1.get_pose('left')
+        #print "Right Pose: \n", t1.get_pose('right')
 
         
         rospy.sleep(0.1)

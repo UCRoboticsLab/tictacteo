@@ -75,8 +75,8 @@ class TigTagToe(object):
         rospy.Subscriber('arm_reply', String, self.arms_reply_callback)
         rospy.Subscriber('vision_reply', String, self.vision_reply_callback)
         rospy.Subscriber('next_move', String, self.next_move_callback)
-        #rospy.Subscriber('/robot/digital_io/right_shoulder_button/state', DigitalIOState, self.button_callback)
-        rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
+        rospy.Subscriber('/robot/digital_io/right_shoulder_button/state', DigitalIOState, self.button_callback)
+        #rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
         rospy.Subscriber('/robot/state', AssemblyState, self.robot_state_callback)
         
         display_image_paths = {'running':'/home/zzz/ros_ws/src/phm/images/running.png', \
@@ -403,7 +403,7 @@ class TigTagToe(object):
             
             button_status = self.ButtonStatus
             #print "Button Status: ", button_status
-            if (button_status == 1):
+            if (button_status == 0):
                 counter1 = counter1 + 1
             else:
                 counter1 = 0
@@ -1309,6 +1309,115 @@ class TigTagToe(object):
             
         return
     
+    def place_all_blocks2(self):
+        
+        #self.LeftSlots = ['x','x','x','x','b']
+        #self.RightSlots = ['b','o','o','o','o']
+        #self.GridStatus = ['b','b','b','b','b','b','b','b','x']
+        
+        print "Init the Table..."
+        grid_ids = [0, 3, 6, 1, 4, 7, 2, 5, 8]
+        grid_status_list = []
+        xy_list = []
+        
+        print "Left Slots: ", self.LeftSlots
+        print "Right Slots: ", self.RightSlots
+        print "Grid Status: ", self.GridStatus
+        
+        self.move_arm('right', self.RightArmInitPose)
+        counter = 0
+        
+        number_x_in_grid = self.GridStatus.count('x')
+        number_x_left_slot = self.LeftSlots.count('x')
+        number_x_right_slot = self.RightSlots.count('x')
+        number_o_in_grid = self.GridStatus.count('o')
+        number_o_left_slot = self.LeftSlots.count('o')
+        number_o_right_slot = self.RightSlots.count('o')
+        
+        
+        number_of_swapping = number_x_right_slot+number_o_left_slot
+        print "Number of swapping: ", number_of_swapping
+        number_of_empty_grid = 9-number_x_in_grid-number_o_in_grid
+        print "Empty grid slots: ", number_of_empty_grid
+        
+        if (number_x_in_grid==0 and number_x_left_slot==5 and \
+            number_o_in_grid==0 and number_o_right_slot==5) or \
+            (number_x_in_grid==0 and number_x_right_slot==5 and \
+            number_o_in_grid==0 and number_o_left_slot==5):
+            
+            print "The table is ready..."
+            return True
+        
+        elif (number_of_swapping<=number_of_empty_grid):
+            # less x stay right side, less o stay left side, will make left side all x right side all o
+            print "Number of swapping less than empty grids..."
+            counter = 0
+            for item in self.LeftSlots:
+                
+                if item=='o':
+                    
+                    pose1 = self.LeftSlotsLocation[counter]
+                    #print "Pick o from 
+                    self.pick_from_xy('left', pose1)
+                                        
+                    counter1 = 0
+                    for grid_item in self.GridStatus:
+                        
+                        if grid_item == 'b':
+                            pose2 = self.GridForLeftArm[counter1]
+                            self.place_to_xy('left', pose2)
+                            self.GridStatus[counter1] = 'o'
+                            self.LeftSlots[counter] = 'b'
+                            break
+                            
+                        counter1 = counter1 + 1
+                
+                counter = counter + 1
+            self.move_arm('left', self.LeftArmInitPose)
+                
+            counter = 0
+            for item in self.RightSlots:
+                
+                if item=='x':
+                    pose3 = self.RightSlotsLocation[counter]
+                    self.pick_from_xy('right', pose3)
+                                        
+                    counter1 = 0
+                    for grid_item in self.GridStatus:
+                        
+                        if grid_item == 'b':
+                            pose4 = self.GridForRightArm[counter1]
+                            self.place_to_xy('right', pose4)
+                            self.GridStatus[counter1] = 'x'
+                            self.RightSlots[counter] = 'b'
+                            break
+                            
+                        counter1 = counter1 + 1
+                
+                counter = counter + 1
+            self.move_arm('right', self.RightArmInitPose)
+            
+
+                            
+                            
+                            
+                    
+            
+            
+            
+            pass
+            
+        elif (number_of_swapping>number_of_empty_grid):
+            # less o stay left side, less x stay right side, will make left side all o right side all x
+            
+            print "Number of swapping more than empty grids..."
+            
+            pass
+            
+        
+        self.place_all_blocks1()
+    
+      
     def move_to_init(self, side):
         
         if side == 'left':
@@ -1525,10 +1634,10 @@ class TigTagToe(object):
         counter = 0
         for id in grid_ids:
             if side=='left':
-                pose_list = self.GridForLeftArm[id]
+                pose_list = list(self.GridForLeftArm[id])
             elif side =='right':
-                pose_list = self.GridForRightArm[id]
-                
+                pose_list = list(self.GridForRightArm[id])
+            pose_list[0] = pose_list[0]+0.14
             grid_status, xy_list = self.check_one_grid1(side, pose_list, id)
             if grid_status[0] in ['x', 'o']:
                 grid_results[counter] = grid_status[0]
@@ -1547,10 +1656,12 @@ class TigTagToe(object):
             if grid == 'b':
                 
                 if side=='left':
-                    pose_list = self.GridForLeftArm[counter]
+                    pose_list = list(self.GridForLeftArm[counter])
                 elif side =='right':
-                    pose_list = self.GridForRightArm[counter]
+                    pose_list = list(self.GridForRightArm[counter])
+                pose_list[0] = pose_list[0]+0.14
                 grid_status, xy_list = self.check_one_grid1(side, pose_list, counter)
+                
                 
                 if grid_status[0] in ['x', 'o', 'b']:
                     
@@ -1569,8 +1680,8 @@ class TigTagToe(object):
         counter = 0
         for id in slot_ids:
             
-            pose_list = self.LeftSlotsLocation[id]
-                
+            pose_list = list(self.LeftSlotsLocation[id])
+            pose_list[0] = pose_list[0]+0.14    
             slot_status, xy_list = self.check_one_grid1('left', pose_list, 0)
             if slot_status[0] in ['x', 'o', 'b']:
                 left_slot_result[counter] = slot_status[0]
@@ -1585,7 +1696,8 @@ class TigTagToe(object):
         counter = 0
         
         for slot in self.LeftSlots:
-            pose_list = self.LeftSlotsLocation[counter]
+            pose_list = list(self.LeftSlotsLocation[counter])
+            pose_list[0] = pose_list[0]+0.14
             slot_status, xy_list = self.check_one_grid1('left', pose_list, counter)
             if slot_status[0] in ['x', 'o', 'b']:
                 self.LeftSlots[counter] = slot_status[0]
@@ -1601,8 +1713,8 @@ class TigTagToe(object):
         counter = 0
         for id in slot_ids:
             
-            pose_list = self.RightSlotsLocation[id]
-                
+            pose_list = list(self.RightSlotsLocation[id])
+            pose_list[0] = pose_list[0]+0.14
             slot_status, xy_list = self.check_one_grid1('right', pose_list, 0)
             if slot_status[0] in ['x', 'o', 'b']:
                 right_slot_result[counter] = slot_status[0]
@@ -1619,7 +1731,8 @@ class TigTagToe(object):
         counter = 0
         
         for slot in self.RightSlots:
-            pose_list = self.RightSlotsLocation[counter]
+            pose_list = list(self.RightSlotsLocation[counter])
+            pose_list[0] = pose_list[0]+0.14
             slot_status, xy_list = self.check_one_grid1('right', pose_list, counter)
             if slot_status[0] in ['x', 'o', 'b']:
                 self.RightSlots[counter] = slot_status[0]
@@ -1633,11 +1746,17 @@ class TigTagToe(object):
         print "Entering Play Mode..."
         
         print "Check Table..."
-        self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
         self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
-        
+        print "Left slots: ", self.LeftSlots
+        self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
+        print "Right slots: ", self.RightSlots
         self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+        print "Grid Status: ", self.GridStatus
         
+        
+        
+        #print "Reset the table..."
+        self.place_all_blocks2()
         
         
         while self.GameState != 'Estop_on':

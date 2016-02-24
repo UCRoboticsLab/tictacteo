@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-
+#MEMO, capture bw image as tempalte of 'x' with arm slot_location_x+14cm
 import threading
 import numpy as np
 import os
