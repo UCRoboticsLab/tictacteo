@@ -1142,6 +1142,7 @@ class TigTagToe(object):
     def next_move_callback(self, msg):
         
         self.NextMoveReply = msg.data
+        print "Next Move reply in callback: ",self.NextMoveReply
     
     
     def wait_for_next_move(self):
@@ -1671,6 +1672,7 @@ class TigTagToe(object):
             counter = counter + 1
             
         self.move_arm('left', self.LeftArmInitPose)
+        print "Updated Grid Status: ", self.GridStatus
         return
     
     def check_left_slots(self):
@@ -1755,72 +1757,79 @@ class TigTagToe(object):
         
         
         
-        #print "Reset the table..."
+        print "Reset the table..."
+        
         self.place_all_blocks2()
+        #To Do, left arm back to init
+        #To Do, when win occurs, and grid is not full, need to check win in update_grid event in game engine
+        #To Do, add head turning nodding
+        #To Do, add robot winning/losing motion
         
         
         while self.GameState != 'Estop_on':
-##            t = time.localtime(time.time())
-##            print "Current Time: ", t.tm_hour, ":", t.tm_min
-##            if (t.tm_hour >= 16 and t.tm_min>45) or (t.tm_hour<=9 and t.tm_min<30):
-##                print "Not in working time period"
-##                rospy.sleep(1)
-##                continue
-
+            
             print "Place a block to start first, then press the button"
             print "Or press the button , let robot place block first"
             
-            
-            
+            self.display_image('waitforbutton')
+            self.wait_button_on1(0.1)
             #check all slots at the beginning of each game session
             #self.update_grid_status('left')
             #if (not 'x' in self.GridStatus) and (not 'o' in self.GridStatus):
             
-            first_play_id = randint(0,1)
-            first_grid_id = randint(0,8)
+            #self.GridStatus = self.check_all_grid('left')
+            self.update_grid_status('left')
+            self.FirstStarter = ''
+            self.FirstStarterMarker = ''
+            self.NextStep = ''
+            self.NextMarker = ''
+            
             
             msg_string = ''
             next_move = ''
-            if first_play_id == 0: # 'o' Human First
-                
-                self.display_image('rightplay')
-                print "First Place is 'o' at %d" % first_grid_id
-                self.FirstPlayMarker = 'o'
-                msg_string = 'game_engine:o:start'
-                self.GridStatus[first_grid_id] = 'o'
+            
+            if 'x' in self.GridStatus:
+                print "Human start first with 'x', next move shall be robot pick 'o'"
+                self.FirstStarter = 'human'
+                self.FirstStarterMarker = 'x'
+                msg_string = 'game_engine:x:start'
                 self.GridStatusPub.publish(msg_string)
+                
+                msg_string = 'game_status:x:' + self.get_grid_status_string()
+                self.NextStep = 'game_engine'
+                self.NextMarker = 'o'
+                self.GridStatusPub.publish(msg_string)
+                
+                
+                pass
+                
+            elif 'o' in self.GridStatus:
+                print "Human start first with 'o', next move shall be robot pick 'x'"
+                self.FirstStarter = 'human'
+                self.FirstStarterMarker = 'o'
+                msg_string = 'game_engine:o:start'
+                self.GridStatusPub.publish(msg_string)
+                
                 msg_string = 'game_status:o:' + self.get_grid_status_string()
+                self.NextStep = 'game_engine'
+                self.NextMarker = 'x'
+                self.GridStatusPub.publish(msg_string)
+                
+                pass
+            
+            elif self.GridStatus.count('b')==9:
+                print "Robot can start first, robot will pick from left side slots"
+                self.FirstStarter = 'robot'
+                self.FirstStarterMarker = 'x'
+                first_grid_id = randint(0,8)
+                
+                msg_string = 'game_engine:o:start'
+                self.GridStatusPub.publish(msg_string)
+                
                 slot_id = self.find_in_slots('right', 'o')
                 
-                if slot_id in range(0, 5):
-                    
-                    if self.GameState == 'Estop_on':
-                        return
-                    self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
-                    if self.GameState == 'Estop_on':
-                        return
-                    
-                    self.place_to_xy('right', self.GridForRightArm1[first_grid_id])
-                    if self.GameState == 'Estop_on':
-                        return
-                    
-                    self.move_arm('right', self.RightArmInitPose)
-                    if self.GameState == 'Estop_on':
-                        return
-                    #self.move_to_init('right')
-                    
-                self.RightSlots[slot_id] = 'b'
-                
-            else: # 'x' Robot First
-                
-                self.display_image('leftplay')
-                print "First Place is 'x' at %d" % first_grid_id
-                
-                self.FirstPlayMarker = 'x'
-                msg_string = 'game_engine:x:start'
                 self.GridStatus[first_grid_id] = 'x'
-                self.GridStatusPub.publish(msg_string)
-                msg_string = 'game_status:x:' + self.get_grid_status_string()
+                #msg_string = 'game_status:x:' + self.get_grid_status_string()
                 
                 slot_id = self.find_in_slots('left', 'x')
                 if slot_id in range(0, 6):
@@ -1839,13 +1848,193 @@ class TigTagToe(object):
                         return
                     #self.move_to_init('left')
                 self.LeftSlots[slot_id] = 'b'
-            self.GridStatusPub.publish(msg_string)
+                self.NextStep = 'pass_to_human'
+                self.NextMarker = 'o'
+                
+                #self.GridStatusPub.publish(msg_string)
+            
+
+                
+                pass
+                
+            
+                
+            # Debug point 1
+            
+            #first_play_id = randint(0,1)
+            
             
             sessionDone = False
             while not sessionDone:
+                if self.NextStep=='pass_to_human':
+                    
+                    #self.update_left_slots()
+                    #self.update_right_slots()
+                    
+                    self.display_image('waitforbutton')
+                    print "place a block and then press the button"
+                    old_grid_status = list(self.GridStatus)
+                    print "Old Grid Status: ", old_grid_status
+                    self.wait_button_on1(0.1)
+                    
+                    self.update_grid_status('left')
+                    if old_grid_status == self.GridStatus:
+                        
+                        print "Current Grid Status: ", self.GridStatus
+                        print "Nothing changed in the grid, Human please place a block"
+                        self.NextStep = 'pass_to_human'
+                    elif 'o' not in self.GridStatus:
+                        #if no 'o' in grids (indicate > 1 'x' in grids
+                        
+                        
+                        pass
+                    else:
+                        print "Prepare message to game engine..."
+                        self.NextStep = 'game_engine'
+                        if self.NextMarker == 'o':
+                            msg_string = 'game_status:o:' + self.get_grid_status_string()
+                            self.NextMarker = 'x'
+                        elif self.NextMarker == 'x':
+                            msg_string = 'game_status:x:' + self.get_grid_status_string()
+                            self.NextMarker = 'o'
+                        self.GridStatusPub.publish(msg_string)
+                        
+                        pass
+
+                    
+                    continue
+                elif self.NextStep == 'pass_to_robot':
+                    
+                    self.display_image('waitforbutton')
+                    print "Human, place a block and then press the button..."
+                    self.wait_button_on1(0.1)
+                    self.NextStep = 'game_engine'
+                    
+                    continue
+                elif self.NextStep == 'game_engine':
+                    #print "Send request to game engine: ", msg_string
+                    #rospy.sleep(2)
+                    next_move = self.wait_for_next_move()
+                    self.NextStep = 'pick'
+                    
                 
+                    if next_move == 'Estop_on' or self.GameState == 'Estop_on':
+                        
+                        self.LeftSlots = ['x','x','x','x','x']
+                        self.RightSlots = ['o','o','o','o','o']
+                        self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+                        msg_string = 'game_engine:o:quit_session'
+                        self.GridStatusPub.publish(msg_string)
+                        
+                        return
                 
-                pass
+                    item, id = self.interpret_next_move(next_move)
+                    print "Item: ", item, "Id: ", id
+                    
+                    
+                    if item in ['x'] and id in range(0, 9):
+                        
+                        #self.display_image('leftplay')
+                        
+                        slot_id = self.find_in_slots('left', 'x')
+                        print "Pick x from left slot: ", self.LeftSlots[slot_id]
+                        print "place it to: ", self.GridForLeftArm[id]
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.place_to_xy('left', self.GridForLeftArm1[id])
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.move_arm('left', self.LeftArmInitPose)
+                        if self.GameState == 'Estop_on':
+                            return
+                        print "Left Arm Back to Init Position..."
+                        #self.move_to_init('left')
+                        self.LeftSlots[slot_id] = 'b'
+                        self.GridStatus[id] = item
+                        msg_string = 'update_grid:x:' + self.get_grid_status_string()
+                        self.GridStatusPub.publish(msg_string)
+                        self.NextPlayer = 'human'
+                        self.NextStep = 'pass_to_human'
+                        self.NextMarker = 'o'
+                        
+                    elif item in ['o'] and id in range(0, 9):
+                        
+                        self.display_image('rightplay')
+                        slot_id = self.find_in_slots('right', 'o')
+                        print "Pick o from right slot: ", self.LeftSlots[slot_id]
+                        print "place it to: ", self.GridForRightArm[id]
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.place_to_xy('right', self.GridForRightArm1[id])
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.move_arm('right', self.RightArmInitPose)
+                        if self.GameState == 'Estop_on':
+                            return
+                        print "Right Arm Back to Init Position..."
+                        #self.move_to_init('right')
+                        self.GridStatus[id] = item
+                        self.RightSlots[slot_id] = 'b'
+                        msg_string = 'update_grid:o:' + self.get_grid_status_string()
+                        self.GridStatusPub.publish(msg_string)
+                        self.NextPlayer = 'human'
+                        self.NextStep = 'pass_to_human'
+                        self.NextMarker = 'x'
+                    
+                    elif item == 'draw':
+                        
+                        self.display_image('draw')
+                        sessionDone = True
+                        self.GameStatus = 'Done'
+                        rospy.sleep(2)
+                        self.NextPlayer = ''
+                        self.NextStep = ''
+                        break
+                        
+                    elif item == 'win':
+                        if id==1:
+                            self.display_image('rightwin')
+                        elif id==0:
+                            self.display_image('leftwin')
+                        sessionDone = True
+                        self.GameStatus = 'Done'
+                        rospy.sleep(2)
+                        self.NextPlayer = ''
+                        self.NextStep = ''
+                        break
+            
+##                self.update_grid_status('left')
+##                self.update_left_slots()
+##                self.update_right_slots()
+##                self.display_image('waitforbutton')
+##                print "Wait for User input..."
+##                self.wait_button_on1(0.1)
+##                if self.NextPlayer!='':
+##                    if self.NextPlayer=='human':
+##                        print "Next Turn will be robot"
+##                        self.NextPlayer = 'robot'
+##                    elif self.NextPlayer == 'robot':
+##                        print "Next turn will be human"
+##                        self.NextPlayer = 'human'
+##                
+            
+            
+            print "Check Table..."
+            self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
+            print "Left slots: ", self.LeftSlots
+            self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
+            print "Right slots: ", self.RightSlots
+            self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+            print "Grid Status: ", self.GridStatus
+                
+            self.display_image('resettable')
+            self.place_all_blocks2()
                 
         
         
@@ -1992,7 +2181,7 @@ class TigTagToe(object):
                 
             elif self.GameState == 'InitDone':
                 
-                self.display_image('running')
+                #self.display_image('running')
                 #self.demo_play()
                 self.game_play()
                 

@@ -104,7 +104,7 @@ class GameEngine:
             print "Incoming Command Segments not Correct"
             return '', '', []
         
-        if cmd_segments[0] == 'game_status':
+        if cmd_segments[0] == 'game_status' or cmd_segments[0] == 'update_grid':
             
             new_list = cmd_segments[2].split()
             if len(new_list) != 9:
@@ -140,10 +140,11 @@ class GameEngine:
             print "Incoming New Board..."
             self.print_board(new_board1)
                     
-            return 'game_status', cmd_segments[1],new_board1
+            return cmd_segments[0], cmd_segments[1],new_board1
         elif cmd_segments[0] == 'game_engine':
             
             return 'game_engine', cmd_segments[1], cmd_segments[2]
+        
         
         return '', '', []
     
@@ -245,6 +246,7 @@ class GameEngine:
         msg_string = ''
         print "New Id: ", new_id
         while (not self.isThisRoundDone) and (not self.QuitCurrentSession):
+            print "Ready to get a result..."
             if player == 'x':
                 #user_input = self.get_player_move()
                 self.make_move(self.board,new_id, 'x')
@@ -291,11 +293,15 @@ class GameEngine:
                     
                     #self.print_board()
                 
-            
+                print "Send Message back to game controller: ", msg_string
                 self.GridStatusPub.publish(msg_string)
     
                 
                 self.isThisRoundDone = True
+            else:
+                print "Error, Player Marker not 'o' or 'x'..."
+        
+        print "Quit game loop..."
 
 
     def reset_game(self):
@@ -306,6 +312,7 @@ class GameEngine:
         self.player_marker = 'o'
         self.bot_name = 'baxter'
         self.bot_marker = 'x'
+        self.QuitCurrentSession = False
         
     def run(self):
         
@@ -342,7 +349,12 @@ class GameEngine:
                 self.enter_game_loop(turn, new_id)
                 #elif turn == 'x':
                     #self.enter_game_loop('o', new_id)
-            
+            elif action == 'update_grid':
+                
+                print "Just update grid status..."
+                self.board = list(target_list)
+                
+                pass
             
             
             rospy.sleep(0.1)
