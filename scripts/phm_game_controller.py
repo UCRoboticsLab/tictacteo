@@ -124,6 +124,9 @@ class TigTagToe(object):
         
         #rs = baxter_interface.RobotEnable(CHECK_VERSION)
         
+        self.head = baxter_interface.Head()
+        self.head.set_pan(0.0)
+        
         left = baxter_interface.Gripper('left', CHECK_VERSION)
         right = baxter_interface.Gripper('right', CHECK_VERSION)
         self.baxter_grippers = {'left':left, 'right':right}
@@ -1306,7 +1309,7 @@ class TigTagToe(object):
                 pass
                 
             counter = counter + 1
-        
+        self.move_arm('right', self.RightArmInitPose)
             
         return
     
@@ -1761,9 +1764,10 @@ class TigTagToe(object):
         
         self.place_all_blocks2()
         #To Do, left arm back to init
-        #To Do, when win occurs, and grid is not full, need to check win in update_grid event in game engine
+        #**To Do, when win occurs, and grid is not full, need to check win in update_grid event in game engine
         #To Do, add head turning nodding
         #To Do, add robot winning/losing motion
+        #To Do, a face d    `   isplaying node? (either direct display or using ros to publish image)
         
         
         while self.GameState != 'Estop_on':
@@ -1773,6 +1777,12 @@ class TigTagToe(object):
             
             self.display_image('waitforbutton')
             self.wait_button_on1(0.1)
+            self.display_image('running')
+            self.head.set_pan(1.0, speed=30, timeout=0)
+            rospy.sleep(2)
+            self.head.set_pan(-1.0, speed=30, timeout=0)
+            rospy.sleep(2)
+            self.head.set_pan(0.0, speed=30, timeout=0)
             #check all slots at the beginning of each game session
             #self.update_grid_status('left')
             #if (not 'x' in self.GridStatus) and (not 'o' in self.GridStatus):
@@ -1876,7 +1886,7 @@ class TigTagToe(object):
                     old_grid_status = list(self.GridStatus)
                     print "Old Grid Status: ", old_grid_status
                     self.wait_button_on1(0.1)
-                    
+                    self.display_image('running')
                     self.update_grid_status('left')
                     if old_grid_status == self.GridStatus:
                         
@@ -1956,6 +1966,26 @@ class TigTagToe(object):
                         self.GridStatus[id] = item
                         msg_string = 'update_grid:x:' + self.get_grid_status_string()
                         self.GridStatusPub.publish(msg_string)
+                        next_move1 = self.wait_for_next_move()
+                    
+                        item1, id1 = self.interpret_next_move(next_move1)
+                        print "Item: ", item, "Id: ", id
+                        if item1=='win':
+                            
+                            if id1==1:
+                                self.display_image('rightwin')
+                                print "X won..."
+                            elif id1==0:
+                                self.display_image('leftwin')
+                                print "O won..."
+                            
+                                
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            break
                         self.NextPlayer = 'human'
                         self.NextStep = 'pass_to_human'
                         self.NextMarker = 'o'
@@ -1983,6 +2013,28 @@ class TigTagToe(object):
                         self.RightSlots[slot_id] = 'b'
                         msg_string = 'update_grid:o:' + self.get_grid_status_string()
                         self.GridStatusPub.publish(msg_string)
+                        
+                        next_move1 = self.wait_for_next_move()
+                    
+                        item1, id1 = self.interpret_next_move(next_move1)
+                        print "Item: ", item, "Id: ", id
+                        if item1=='win':
+                            
+                            if id1==1:
+                                self.display_image('rightwin')
+                                print "X won..."
+                            elif id1==0:
+                                self.display_image('leftwin')
+                                print "O won..."
+                            
+                                
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            break
+                        
                         self.NextPlayer = 'human'
                         self.NextStep = 'pass_to_human'
                         self.NextMarker = 'x'
@@ -2041,6 +2093,11 @@ class TigTagToe(object):
         
         return
         
+    def robot_head(self):
+        
+        
+        
+        return 
     
     def run(self):
         

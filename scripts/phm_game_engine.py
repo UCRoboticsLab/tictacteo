@@ -353,6 +353,29 @@ class GameEngine:
                 
                 print "Just update grid status..."
                 self.board = list(target_list)
+                msg_string = ''
+                if self.is_winner(self.board, 'x'):
+                    print "x won..."
+                    msg_string = 'win 0'
+                    self.reset_game()
+                    self.QuitCurrentSession = False
+
+                    
+                elif self.is_winner(self.board, 'o'):
+                    
+                    print "o won..."
+                    msg_string = 'win 1'
+                    self.reset_game()
+                    self.QuitCurrentSession = False
+                    
+                else:
+                    print "No winner yet..."
+                    msg_string = 'nowin 2'
+                    
+                if msg_string != '':
+                    
+                    self.GridStatusPub.publish(msg_string)
+                    
                 
                 pass
             
