@@ -255,10 +255,12 @@ class GameEngine:
                 if self.is_winner(self.board, 'x') or self.is_winner(self.board, 'o'):
                     print "x won..."
                     msg_string = 'win 0'
+                    self.reset_game()
                 elif self.is_board_full():
                     self.print_board()
                     print "\n\t-- Match Draw --\t\n"
                     msg_string = 'draw 0'
+                    self.reset_game()
                     self.QuitCurrentSession = True
                 else:
                     player_move =  self.get_bot_move('o', 'x')
@@ -280,10 +282,12 @@ class GameEngine:
                 if self.is_winner(self.board, 'x') or self.is_winner(self.board, 'o'):
                     print "o won..."
                     msg_string = 'win 1'
+                    self.reset_game()
                 elif self.is_board_full():
                     self.print_board()
                     print "\n\t-- Match Draw --\t\n"
                     msg_string = 'draw 0'
+                    self.reset_game()
                     self.QuitCurrentSession = True
                 else:
                     player_move =  self.get_bot_move('x', 'o')
@@ -351,6 +355,8 @@ class GameEngine:
                     #self.enter_game_loop('o', new_id)
             elif action == 'update_grid':
                 
+                # To Do, Add Draw 
+                
                 print "Just update grid status..."
                 self.board = list(target_list)
                 msg_string = ''
@@ -365,6 +371,13 @@ class GameEngine:
                     
                     print "o won..."
                     msg_string = 'win 1'
+                    self.reset_game()
+                    self.QuitCurrentSession = False
+                    
+                elif self.is_board_full():
+                    
+                    print "It's a draw"
+                    msg_string = 'draw 0'
                     self.reset_game()
                     self.QuitCurrentSession = False
                     
@@ -392,7 +405,6 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
     game = GameEngine()
-    
     
     game.run()
     

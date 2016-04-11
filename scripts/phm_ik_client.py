@@ -190,7 +190,7 @@ class MoveArms(object):
         else:
             return 0
         
-        
+        self.arms[arm].set_joint_position_speed(0.9)
         self.arms[arm].move_to_joint_positions(limb_joints, threshold=0.0018)
         
         return 1

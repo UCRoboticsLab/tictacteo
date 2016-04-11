@@ -335,8 +335,8 @@ class GridDetector(object):
             contour_img = cv2.merge((bw_img1, empty_img, empty_img))
             plot_img = cv2.merge((bw_img1,bw_img1,bw_img1)) #deepcopy(img)
             cv2.drawContours(plot_img, contours, min_index, (255,0,0), 2)
-            cv2.imshow('current_image', plot_img) #plot_img)
-            cv2.waitKey(0)
+            #cv2.imshow('current_image', plot_img) #plot_img)
+            #cv2.waitKey(0)
             return matching_result[min_index]
         
         return 10
@@ -462,8 +462,8 @@ class GridDetector(object):
         new_list = sorted_list[0:5]
         if new_list[0][0]>0.1:
             print "Can't find item", new_list[0][0]
-            cv2.imshow('current_image', plot_img)
-            cv2.waitKey(10)
+            #cv2.imshow('current_image', plot_img)
+            #cv2.waitKey(10)
             return None
         dist_list = []
         new_rect = None
@@ -495,8 +495,8 @@ class GridDetector(object):
             new_rect = sorted_dist_list[0][1]
             cv2.drawContours(plot_img, [sorted_dist_list[0][2]], 0, (255,0,0), 2)
         
-        cv2.imshow('current_image', plot_img)
-        cv2.waitKey(10)
+        #cv2.imshow('current_image', plot_img)
+        #cv2.waitKey(10)
         #sorted_dist_list 
         #rect = cv2.minAreaRect(contours[min_index])
         #angle = rect[2]
@@ -899,8 +899,8 @@ class GridDetector(object):
         
     def cv_show_img(self, img, key_pressed):
         
-        cv2.imshow('current_image', img)
-        key = cv2.waitKey(10)
+        #cv2.imshow('current_image', img)
+        #key = cv2.waitKey(10)
         while key != key_pressed:
             key = cv2.waitKey(10)
     
@@ -1156,7 +1156,7 @@ class GridDetector(object):
 flag = False
 def main():
     
-    cv2.namedWindow('current_image')
+    #cv2.namedWindow('current_image')
     signal.signal(signal.SIGINT, signal_handler)
     #template_img = cv2.imread(sys.argv[1])
     arm = 'left'

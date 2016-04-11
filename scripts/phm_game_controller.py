@@ -62,6 +62,7 @@ class TigTagToe(object):
         self.ArmCmdPub = rospy.Publisher('robot_arms_cmd', String, queue_size=10)
         self.VisionCmdPub = rospy.Publisher('robot_vision_cmd', String, queue_size=10)
         self.GridStatusPub = rospy.Publisher('game_engine_cmd', String, queue_size=10)
+        self.DisplayCmdPub = rospy.Publisher('display_cmd', String, queue_size=10)
         self.VisionReply = ''
         self.ArmReply = ''
         self.NextMoveReply = ''
@@ -79,15 +80,16 @@ class TigTagToe(object):
         #rospy.Subscriber('/robot/digital_io/right_itb_button0/state', DigitalIOState, self.button_callback)
         rospy.Subscriber('/robot/state', AssemblyState, self.robot_state_callback)
         
-        display_image_paths = {'running':'/home/zzz/ros_ws/src/phm/images/running.png', \
-                                'estop':'/home/zzz/ros_ws/src/phm/images/estop.png', \
-                                'waitforbutton':'/home/zzz/ros_ws/src/phm/images/waitforbutton.png', \
-                                'leftwin':'/home/zzz/ros_ws/src/phm/images/baxter_left_won.png', \
-                                'rightwin':'/home/zzz/ros_ws/src/phm/images/baxter_right_won.png', \
-                                'draw':'/home/zzz/ros_ws/src/phm/images/baxter_draw.png', \
-                                'leftplay':'/home/zzz/ros_ws/src/phm/images/baxter_left_play.png', \
-                                'rightplay':'/home/zzz/ros_ws/src/phm/images/baxter_right_play.png', \
-                                'resettable':'/home/zzz/ros_ws/src/phm/images/baxter_clean.png', \
+        
+        display_image_paths = {'running':'/home/ruser/ros_ws/src/phm/images/running.png', \
+                                'estop':'/home/ruser/ros_ws/src/phm/images/estop.png', \
+                                'waitforbutton':'/home/ruser/ros_ws/src/phm/images/waitforbutton.png', \
+                                'leftwin':'/home/ruser/ros_ws/src/phm/images/baxter_left_won.png', \
+                                'rightwin':'/home/ruser/ros_ws/src/phm/images/baxter_right_won.png', \
+                                'draw':'/home/ruser/ros_ws/src/phm/images/baxter_draw.png', \
+                                'leftplay':'/home/ruser/ros_ws/src/phm/images/baxter_left_play.png', \
+                                'rightplay':'/home/ruser/ros_ws/src/phm/images/baxter_right_play.png', \
+                                'resettable':'/home/ruser/ros_ws/src/phm/images/baxter_clean.png', \
                                 }
                                 
         img1 = cv2.imread(display_image_paths['running'])
@@ -683,7 +685,7 @@ class TigTagToe(object):
         
         self.move_arm(side, new_pose)
         
-        rospy.sleep(2)
+        rospy.sleep(0.7)
         
         msg_string = side+':check1:'+str(grid_id)
         print "Check Grid1 Cmd: ", msg_string
@@ -735,13 +737,18 @@ class TigTagToe(object):
         oz = pose[5]
         ow = pose[6]
         
+        #pose_list = [x, 0.3, z + 0.2, ox, oy, oz, ow]
+        #if self.GameState == 'Estop_on':
+        #    return
+        #self.move_arm(side, pose_list)
+        
         pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
         if self.GameState == 'Estop_on':
             return
         self.move_arm(side, pose_list)
         if self.GameState == 'Estop_on':
             return
-        rospy.sleep(1)
+        #rospy.sleep(1)
         if self.GameState == 'Estop_on':
             return
         self.gripper_control(side, 'open')
@@ -755,7 +762,7 @@ class TigTagToe(object):
         self.move_arm(side, pose_list1)
         if self.GameState == 'Estop_on':
             return
-        rospy.sleep(1)
+        rospy.sleep(0.5)
         if self.GameState == 'Estop_on':
             return
         self.gripper_control(side, 'close')
@@ -782,13 +789,15 @@ class TigTagToe(object):
         oz = pose[5]
         ow = pose[6]
         
+        
+        
         if self.GameState == 'Estop_on':
             return
         pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
         self.move_arm(side, pose_list)
         if self.GameState == 'Estop_on':
             return
-        rospy.sleep(1)
+        #rospy.sleep(1)
         
         pose_list2 = [x, y, z + 0.05, ox, oy, oz, ow]
         self.move_arm(side, pose_list2)
@@ -798,7 +807,7 @@ class TigTagToe(object):
         self.move_arm(side, pose_list1)
         if self.GameState == 'Estop_on':
             return
-        rospy.sleep(1)
+        #rospy.sleep(0.5)
         
         self.gripper_control(side, 'open')
         if self.GameState == 'Estop_on':
@@ -811,6 +820,17 @@ class TigTagToe(object):
         if self.GameState == 'Estop_on':
             return
         self.move_arm(side, pose_list)
+        
+        pose_list = [x, y, z + 0.2, ox, oy, oz, ow]
+        if self.GameState == 'Estop_on':
+            return
+        self.move_arm(side, pose_list)
+        
+        #pose_list = [x, 0.3, z + 0.2, ox, oy, oz, ow]
+        #if self.GameState == 'Estop_on':
+        #    return
+        #self.move_arm(side, pose_list)
+        
         #rospy.sleep(2)
         
         
@@ -1635,14 +1655,26 @@ class TigTagToe(object):
         grid_ids = range(0,9)
         pose_list = []
         grid_results = ['b','b','b','b','b','b','b','b','b']
+        id_strings = ['00', '01', '02', '03', '04', '05', '06', '07', '08']
         counter = 0
         for id in grid_ids:
+            slot_id = counter
+            msg_string = 'scang'+id_strings[slot_id]
+            
+            self.DisplayCmdPub.publish(msg_string)
+            
             if side=='left':
                 pose_list = list(self.GridForLeftArm[id])
             elif side =='right':
                 pose_list = list(self.GridForRightArm[id])
-            pose_list[0] = pose_list[0]+0.14
-            grid_status, xy_list = self.check_one_grid1(side, pose_list, id)
+            #pose_list[0] = pose_list[0]+0.14
+            if counter in [2, 5, 8]:
+                pose_list[0] = pose_list[0]-0.10
+                slot_id = 9
+            else:
+                pose_list[0] = pose_list[0]+0.14
+                
+            grid_status, xy_list = self.check_one_grid1(side, pose_list, slot_id)
             if grid_status[0] in ['x', 'o']:
                 grid_results[counter] = grid_status[0]
                 
@@ -1655,16 +1687,28 @@ class TigTagToe(object):
         
         counter = 0
         pose_list = []
+        id_strings = ['00', '01', '02', '03', '04', '05', '06', '07', '08']
         for grid in self.GridStatus:
+            slot_id = counter
             
+            msg_string = 'scang'+id_strings[slot_id]
+            
+            self.DisplayCmdPub.publish(msg_string)
             if grid == 'b':
                 
                 if side=='left':
                     pose_list = list(self.GridForLeftArm[counter])
                 elif side =='right':
                     pose_list = list(self.GridForRightArm[counter])
-                pose_list[0] = pose_list[0]+0.14
-                grid_status, xy_list = self.check_one_grid1(side, pose_list, counter)
+                #pose_list[0] = pose_list[0]+0.14
+                
+                if counter in [2, 5, 8]:
+                    pose_list[0] = pose_list[0]-0.10
+                    slot_id = 9
+                else:
+                    pose_list[0] = pose_list[0]+0.14
+                
+                grid_status, xy_list = self.check_one_grid1(side, pose_list, slot_id)
                 
                 
                 if grid_status[0] in ['x', 'o', 'b']:
@@ -1674,20 +1718,32 @@ class TigTagToe(object):
                 
             counter = counter + 1
             
-        self.move_arm('left', self.LeftArmInitPose)
+        #self.move_arm('left', self.LeftArmInitPose)
         print "Updated Grid Status: ", self.GridStatus
         return
     
     def check_left_slots(self):
 
         left_slot_result = ['x', 'x', 'x', 'x', 'x']
+        id_strings = ['00', '01', '02', '03', '04']
         slot_ids = range(0, 5)
         counter = 0
         for id in slot_ids:
-            
+            slot_id = counter
             pose_list = list(self.LeftSlotsLocation[id])
-            pose_list[0] = pose_list[0]+0.14    
-            slot_status, xy_list = self.check_one_grid1('left', pose_list, 0)
+            
+            msg_string = 'scanl'+id_strings[slot_id]
+            
+            self.DisplayCmdPub.publish(msg_string)
+            
+            if counter in [2, 4]:
+                pose_list[0] = pose_list[0]-0.10
+                slot_id = 9
+            else:
+                pose_list[0] = pose_list[0]+0.14
+                
+            #pose_list[3] = 1.0   
+            slot_status, xy_list = self.check_one_grid1('left', pose_list, slot_id)
             if slot_status[0] in ['x', 'o', 'b']:
                 left_slot_result[counter] = slot_status[0]
                 
@@ -1699,11 +1755,22 @@ class TigTagToe(object):
         
         pose_list = []
         counter = 0
-        
+        id_strings = ['00', '01', '02', '03', '04']
         for slot in self.LeftSlots:
+            slot_id = counter
             pose_list = list(self.LeftSlotsLocation[counter])
-            pose_list[0] = pose_list[0]+0.14
-            slot_status, xy_list = self.check_one_grid1('left', pose_list, counter)
+            
+            msg_string = 'scanl'+id_strings[slot_id]
+            
+            self.DisplayCmdPub.publish(msg_string)
+            #pose_list[0] = pose_list[0]+0.14
+            if counter in [2, 4]:
+                pose_list[0] = pose_list[0]-0.10
+                slot_id = 9
+            else:
+                pose_list[0] = pose_list[0]+0.14
+            #pose_list[3] = 1.0
+            slot_status, xy_list = self.check_one_grid1('left', pose_list, slot_id)
             if slot_status[0] in ['x', 'o', 'b']:
                 self.LeftSlots[counter] = slot_status[0]
             counter = counter + 1    
@@ -1714,13 +1781,23 @@ class TigTagToe(object):
     def check_right_slots(self):
 
         right_slot_result = ['o', 'o', 'o', 'o', 'o']
+        id_strings = ['00', '01', '02', '03', '04']
         slot_ids = range(0, 5)
         counter = 0
         for id in slot_ids:
-            
+            slot_id = counter
             pose_list = list(self.RightSlotsLocation[id])
-            pose_list[0] = pose_list[0]+0.14
-            slot_status, xy_list = self.check_one_grid1('right', pose_list, 0)
+            msg_string = 'scanr'+id_strings[slot_id]
+            
+            self.DisplayCmdPub.publish(msg_string)
+            #pose_list[0] = pose_list[0]+0.14
+            #pose_list[3] = 1.0
+            if counter in [2, 4]:
+                pose_list[0] = pose_list[0]-0.10
+                slot_id = 9
+            else:
+                pose_list[0] = pose_list[0]+0.14
+            slot_status, xy_list = self.check_one_grid1('right', pose_list, slot_id)
             if slot_status[0] in ['x', 'o', 'b']:
                 right_slot_result[counter] = slot_status[0]
                 
@@ -1734,15 +1811,32 @@ class TigTagToe(object):
         
         pose_list = []
         counter = 0
-        
+        id_strings = ['00', '01', '02', '03', '04']
         for slot in self.RightSlots:
+            slot_id = counter
             pose_list = list(self.RightSlotsLocation[counter])
-            pose_list[0] = pose_list[0]+0.14
-            slot_status, xy_list = self.check_one_grid1('right', pose_list, counter)
+            
+            msg_string = 'scanr'+id_strings[slot_id]
+            
+            self.DisplayCmdPub.publish(msg_string)
+            #pose_list[0] = pose_list[0]+0.14
+            if counter in [2, 4]:
+                pose_list[0] = pose_list[0]-0.10
+                slot_id = 9
+            else:
+                pose_list[0] = pose_list[0]+0.14
+            #pose_list[3] = 1.0
+            slot_status, xy_list = self.check_one_grid1('right', pose_list, slot_id)
             if slot_status[0] in ['x', 'o', 'b']:
                 self.RightSlots[counter] = slot_status[0]
             counter = counter + 1
         self.move_arm('right', self.RightArmInitPose)    
+        return
+    
+    def display_image1(self, image_string):
+        
+        self.DisplayCmdPub.publish(image_string)
+        
         return
     
     def game_play(self):
@@ -1750,19 +1844,32 @@ class TigTagToe(object):
         
         print "Entering Play Mode..."
         
+        
         print "Check Table..."
         self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
         print "Left slots: ", self.LeftSlots
         self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
         print "Right slots: ", self.RightSlots
-        self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+        
+        if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
+           or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
+            self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+            self.display_image1('resettable')
+            print "Reset the table..."
+            self.place_all_blocks2()
+        else:
+            self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+        
+            
+            
+            
         print "Grid Status: ", self.GridStatus
         
         
         
-        print "Reset the table..."
         
-        self.place_all_blocks2()
+        
+        #self.place_all_blocks2()
         #To Do, left arm back to init
         #**To Do, when win occurs, and grid is not full, need to check win in update_grid event in game engine
         #To Do, add head turning nodding
@@ -1775,20 +1882,24 @@ class TigTagToe(object):
             print "Place a block to start first, then press the button"
             print "Or press the button , let robot place block first"
             
-            self.display_image('waitforbutton')
+            self.display_image1('waitforbutton')
             self.wait_button_on1(0.1)
-            self.display_image('running')
-            self.head.set_pan(1.0, speed=30, timeout=0)
+            self.display_image1('running')
+            #self.head.set_pan(0.5, speed=30, timeout=0)
             rospy.sleep(2)
-            self.head.set_pan(-1.0, speed=30, timeout=0)
-            rospy.sleep(2)
-            self.head.set_pan(0.0, speed=30, timeout=0)
+            #self.head.set_pan(-0.5, speed=30, timeout=0)
+            #rospy.sleep(2)
+            #self.head.set_pan(0.0, speed=30, timeout=0)
             #check all slots at the beginning of each game session
             #self.update_grid_status('left')
             #if (not 'x' in self.GridStatus) and (not 'o' in self.GridStatus):
             
             #self.GridStatus = self.check_all_grid('left')
-            self.update_grid_status('left')
+            if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
+              or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
+        
+                self.update_grid_status('left')
+                
             self.FirstStarter = ''
             self.FirstStarterMarker = ''
             self.NextStep = ''
@@ -1881,12 +1992,12 @@ class TigTagToe(object):
                     #self.update_left_slots()
                     #self.update_right_slots()
                     
-                    self.display_image('waitforbutton')
+                    self.display_image1('waitforbutton')
                     print "place a block and then press the button"
                     old_grid_status = list(self.GridStatus)
                     print "Old Grid Status: ", old_grid_status
                     self.wait_button_on1(0.1)
-                    self.display_image('running')
+                    self.display_image1('running')
                     self.update_grid_status('left')
                     if old_grid_status == self.GridStatus:
                         
@@ -1915,7 +2026,7 @@ class TigTagToe(object):
                     continue
                 elif self.NextStep == 'pass_to_robot':
                     
-                    self.display_image('waitforbutton')
+                    self.display_image1('waitforbutton')
                     print "Human, place a block and then press the button..."
                     self.wait_button_on1(0.1)
                     self.NextStep = 'game_engine'
@@ -1951,6 +2062,7 @@ class TigTagToe(object):
                         print "place it to: ", self.GridForLeftArm[id]
                         if self.GameState == 'Estop_on':
                             return
+                        self.display_image1('myturn')
                         self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
                         if self.GameState == 'Estop_on':
                             return
@@ -1972,12 +2084,20 @@ class TigTagToe(object):
                         print "Item: ", item, "Id: ", id
                         if item1=='win':
                             
-                            if id1==1:
-                                self.display_image('rightwin')
+                            if id1==0:
+                                #self.display_image1('rightwin')
                                 print "X won..."
-                            elif id1==0:
-                                self.display_image('leftwin')
+                                if self.FirstStarterMarker == 'x' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                elif self.FirstStarterMarker == 'x' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                            elif id1==1:
+                                #self.display_image1('leftwin')
                                 print "O won..."
+                                if self.FirstStarterMarker == 'o' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                elif self.FirstStarterMarker == 'o' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
                             
                                 
                             sessionDone = True
@@ -1986,6 +2106,18 @@ class TigTagToe(object):
                             self.NextPlayer = ''
                             self.NextStep = ''
                             break
+                        elif item1 == 'draw':
+                            
+                            self.display_image1('draw')
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            
+                            
+                            break
+                            
                         self.NextPlayer = 'human'
                         self.NextStep = 'pass_to_human'
                         self.NextMarker = 'o'
@@ -1998,6 +2130,7 @@ class TigTagToe(object):
                         print "place it to: ", self.GridForRightArm[id]
                         if self.GameState == 'Estop_on':
                             return
+                        self.display_image1('myturn')
                         self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
                         if self.GameState == 'Estop_on':
                             return
@@ -2020,12 +2153,24 @@ class TigTagToe(object):
                         print "Item: ", item, "Id: ", id
                         if item1=='win':
                             
-                            if id1==1:
-                                self.display_image('rightwin')
+                            if id1==0:
+                                #self.display_image('rightwin')
                                 print "X won..."
-                            elif id1==0:
-                                self.display_image('leftwin')
+                                if self.FirstStarterMarker == 'x' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                    rospy.sleep(2)
+                                elif self.FirstStarterMarker == 'x' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                                    rospy.sleep(2)
+                            elif id1==1:
+                                #self.display_image('leftwin')
                                 print "O won..."
+                                if self.FirstStarterMarker == 'o' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                    rospy.sleep(2)
+                                elif self.FirstStarterMarker == 'o' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                                    rospy.sleep(2)
                             
                                 
                             sessionDone = True
@@ -2035,13 +2180,24 @@ class TigTagToe(object):
                             self.NextStep = ''
                             break
                         
+                        elif item1 == 'draw':
+                            
+                            self.display_image1('draw')
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            
+                            break
+                        
                         self.NextPlayer = 'human'
                         self.NextStep = 'pass_to_human'
                         self.NextMarker = 'x'
                     
                     elif item == 'draw':
                         
-                        self.display_image('draw')
+                        self.display_image1('draw')
                         sessionDone = True
                         self.GameStatus = 'Done'
                         rospy.sleep(2)
@@ -2050,10 +2206,22 @@ class TigTagToe(object):
                         break
                         
                     elif item == 'win':
-                        if id==1:
-                            self.display_image('rightwin')
-                        elif id==0:
-                            self.display_image('leftwin')
+                        if id==0:
+                            #self.display_image('rightwin')
+                            if self.FirstStarterMarker == 'x' and self.FirstStarter=='human':
+                                self.display_image1('humanwin')
+                                rospy.sleep(2)
+                            elif self.FirstStarterMarker == 'x' and self.FirstStarter=='robot':
+                                self.display_image1('robotwin')
+                                rospy.sleep(2)
+                        elif id==1:
+                            #self.display_image('leftwin')
+                            if self.FirstStarterMarker == 'o' and self.FirstStarter=='human':
+                                self.display_image1('humanwin')
+                                rospy.sleep(2)
+                            elif self.FirstStarterMarker == 'o' and self.FirstStarter=='robot':
+                                self.display_image1('robotwin')
+                                rospy.sleep(2)
                         sessionDone = True
                         self.GameStatus = 'Done'
                         rospy.sleep(2)
@@ -2077,16 +2245,24 @@ class TigTagToe(object):
 ##                
             
             
-            print "Check Table..."
+            print "Check Table at the End..."
+            self.display_image1('manualresettable')
+            self.wait_button_on1(0.1)
             self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
             print "Left slots: ", self.LeftSlots
             self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
             print "Right slots: ", self.RightSlots
-            self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
-            print "Grid Status: ", self.GridStatus
+            if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
+               or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
+                self.GridStatus = self.check_all_grids('left')
+            #self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+                print "Grid Status: ", self.GridStatus
+                self.display_image1('resettable')
+                self.place_all_blocks2()
+            else:
+                self.GridStatus = ['b','b','b','b','b','b','b','b','b']
                 
-            self.display_image('resettable')
-            self.place_all_blocks2()
+            
                 
         
         
@@ -2099,11 +2275,18 @@ class TigTagToe(object):
         
         return 
     
+    def robot_win_motion(self):
+        
+        
+        
+        
+        return
+    
     def run(self):
         
         self.GameState = 'NoInit'
         print "Loading Game Data..."
-        self.display_image('running')
+        self.display_image1('running')
         #self.load_location_data()
         #rs = baxter_interface.RobotEnable(CHECK_VERSION)
         #rs.enable()
@@ -2114,7 +2297,7 @@ class TigTagToe(object):
             try:
                 if self.GameState=='Estop_on':
                     
-                    self.display_image('estop')
+                    self.display_image1('estop')
                     print "E Stop is on, waiting for a reset"
                     self.wait_for_estop()
                     rs.reset()
@@ -2130,21 +2313,21 @@ class TigTagToe(object):
             rospy.sleep(0.1)
         
         #self.pick_test(1,0)
-        self.display_image('waitforbutton')
+        self.display_image1('waitforbutton')
         print "Wait For Button"
         
         wait_status = self.wait_button_on1(0.1) # User has to keep pressing the button for at least 1 second
         while wait_status== -1 or self.GameState=='Estop_on':
             
             if self.GameState=='Estop_on':
-                self.display_image('estop')
+                self.display_image1('estop')
                 print "E Stop is on, waiting for a reset"
                 self.wait_for_estop()
                 self.reset_estop()
                 #rospy.sleep(0.1)
             
             elif self.GameState == 'Estop_reset':
-                self.display_image('waitforbutton')
+                self.display_image1('waitforbutton')
                 print "Wait for Button"
                 wait_status = self.wait_button_on1(0.1)
                 #rospy.sleep(0.1)
@@ -2165,7 +2348,7 @@ class TigTagToe(object):
             rospy.sleep(0.1)
             
         self.GameState = 'NoInit'    
-        self.display_image('running')
+        self.display_image1('running')
         ##self.pck_item('left', 'x')
         ##self.place_item('left', 1, 1)
         #self.check_grid('left')
@@ -2195,6 +2378,7 @@ class TigTagToe(object):
             if self.GameState == 'WaitForButton':
                 
                 print "Enter WaitForButton Step"
+                self.display_image1('waitforbutton')
                 wait_status = self.wait_button_on1(0.1)
                 if wait_status == -1 and self.GameState!='Estop_on':
                     self.GameState = 'Estop_reset'
@@ -2245,7 +2429,7 @@ class TigTagToe(object):
             elif self.GameState == 'Estop_on':
                 
                 print "Enter Estop on Step"
-                self.display_image('estop')
+                self.display_image1('estop')
                 print "E Stop is on, waiting for a reset"
                 self.wait_for_estop()
                 self.GameState = 'Estop_reset'
@@ -2257,7 +2441,7 @@ class TigTagToe(object):
                 
                 print "Enter Estop reset Step"
                 
-                self.display_image('waitforbutton')
+                self.display_image1('waitforbutton')
                 print "Press Button to Re enalbe robot"
                 wait_status = self.wait_button_on1(0.1)
                 if wait_status==-1:
@@ -2270,7 +2454,7 @@ class TigTagToe(object):
                         rs.reset()
                         rs.enable()
                         restart_status = True
-                        self.display_image('running')
+                        self.display_image1('running')
                     except Exception, e:
                         rospy.logerr(e.strerror)
                         restart_status = False
