@@ -365,7 +365,9 @@ def main():
         img = t1.get_img(side)
         if img != None:
             cv2.imshow('current_image', img)
-            cv2.waitKey(5)
+            key = cv2.waitKey(5)
+            if key == 27:
+                cv2.imwrite("cur_img.png", img)
         #print "Left Pose: \n", t1.get_pose('left')
         #print "Right Pose: \n", t1.get_pose('right')
 

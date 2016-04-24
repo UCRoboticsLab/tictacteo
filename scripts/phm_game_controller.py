@@ -679,13 +679,50 @@ class TigTagToe(object):
         oz = pose_list[5]
         ow = pose_list[6]
         
+        if self.GameState == 'Estop_on':
+            return
+        
+##        if side == 'left':
+##            if grid_id == 2:
+##                pose_temp = list(self.GridForLeftArm1[0])
+##                pose_temp[2] = pose_temp[2] + 0.2
+##                self.move_arm('left', pose_temp)
+##            elif grid_id == 5:
+##                pose_temp = list(self.GridForLeftArm1[3])
+##                pose_temp[2] = pose_temp[2] + 0.2
+##                self.move_arm('left', pose_temp)
+##            elif grid_id == 8:
+##                pose_temp = list(self.GridForLeftArm1[6])
+##                pose_temp[2] = pose_temp[2] + 0.2
+##                self.move_arm('left', pose_temp)
+##        
+##        elif side =='right':
+##        
+##            if grid_id == 2:
+##                pose_temp = list(self.GridForRightArm1[0])
+##                pose_temp[2] = pose_temp[2] + 0.2
+##                self.move_arm('right', pose_temp)
+##            elif grid_id == 5:
+##                pose_temp = list(self.GridForRightArm1[3])
+##                pose_temp[2] = pose_temp[2] + 0.2
+##                self.move_arm('right', pose_temp)
+##            elif grid_id == 8:
+##                pose_temp = list(self.GridForRightArm1[6])
+##                pose_temp[2] = pose_temp[2] + 0.2
+##                self.move_arm('right', pose_temp)                
+##            
+##            
+##        
         new_pose = list(pose_list)
         
         new_pose[2] = new_pose[2] + 0.17
         
         self.move_arm(side, new_pose)
         
-        rospy.sleep(0.7)
+        if self.GameState == 'Estop_on':
+            return
+        
+        rospy.sleep(1)
         
         msg_string = side+':check1:'+str(grid_id)
         print "Check Grid1 Cmd: ", msg_string
@@ -1661,12 +1698,45 @@ class TigTagToe(object):
             slot_id = counter
             msg_string = 'scang'+id_strings[slot_id]
             
+            if self.GameState == 'Estop_on':
+                return
+            
             self.DisplayCmdPub.publish(msg_string)
             
             if side=='left':
                 pose_list = list(self.GridForLeftArm[id])
             elif side =='right':
                 pose_list = list(self.GridForRightArm[id])
+                
+##            if side == 'left':
+##                if slot_id == 2:
+##                    pose_temp = list(self.GridForLeftArm1[0])
+##                    pose_temp[2] = pose_temp[2] + 0.2
+##                    self.move_arm('left', pose_temp)
+##                elif slot_id == 5:
+##                    pose_temp = list(self.GridForLeftArm1[3])
+##                    pose_temp[2] = pose_temp[2] + 0.2
+##                    self.move_arm('left', pose_temp)
+##                elif slot_id == 8:
+##                    pose_temp = list(self.GridForLeftArm1[6])
+##                    pose_temp[2] = pose_temp[2] + 0.2
+##                    self.move_arm('left', pose_temp)
+##        
+##            elif side =='right':
+##        
+##                if slot_id == 2:
+##                    pose_temp = list(self.GridForRightArm1[0])
+##                    pose_temp[2] = pose_temp[2] + 0.2
+##                    self.move_arm('right', pose_temp)
+##                elif slot_id == 5:
+##                    pose_temp = list(self.GridForRightArm1[3])
+##                    pose_temp[2] = pose_temp[2] + 0.2
+##                    self.move_arm('right', pose_temp)
+##                elif slot_id == 8:
+##                    pose_temp = list(self.GridForRightArm1[6])
+##                    pose_temp[2] = pose_temp[2] + 0.2
+##                    self.move_arm('right', pose_temp)                
+##            
             #pose_list[0] = pose_list[0]+0.14
             if counter in [2, 5, 8]:
                 pose_list[0] = pose_list[0]-0.10
@@ -1688,13 +1758,56 @@ class TigTagToe(object):
         counter = 0
         pose_list = []
         id_strings = ['00', '01', '02', '03', '04', '05', '06', '07', '08']
+        
+        for grid in self.GridStatus:
+            slot_id = counter
+            if self.GameState == 'Estop_on':
+                return
+                        
+            if grid == 'b':
+                if side == 'left':
+                    if slot_id == 1:
+                        pose_temp = list(self.GridForLeftArm1[0])
+                        pose_temp[2] = pose_temp[2] + 0.2
+                        self.move_arm('left', pose_temp)
+                    elif slot_id == 4:
+                        pose_temp = list(self.GridForLeftArm1[0])
+                        pose_temp[2] = pose_temp[2] + 0.2
+                        self.move_arm('left', pose_temp)
+                    elif slot_id == 7:
+                        pose_temp = list(self.GridForLeftArm1[0])
+                        pose_temp[2] = pose_temp[2] + 0.2
+                        self.move_arm('left', pose_temp)
+        
+                elif side =='right':
+        
+                    if slot_id == 1:
+                        pose_temp = list(self.GridForRightArm1[0])
+                        pose_temp[2] = pose_temp[2] + 0.2
+                        self.move_arm('right', pose_temp)
+                    elif slot_id == 4:
+                        pose_temp = list(self.GridForRightArm1[0])
+                        pose_temp[2] = pose_temp[2] + 0.2
+                        self.move_arm('right', pose_temp)
+                    elif slot_id == 7:
+                        pose_temp = list(self.GridForRightArm1[0])
+                        pose_temp[2] = pose_temp[2] + 0.2
+                        self.move_arm('right', pose_temp) 
+                break
+            
+        counter = 0    
         for grid in self.GridStatus:
             slot_id = counter
             
             msg_string = 'scang'+id_strings[slot_id]
             
+            if self.GameState == 'Estop_on':
+                return
+            
             self.DisplayCmdPub.publish(msg_string)
             if grid == 'b':
+                
+                
                 
                 if side=='left':
                     pose_list = list(self.GridForLeftArm[counter])
@@ -1732,6 +1845,9 @@ class TigTagToe(object):
             slot_id = counter
             pose_list = list(self.LeftSlotsLocation[id])
             
+            if self.GameState == 'Estop_on':
+                return
+            
             msg_string = 'scanl'+id_strings[slot_id]
             
             self.DisplayCmdPub.publish(msg_string)
@@ -1743,6 +1859,7 @@ class TigTagToe(object):
                 pose_list[0] = pose_list[0]+0.14
                 
             #pose_list[3] = 1.0   
+            
             slot_status, xy_list = self.check_one_grid1('left', pose_list, slot_id)
             if slot_status[0] in ['x', 'o', 'b']:
                 left_slot_result[counter] = slot_status[0]
@@ -1759,6 +1876,9 @@ class TigTagToe(object):
         for slot in self.LeftSlots:
             slot_id = counter
             pose_list = list(self.LeftSlotsLocation[counter])
+            
+            if self.GameState == 'Estop_on':
+                return
             
             msg_string = 'scanl'+id_strings[slot_id]
             
@@ -1786,6 +1906,10 @@ class TigTagToe(object):
         counter = 0
         for id in slot_ids:
             slot_id = counter
+            
+            if self.GameState == 'Estop_on':
+                return
+                        
             pose_list = list(self.RightSlotsLocation[id])
             msg_string = 'scanr'+id_strings[slot_id]
             
@@ -1816,6 +1940,9 @@ class TigTagToe(object):
             slot_id = counter
             pose_list = list(self.RightSlotsLocation[counter])
             
+            if self.GameState == 'Estop_on':
+                return
+            
             msg_string = 'scanr'+id_strings[slot_id]
             
             self.DisplayCmdPub.publish(msg_string)
@@ -1841,31 +1968,54 @@ class TigTagToe(object):
     
     def game_play(self):
         
-        
+        self.LeftSlots = ['b','b','b','b','b']
+        self.RightSlots = ['b', 'b', 'b', 'b', 'b']
         print "Entering Play Mode..."
         
+        while self.LeftSlots.count('b')>=2 or self.RightSlots.count('b')>=2:
         
-        print "Check Table..."
-        self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
-        print "Left slots: ", self.LeftSlots
-        self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
-        print "Right slots: ", self.RightSlots
+            print "Check Table..."
+            self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
+            print "Left slots: ", self.LeftSlots
+            self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
+            print "Right slots: ", self.RightSlots
         
-        if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
-           or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
-            self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
-            self.display_image1('resettable')
-            print "Reset the table..."
-            self.place_all_blocks2()
-        else:
-            self.GridStatus = ['b','b','b','b','b','b','b','b','b']
-        
+##        if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
+##           or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
+##            self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+##            self.display_image1('resettable')
+##            print "Reset the table..."
+##            self.place_all_blocks2()
+##        else:
+##            self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+##            
+            if (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o']) \
+               or (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o']):
+                
+                self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+                print "Left Right Slots all set, not scanning grids..."
+                
+            else:
+                
+                self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+                self.display_image1('resettable')
+                print "Reset the table..."
+                self.place_all_blocks2()
+
+            
+        if self.GameState == 'Estop_on':
+            return
             
             
             
         print "Grid Status: ", self.GridStatus
         
-        
+        o_side = 'right'
+        if self.LeftSlots.count('o')>=4:
+            o_side = 'left'
+        elif self.RightSlots.count('o')>=4:
+            o_side = 'right'
+            
         
         
         
@@ -1879,11 +2029,15 @@ class TigTagToe(object):
         
         while self.GameState != 'Estop_on':
             
+            print "Session starts..."
+            
             print "Place a block to start first, then press the button"
             print "Or press the button , let robot place block first"
             
             self.display_image1('waitforbutton')
-            self.wait_button_on1(0.1)
+            wait_status = self.wait_button_on1(0.1)
+            if self.GameState == 'Estop_on':
+                return
             self.display_image1('running')
             #self.head.set_pan(0.5, speed=30, timeout=0)
             rospy.sleep(2)
@@ -1897,6 +2051,8 @@ class TigTagToe(object):
             #self.GridStatus = self.check_all_grid('left')
             if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
               or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
+            
+                print "Updated grid status after button pressed..."
         
                 self.update_grid_status('left')
                 
@@ -1915,11 +2071,14 @@ class TigTagToe(object):
                 self.FirstStarterMarker = 'x'
                 msg_string = 'game_engine:x:start'
                 self.GridStatusPub.publish(msg_string)
+                rospy.sleep(0.5)
                 
                 msg_string = 'game_status:x:' + self.get_grid_status_string()
                 self.NextStep = 'game_engine'
                 self.NextMarker = 'o'
                 self.GridStatusPub.publish(msg_string)
+                
+                print "Game engine cmd sent: ", msg_string
                 
                 
                 pass
@@ -1930,29 +2089,45 @@ class TigTagToe(object):
                 self.FirstStarterMarker = 'o'
                 msg_string = 'game_engine:o:start'
                 self.GridStatusPub.publish(msg_string)
+                rospy.sleep(0.5)
                 
                 msg_string = 'game_status:o:' + self.get_grid_status_string()
                 self.NextStep = 'game_engine'
                 self.NextMarker = 'x'
                 self.GridStatusPub.publish(msg_string)
+                rospy.sleep(0.5)
+                print "Game engine cmd sent: ", msg_string
                 
                 pass
             
             elif self.GridStatus.count('b')==9:
+                slot_id = 0
+                first_grid_id = randint(0,8)
                 print "Robot can start first, robot will pick from left side slots"
                 self.FirstStarter = 'robot'
-                self.FirstStarterMarker = 'x'
-                first_grid_id = randint(0,8)
+                if o_side == 'right':
+                    print "Robot start first using x..."
+                    self.FirstStarterMarker = 'x'
+                    msg_string = 'game_engine:x:start'
+                    self.GridStatus[first_grid_id] = 'x'
+                    self.NextMarker = 'o'
+                    #slot_id = self.find_in_slots('right', 'x')
+                elif o_side=='left':
+                    print "Robot start first using o..."
+                    self.FirstStarterMarker = 'o'
+                    msg_string = 'game_engine:o:start'
+                    self.GridStatus[first_grid_id] = 'o'
+                    self.NextMarker = 'x'
+                    #slot_id = self.find_in_slots('right', 'o')
+                    
                 
-                msg_string = 'game_engine:o:start'
                 self.GridStatusPub.publish(msg_string)
+                rospy.sleep(0.5)                
+                print "Game engine cmd sent: ", msg_string
                 
-                slot_id = self.find_in_slots('right', 'o')
-                
-                self.GridStatus[first_grid_id] = 'x'
                 #msg_string = 'game_status:x:' + self.get_grid_status_string()
                 
-                slot_id = self.find_in_slots('left', 'x')
+                slot_id = self.find_in_slots('left', 'x') #x or o doesn't matter
                 if slot_id in range(0, 6):
                     
                     if self.GameState == 'Estop_on':
@@ -1970,7 +2145,7 @@ class TigTagToe(object):
                     #self.move_to_init('left')
                 self.LeftSlots[slot_id] = 'b'
                 self.NextStep = 'pass_to_human'
-                self.NextMarker = 'o'
+                
                 
                 #self.GridStatusPub.publish(msg_string)
             
@@ -2019,6 +2194,7 @@ class TigTagToe(object):
                             msg_string = 'game_status:x:' + self.get_grid_status_string()
                             self.NextMarker = 'o'
                         self.GridStatusPub.publish(msg_string)
+                        rospy.sleep(0.4)
                         
                         pass
 
@@ -2053,19 +2229,39 @@ class TigTagToe(object):
                     print "Item: ", item, "Id: ", id
                     
                     
-                    if item in ['x'] and id in range(0, 9):
+                    if o_side == 'right' and item in ['x'] and id in range(0, 9):
                         
                         #self.display_image('leftplay')
-                        
+                        self.display_image1('myturn')
+                        self.move_arm('right', self.RightArmInitPose)
                         slot_id = self.find_in_slots('left', 'x')
                         print "Pick x from left slot: ", self.LeftSlots[slot_id]
                         print "place it to: ", self.GridForLeftArm[id]
                         if self.GameState == 'Estop_on':
                             return
-                        self.display_image1('myturn')
+                        
+                        if slot_id in [2, 4]:
+                            pose_temp = list(self.LeftSlotsLocation[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
                         self.pick_from_xy('left', self.LeftSlotsLocation[slot_id])
                         if self.GameState == 'Estop_on':
                             return
+                        
+                        if id == 2:
+                            pose_temp = list(self.GridForLeftArm1[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                        elif id == 5:
+                            pose_temp = list(self.GridForLeftArm1[3])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                        elif id == 8:
+                            pose_temp = list(self.GridForLeftArm1[6])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                            
+                
                         self.place_to_xy('left', self.GridForLeftArm1[id])
                         if self.GameState == 'Estop_on':
                             return
@@ -2081,7 +2277,7 @@ class TigTagToe(object):
                         next_move1 = self.wait_for_next_move()
                     
                         item1, id1 = self.interpret_next_move(next_move1)
-                        print "Item: ", item, "Id: ", id
+                        print "Item: ", item, "Id: ", id1
                         if item1=='win':
                             
                             if id1==0:
@@ -2122,18 +2318,132 @@ class TigTagToe(object):
                         self.NextStep = 'pass_to_human'
                         self.NextMarker = 'o'
                         
-                    elif item in ['o'] and id in range(0, 9):
+                    elif o_side == 'left' and item in ['x'] and id in range(0, 9):
                         
-                        self.display_image('rightplay')
-                        slot_id = self.find_in_slots('right', 'o')
-                        print "Pick o from right slot: ", self.LeftSlots[slot_id]
+                        #self.display_image('leftplay')
+                        self.display_image1('myturn')
+                        self.move_arm('left', self.LeftArmInitPose)
+                        slot_id = self.find_in_slots('right', 'x')
+                        print "Pick x from right slot: ", self.RightSlots[slot_id]
                         print "place it to: ", self.GridForRightArm[id]
                         if self.GameState == 'Estop_on':
                             return
                         self.display_image1('myturn')
+                        if slot_id in [2, 4]:
+                            pose_temp = list(self.RightSlotsLocation[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
                         self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
                         if self.GameState == 'Estop_on':
                             return
+                        
+                        if id == 2:
+                            pose_temp = list(self.GridForRightArm1[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                        elif id == 5:
+                            pose_temp = list(self.GridForRightArm1[3])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                        elif id == 8:
+                            pose_temp = list(self.GridForRightArm1[6])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                            
+                
+                        self.place_to_xy('right', self.GridForRightArm1[id])
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.move_arm('right', self.RightArmInitPose)
+                        if self.GameState == 'Estop_on':
+                            return
+                        print "Right Arm Back to Init Position..."
+                        #self.move_to_init('left')
+                        self.RightSlots[slot_id] = 'b'
+                        self.GridStatus[id] = item
+                        msg_string = 'update_grid:x:' + self.get_grid_status_string()
+                        self.GridStatusPub.publish(msg_string)
+                        next_move1 = self.wait_for_next_move()
+                    
+                        item1, id1 = self.interpret_next_move(next_move1)
+                        print "Item: ", item, "Id: ", id1
+                        if item1=='win':
+                            
+                            if id1==0:
+                                #self.display_image1('rightwin')
+                                print "X won..."
+                                if self.FirstStarterMarker == 'x' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                elif self.FirstStarterMarker == 'x' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                            elif id1==1:
+                                #self.display_image1('leftwin')
+                                print "O won..."
+                                if self.FirstStarterMarker == 'o' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                elif self.FirstStarterMarker == 'o' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                            
+                                
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            break
+                        elif item1 == 'draw':
+                            
+                            self.display_image1('draw')
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            
+                            
+                            break
+                            
+                        self.NextPlayer = 'human'
+                        self.NextStep = 'pass_to_human'
+                        self.NextMarker = 'o'
+                    
+                    
+                    elif o_side=='right' and item in ['o'] and id in range(0, 9):
+                        
+                        self.display_image1('myturn')
+                        self.move_arm('left', self.LeftArmInitPose)
+                        
+                        slot_id = self.find_in_slots('right', 'o')
+                        print "Pick o from right : ", self.RightSlots[slot_id]
+                        print "place it to: ", self.GridForRightArm[id]
+                        if self.GameState == 'Estop_on':
+                            return
+                        #self.display_image1('myturn')
+                        if slot_id in [2, 4]:
+                            pose_temp = list(self.RightSlotsLocation[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                        self.pick_from_xy('right', self.RightSlotsLocation[slot_id])
+                        
+                        
+                        if self.GameState == 'Estop_on':
+                            return
+                        
+                        
+                        
+                        if id == 2:
+                            pose_temp = list(self.GridForRightArm1[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                        elif id == 5:
+                            pose_temp = list(self.GridForRightArm1[3])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                        elif id == 8:
+                            pose_temp = list(self.GridForRightArm1[6])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('right', pose_temp)
+                        
                         self.place_to_xy('right', self.GridForRightArm1[id])
                         if self.GameState == 'Estop_on':
                             return
@@ -2150,7 +2460,104 @@ class TigTagToe(object):
                         next_move1 = self.wait_for_next_move()
                     
                         item1, id1 = self.interpret_next_move(next_move1)
-                        print "Item: ", item, "Id: ", id
+                        print "Item: ", item, "Id: ", id1
+                        if item1=='win':
+                            
+                            if id1==0:
+                                #self.display_image('rightwin')
+                                print "X won..."
+                                if self.FirstStarterMarker == 'x' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                    rospy.sleep(2)
+                                elif self.FirstStarterMarker == 'x' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                                    rospy.sleep(2)
+                            elif id1==1:
+                                #self.display_image('leftwin')
+                                print "O won..."
+                                if self.FirstStarterMarker == 'o' and self.FirstStarter=='human':
+                                    self.display_image1('humanwin')
+                                    rospy.sleep(2)
+                                elif self.FirstStarterMarker == 'o' and self.FirstStarter=='robot':
+                                    self.display_image1('robotwin')
+                                    rospy.sleep(2)
+                            
+                                
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            break
+                        
+                        elif item1 == 'draw':
+                            
+                            self.display_image1('draw')
+                            sessionDone = True
+                            self.GameStatus = 'Done'
+                            rospy.sleep(2)
+                            self.NextPlayer = ''
+                            self.NextStep = ''
+                            
+                            break
+                        
+                        self.NextPlayer = 'human'
+                        self.NextStep = 'pass_to_human'
+                        self.NextMarker = 'x'
+                    
+                    elif o_side=='left' and item in ['o'] and id in range(0, 9):
+                        
+                        self.display_image1('myturn')
+                        self.move_arm('right', self.RightArmInitPose)
+                        
+                        slot_id = self.find_in_slots('left', 'o')
+                        print "Pick o from Left : ", self.LeftSlots[slot_id]
+                        print "place it to: ", self.GridForLeftArm[id]
+                        if self.GameState == 'Estop_on':
+                            return
+                        #self.display_image1('myturn')
+                        if slot_id in [2, 4]:
+                            pose_temp = list(self.LeftSlotsLocation[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                        self.pick_from_xy('left', self.RightSlotsLocation[slot_id])
+                        
+                        
+                        if self.GameState == 'Estop_on':
+                            return
+                        
+                        
+                        
+                        if id == 2:
+                            pose_temp = list(self.GridForLeftArm1[0])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                        elif id == 5:
+                            pose_temp = list(self.GridForLeftArm1[3])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                        elif id == 8:
+                            pose_temp = list(self.GridForLeftArm1[6])
+                            pose_temp[2] = pose_temp[2] + 0.2
+                            self.move_arm('left', pose_temp)
+                        
+                        self.place_to_xy('left', self.GridForLeftArm1[id])
+                        if self.GameState == 'Estop_on':
+                            return
+                        self.move_arm('left', self.RightArmInitPose)
+                        if self.GameState == 'Estop_on':
+                            return
+                        print "Right Arm Back to Init Position..."
+                        #self.move_to_init('right')
+                        self.GridStatus[id] = item
+                        self.RightSlots[slot_id] = 'b'
+                        msg_string = 'update_grid:o:' + self.get_grid_status_string()
+                        self.GridStatusPub.publish(msg_string)
+                        
+                        next_move1 = self.wait_for_next_move()
+                    
+                        item1, id1 = self.interpret_next_move(next_move1)
+                        print "Item: ", item, "Id: ", id1
                         if item1=='win':
                             
                             if id1==0:
@@ -2206,6 +2613,8 @@ class TigTagToe(object):
                         break
                         
                     elif item == 'win':
+                        
+                        
                         if id==0:
                             #self.display_image('rightwin')
                             if self.FirstStarterMarker == 'x' and self.FirstStarter=='human':
@@ -2244,23 +2653,39 @@ class TigTagToe(object):
 ##                        self.NextPlayer = 'human'
 ##                
             
+            self.move_arm('left', self.LeftArmInitPose)
             
-            print "Check Table at the End..."
-            self.display_image1('manualresettable')
-            self.wait_button_on1(0.1)
-            self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
-            print "Left slots: ", self.LeftSlots
-            self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
-            print "Right slots: ", self.RightSlots
-            if (not (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o'])) \
-               or (not (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o'])):
-                self.GridStatus = self.check_all_grids('left')
-            #self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
-                print "Grid Status: ", self.GridStatus
-                self.display_image1('resettable')
-                self.place_all_blocks2()
-            else:
-                self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+            while self.LeftSlots.count('b')>=2 or self.RightSlots.count('b')>=2:
+                print "Check Table at the End..."
+                self.display_image1('manualresettable')
+                self.wait_button_on1(1.5)
+                if self.GameState == 'Estop_on':
+                    return
+                self.LeftSlots =  self.check_left_slots() #['x','x','x','x','x']
+                print "Left slots: ", self.LeftSlots
+                self.RightSlots = self.check_right_slots() #['o','o','o','o','o']
+                print "Right slots: ", self.RightSlots
+                if (self.LeftSlots == ['x','x','x','x','x'] and self.RightSlots == ['o','o','o','o','o']) \
+                  or (self.RightSlots == ['x','x','x','x','x'] and self.LeftSlots == ['o','o','o','o','o']):
+                    
+                    self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+                
+                
+                #self.GridStatus = ['b','b','b','b','b','b','b','b','b']
+                    print "Left Right Slots all set, not scanning grids..."
+                else:
+                    self.GridStatus = self.check_all_grids('left')
+                #self.GridStatus = self.check_all_grids('left') #['b','b','b','b','b','b','b','b','b']
+                    print "Grid Status: ", self.GridStatus
+                    self.display_image1('resettable')
+                    self.place_all_blocks2()
+                    
+                
+            if self.LeftSlots.count('o')>=4:
+                o_side = 'left'
+            elif self.RightSlots.count('o')>=4:
+                o_side = 'right'    
+                
                 
             
                 

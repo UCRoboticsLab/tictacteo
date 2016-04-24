@@ -143,6 +143,7 @@ class GameEngine:
             return cmd_segments[0], cmd_segments[1],new_board1
         elif cmd_segments[0] == 'game_engine':
             
+            print "received game_engine command..."
             return 'game_engine', cmd_segments[1], cmd_segments[2]
         
         
@@ -242,6 +243,8 @@ class GameEngine:
         #self.QuitCurrentSession = False
         player = turn #h for human, b for bot
         print "Player is: ", player
+        print "IsRound: ", self.isThisRoundDone
+        print "IsSession: ", self.QuitCurrentSession
         #isThisRound = True
         msg_string = ''
         print "New Id: ", new_id
@@ -256,12 +259,15 @@ class GameEngine:
                     print "x won..."
                     msg_string = 'win 0'
                     self.reset_game()
+                    self.QuitCurrentSession = True
+                    #break
                 elif self.is_board_full():
                     self.print_board()
                     print "\n\t-- Match Draw --\t\n"
                     msg_string = 'draw 0'
                     self.reset_game()
                     self.QuitCurrentSession = True
+                    #break
                 else:
                     player_move =  self.get_bot_move('o', 'x')
                     #self.make_move(self.board,player_move, 'o')
@@ -270,7 +276,11 @@ class GameEngine:
                     #print "new move o to : ", self.ConvertIndex[player_move]
                     self.print_board()
                     
-                self.GridStatusPub.publish(msg_string)
+                if msg_string!=' ' or msg_string!='':
+                    print "Send Message back to game controller: ", msg_string    
+                    self.GridStatusPub.publish(msg_string)
+                else:
+                    print "Msg string is space or empty..."
                 
                 self.isThisRoundDone = True
             
@@ -283,6 +293,7 @@ class GameEngine:
                     print "o won..."
                     msg_string = 'win 1'
                     self.reset_game()
+                    self.QuitCurrentSession = True
                 elif self.is_board_full():
                     self.print_board()
                     print "\n\t-- Match Draw --\t\n"
@@ -297,8 +308,14 @@ class GameEngine:
                     
                     #self.print_board()
                 
-                print "Send Message back to game controller: ", msg_string
-                self.GridStatusPub.publish(msg_string)
+                
+                
+                
+                if msg_string!=' ' or msg_string!='':  
+                    print "Send Message back to game controller: ", msg_string  
+                    self.GridStatusPub.publish(msg_string)
+                else:
+                    print "Msg string is space or empty..."
     
                 
                 self.isThisRoundDone = True
@@ -306,6 +323,7 @@ class GameEngine:
                 print "Error, Player Marker not 'o' or 'x'..."
         
         print "Quit game loop..."
+    
 
 
     def reset_game(self):
@@ -339,6 +357,10 @@ class GameEngine:
                 self.QuitCurrentSession = False
                 print "Game Session Starts..."
                 self.reset_game()
+                self.isThisRoundDone = False
+                print "this round at start: ", self.isThisRoundDone
+                print "this session at start: ", self.QuitCurrentSession
+                print "Board at start: ", self.board
                 
                 
                 
@@ -348,6 +370,8 @@ class GameEngine:
                 print "Grid Status: ", self.board
                 print "New Grid Status: ", target_list
                 new_id = self.find_new_move(target_list)
+                self.board = list(target_list)
+                print "New Id: ", new_id
                 
                 #if turn == 'o':
                 self.enter_game_loop(turn, new_id)
@@ -385,7 +409,7 @@ class GameEngine:
                     print "No winner yet..."
                     msg_string = 'nowin 2'
                     
-                if msg_string != '':
+                if msg_string != '' or msg_string != '':
                     
                     self.GridStatusPub.publish(msg_string)
                     
