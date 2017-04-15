@@ -205,7 +205,35 @@ class ImageCollecting(object):
         if img == None:
             rospy.sleep(0.05)
             return
-        cv2.imwrite(image_filename, img)
+        
+        cur_pose = self.current_poses[self.arm]
+        self.counter = self.counter + 1
+        x = cur_pose.pose.position.x
+        y = cur_pose.pose.position.y
+        z = cur_pose.pose.position.z + 0.01
+        ox = cur_pose.pose.orientation.x
+        oy = cur_pose.pose.orientation.y
+        oz = cur_pose.pose.orientation.z
+        ow = cur_pose.pose.orientation.w
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        kernel_smooth = np.ones((5,5),np.float32)/25
+        gray_img = cv2.filter2D(gray_img, -1, kernel_smooth)
+    
+        bw_img = cv2.adaptiveThreshold(gray_img,255,\
+                                   cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+                                   cv2.THRESH_BINARY,103,1)
+                                   
+                                   
+        bw_img1 = cv2.bitwise_not(bw_img)
+    
+        #bw_img2 = cv2.bitwise_and(bw_img1,bw_img1,mask = mask_img)#deepcopy(bw_img1)
+            
+        
+        
+        
+        
+        cv2.imwrite(image_filename, bw_img1)
+        
         
         file.write("%s %.4f %.4f %.4f %.4f %4f %.4f %.4f\n" % (image_filename, x, y, z, ox, oy, oz, ow))
         file.close()
@@ -229,18 +257,9 @@ class ImageCollecting(object):
         while not rospy.is_shutdown():
             img_filename = image_folder + 'image_'+str(self.counter).zfill(4)+'.png'
             self.capture_image(img_filename)
-            cur_pose = self.current_poses[self.arm]
-            self.counter = self.counter + 1
-            x = cur_pose.pose.position.x
-            y = cur_pose.pose.position.y
-            z = cur_pose.pose.position.z + 0.01
-            ox = cur_pose.pose.orientation.x
-            oy = cur_pose.pose.orientation.y
-            oz = cur_pose.pose.orientation.z
-            ow = cur_pose.pose.orientation.w
-            self.move_arm('left', [x, y, z, 0.0, 1.0, 0.0, 0.0])
-            rospy.sleep(1)
             
+            rospy.sleep(1)
+    
     
     def turn_recording(self, image_folder):
         
@@ -263,7 +282,7 @@ class ImageCollecting(object):
         
         self.init_msgs()
         rospy.sleep(1)
-        self.init_pose()
+        #self.init_pose()
         img_folder = './src/phm/images/'
         self.up_recording(img_folder)
         while not rospy.is_shutdown():

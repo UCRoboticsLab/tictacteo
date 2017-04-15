@@ -190,8 +190,8 @@ class MoveArms(object):
         else:
             return 0
         
-        
-        self.arms[arm].move_to_joint_positions(limb_joints)
+        self.arms[arm].set_joint_position_speed(0.9)
+        self.arms[arm].move_to_joint_positions(limb_joints, threshold=0.0018)
         
         return 1
     
@@ -231,27 +231,34 @@ class MoveArms(object):
         except (rospy.ServiceException, rospy.ROSException), e:
             rospy.logerr("Service call failed: %s" % (e,))
             return 0
-            
+        
+        
         limb_joints = None
         if (resp.isValid[0]):
             limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
             print "\nFinish IK moving\n"
             
         else:
+            print "Can't Get IK Result"
             return 0
         
+        #print "IK Result", limb_joints
+        #joints_right_list = {'right_s0':-2.0944, 'right_s1':0.0, 'right_e0':0.0, 'right_e1':1.5708, 'right_w0':0.0, 'right_w1':0.0, 'right_w2':1.5708}
+        #joints_left_list = {'left_s0':2.0944, 'left_s1':0.0, 'left_e0':1.5708, 'left_e1':1.0472, 'left_w0':0.0, 'left_w1':0.0, 'left_w2':0.0}
         
-        self.arms[arm].move_to_joint_positions(limb_joints)                                
+        self.arms[arm].move_to_joint_positions(limb_joints)  #set the threshold too low say 0.001, causing robot run very slow
+        
+        #self.arms['right'].move_to_joint_positions(joints_right_list)                              
     
         return
         
         
     def run(self):
     
-        self.init_angle('left')
-        self.init_angle('right')
+        #self.init_angle('left')
+        #self.init_angle('right')
         #self.move_distance([0.0, 0.5, 0.0], 'right') #[0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0
-        self.move_to([0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'left')
+        #self.move_to([0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'left')
         rospy.sleep(2)
         while not rospy.is_shutdown():
         

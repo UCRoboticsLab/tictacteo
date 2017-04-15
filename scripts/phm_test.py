@@ -53,7 +53,23 @@ class TestBaxterBase(BaxterBase):
         
         
         BaxterBase.__init__(self)
+        
     
+        self.CurrentObjectMsg = ''
+        rospy.Subscriber('move_it', String, self.get_object_callback)
+    
+    def get_object_callback(self, msg):
+        
+        self.CurrentObjectMsg = msg.data
+        
+        return
+    
+    def get_cur_object_msg(self):
+        
+        msg_string = self.CurrentObjectMsg
+        if self.CurrentObjectMsg!='':
+            self.CurrentObjectMsg = ''
+        return msg_string
     
     def get_img(self, side):
         
@@ -72,6 +88,20 @@ def signal_handler(signal, frame):
     print 'You pressed Ctrl+C!'
     sys.exit(0)
 
+def interpret_msg(msg_string):
+    
+    string_segments = msg_string.split()
+    if len(string_segments)!= 7:
+        print "Msg Interpretting Error, Number of Segments not right"
+        
+        return []
+    
+    pose_list = []
+    for item in string_segments:
+        pose_list.append(float(item))
+    
+    return pose_list
+
 def main():
     
     signal.signal(signal.SIGINT, signal_handler)
@@ -81,13 +111,19 @@ def main():
     t1.init_camera()
     
     
+    t1.gripper_control('right', 'calibrate')
     
     while not rospy.is_shutdown():
             
-        img = t1.get_img('left')
-        if img != None:
-            cv2.imshow('current_image', img)
-            cv2.waitKey(5)
+        object_string = t1.get_cur_object_msg()
+        while object_string == '':
+            object_string = t1.get_cur_object_msg()
+            rospy.sleep(0.1)
+        pose_list = interpret_msg(object_string)
+        
+        if pose_list != []:
+            t1.pick_item('right', pose_list)
+        #t1.pick_item('right', 
         rospy.sleep(0.1)
 
 
