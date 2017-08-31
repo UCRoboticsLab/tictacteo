@@ -1,0 +1,16 @@
+<map id="phm_find_grid.GridDetector.track_contour" name="phm_find_grid.GridDetector.track_contour">
+<area shape="rect" id="node2" href="$classbuild__training__set_1_1_baxter_image_grabber.html#a662f6e162ce7385dfcae0b4f9ce3170e" title="build_training_set.Baxter\lImageGrabber.get_image" alt="" coords="315,5,483,46"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#a4ab2cd308e62da7b9fbe50912f379494" title="data_collection.ImageCollecting.get\l_image" alt="" coords="284,70,513,111"/>
+<area shape="rect" id="node4" href="$classphm__calibrate__game_1_1_game_calibrator.html#a98a980168c5cc8c0b047281d2e9b52f1" title="phm_calibrate_game.GameCalibrator.get\l_image" alt="" coords="269,135,528,177"/>
+<area shape="rect" id="node5" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a2944b983a65f9c144023ce73d0debb04" title="phm_camera_calibration.Camera\lCalibrator.get_image" alt="" coords="292,201,505,242"/>
+<area shape="rect" id="node6" href="$classphm__find__grid_1_1_grid_detector.html#aa9d83daef76168a0d7d8101bade9e427" title="phm_find_grid.GridDetector.get\l_image" alt="" coords="297,266,500,307"/>
+<area shape="rect" id="node7" href="$classphm__find__grid_1_1_grid_detector.html#a5fa6ee53b3d2fac17f56e229f4168536" title="phm_find_grid.GridDetector.contour\l_match" alt="" coords="285,331,513,373"/>
+<area shape="rect" id="node8" href="$classphm__find__grid_1_1_grid_detector.html#aa161335a868a02d8071dec7f0e63c72c" title="phm_find_grid.GridDetector.pixel\l_to_baxter" alt="" coords="293,397,505,438"/>
+<area shape="rect" id="node9" href="$classphm__camera__calibration_1_1_camera_calibrator.html#ab384b250b07d31b421afbf1a42747b76" title="phm_camera_calibration.Camera\lCalibrator.get_ir_range" alt="" coords="292,462,505,503"/>
+<area shape="rect" id="node10" href="$classphm__find__grid_1_1_grid_detector.html#a1021fe36f7082cb7080fcb3d8e5c766e" title="phm_find_grid.GridDetector.get\l_ir_range" alt="" coords="297,527,500,569"/>
+<area shape="rect" id="node11" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="616,397,811,438"/>
+<area shape="rect" id="node12" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="592,462,835,503"/>
+<area shape="rect" id="node13" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="577,527,850,569"/>
+<area shape="rect" id="node14" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a49aeeb627dea5c2d6d549ce464cb2825" title="phm_camera_calibration.Camera\lCalibrator.make_pose_stamp" alt="" coords="607,593,820,634"/>
+<area shape="rect" id="node15" href="$classphm__find__grid_1_1_grid_detector.html#aa37bbc022ddc84a95f7ff544eb746f5e" title="phm_find_grid.GridDetector.make\l_pose_stamp" alt="" coords="605,658,822,699"/>
+</map>

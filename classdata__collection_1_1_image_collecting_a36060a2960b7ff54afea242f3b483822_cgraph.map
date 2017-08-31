@@ -1,0 +1,5 @@
+<map id="data_collection.ImageCollecting.up_recording" name="data_collection.ImageCollecting.up_recording">
+<area shape="rect" id="node2" href="$classdata__collection_1_1_image_collecting.html#af6fe58ffc032aac7b2a9e78c1209fab7" title="data_collection.ImageCollecting.capture\l_image" alt="" coords="281,38,535,79"/>
+<area shape="rect" id="node3" href="$classbuild__training__set_1_1_baxter_image_grabber.html#a662f6e162ce7385dfcae0b4f9ce3170e" title="build_training_set.Baxter\lImageGrabber.get_image" alt="" coords="615,5,783,46"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#a4ab2cd308e62da7b9fbe50912f379494" title="data_collection.ImageCollecting.get\l_image" alt="" coords="584,70,813,111"/>
+</map>

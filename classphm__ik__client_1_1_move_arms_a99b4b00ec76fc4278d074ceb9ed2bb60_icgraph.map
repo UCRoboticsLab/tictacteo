@@ -1,0 +1,7 @@
+<map id="phm_ik_client.MoveArms.make_pose_stamp" name="phm_ik_client.MoveArms.make_pose_stamp">
+<area shape="rect" id="node2" href="$classphm__ik__client_1_1_move_arms.html#a8e66114b0b43c9cd2c98e0509fd8eead" title="phm_ik_client.MoveArms.move\l_distance" alt="" coords="531,5,736,46"/>
+<area shape="rect" id="node4" href="$classphm__ik__client_1_1_move_arms.html#aaabb58f3fa944f4e71a7f14be9cf2ab8" title="phm_ik_client.MoveArms.turn\l_angle" alt="" coords="273,63,468,105"/>
+<area shape="rect" id="node5" href="$classphm__ik__client_1_1_move_arms.html#a9fd9dbfede28d4fb5183f245d0b5e510" title="phm_ik_client.MoveArms.move_to" alt="" coords="259,129,482,156"/>
+<area shape="rect" id="node3" href="$classphm__ik__client_1_1_move_arms.html#af4591c9841121d1ef455bc7b90a5a0ad" title="phm_ik_client.MoveArms.run" alt="" coords="785,71,975,97"/>
+<area shape="rect" id="node6" href="$classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4" title="phm_ik_client.MoveArms.init\l_angle" alt="" coords="538,122,729,163"/>
+</map>

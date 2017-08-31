@@ -1,0 +1,12 @@
+<map id="phm_game_controller.TigTagToe.init_msgs" name="phm_game_controller.TigTagToe.init_msgs">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#ae4f0e17f2a41a5c0e33db9f6f7c74832" title="baxterbase.BaxterBase.pose\l_callback" alt="" coords="285,5,475,46"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#a04e535a5346ab0fa469d1c4e6185431c" title="data_collection.ImageCollecting.pose\l_callback" alt="" coords="261,70,499,111"/>
+<area shape="rect" id="node6" href="$classphm__calibrate__game_1_1_game_calibrator.html#a6fd5a16cbd7519561f4f884305763dcd" title="phm_calibrate_game.GameCalibrator.pose\l_callback" alt="" coords="245,135,515,177"/>
+<area shape="rect" id="node8" href="$classphm__game__controller_1_1_tig_tag_toe.html#a279af195b50fb9f81a8d83e9e60f0b1d" title="phm_game_controller.TigTag\lToe.pose_callback" alt="" coords="285,201,475,242"/>
+<area shape="rect" id="node3" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="603,37,797,78"/>
+<area shape="rect" id="node5" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="579,102,821,143"/>
+<area shape="rect" id="node7" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="563,167,837,209"/>
+<area shape="rect" id="node9" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a49aeeb627dea5c2d6d549ce464cb2825" title="phm_camera_calibration.Camera\lCalibrator.make_pose_stamp" alt="" coords="593,233,807,274"/>
+<area shape="rect" id="node10" href="$classphm__find__grid_1_1_grid_detector.html#aa37bbc022ddc84a95f7ff544eb746f5e" title="phm_find_grid.GridDetector.make\l_pose_stamp" alt="" coords="591,298,809,339"/>
+<area shape="rect" id="node11" href="$classphm__game__controller_1_1_tig_tag_toe.html#afe317d4a96e77ec71ddadb85d3ac11fc" title="phm_game_controller.TigTag\lToe.make_pose_stamp" alt="" coords="605,363,795,405"/>
+</map>

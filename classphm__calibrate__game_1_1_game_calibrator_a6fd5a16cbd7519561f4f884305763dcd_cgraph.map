@@ -1,0 +1,5 @@
+<map id="phm_calibrate_game.GameCalibrator.pose_callback" name="phm_calibrate_game.GameCalibrator.pose_callback">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="363,5,557,46"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="339,70,581,111"/>
+<area shape="rect" id="node4" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="323,135,597,177"/>
+</map>

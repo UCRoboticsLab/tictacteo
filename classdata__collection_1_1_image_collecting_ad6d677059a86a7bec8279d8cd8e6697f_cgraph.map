@@ -1,0 +1,6 @@
+<map id="data_collection.ImageCollecting.init_msgs" name="data_collection.ImageCollecting.init_msgs">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#ae4f0e17f2a41a5c0e33db9f6f7c74832" title="baxterbase.BaxterBase.pose\l_callback" alt="" coords="345,5,535,46"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#a04e535a5346ab0fa469d1c4e6185431c" title="data_collection.ImageCollecting.pose\l_callback" alt="" coords="321,70,559,111"/>
+<area shape="rect" id="node3" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="632,5,827,46"/>
+<area shape="rect" id="node5" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="608,70,851,111"/>
+</map>

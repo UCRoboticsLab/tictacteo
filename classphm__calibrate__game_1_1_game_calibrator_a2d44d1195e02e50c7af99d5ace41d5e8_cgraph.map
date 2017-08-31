@@ -1,0 +1,7 @@
+<map id="phm_calibrate_game.GameCalibrator.grids_roi_recorder" name="phm_calibrate_game.GameCalibrator.grids_roi_recorder">
+<area shape="rect" id="node2" href="$classphm__calibrate__game_1_1_game_calibrator.html#a95493df0b07681485364f18fbbba8176" title="phm_calibrate_game.GameCalibrator.mouse\l_callback" alt="" coords="323,5,603,46"/>
+<area shape="rect" id="node3" href="$classbuild__training__set_1_1_baxter_image_grabber.html#a662f6e162ce7385dfcae0b4f9ce3170e" title="build_training_set.Baxter\lImageGrabber.get_image" alt="" coords="379,70,547,111"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#a4ab2cd308e62da7b9fbe50912f379494" title="data_collection.ImageCollecting.get\l_image" alt="" coords="348,135,577,177"/>
+<area shape="rect" id="node5" href="$classphm__calibrate__game_1_1_game_calibrator.html#a98a980168c5cc8c0b047281d2e9b52f1" title="phm_calibrate_game.GameCalibrator.get\l_image" alt="" coords="333,201,592,242"/>
+<area shape="rect" id="node6" href="$classphm__calibrate__game_1_1_game_calibrator.html#afa79900afc0302fe9b90114767ebbc9b" title="phm_calibrate_game.GameCalibrator.save\l_roi_location" alt="" coords="328,266,597,307"/>
+</map>

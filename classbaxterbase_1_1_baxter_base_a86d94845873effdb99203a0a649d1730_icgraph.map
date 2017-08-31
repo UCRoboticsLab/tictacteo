@@ -1,0 +1,5 @@
+<map id="baxterbase.BaxterBase.move_arm" name="baxterbase.BaxterBase.move_arm">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#a44bb261804661d1f446d7bc37d4d8a49" title="baxterbase.BaxterBase.pick_item" alt="" coords="300,5,519,32"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#a602401766e394f89f12267754aebfb80" title="data_collection.ImageCollecting.init_pose" alt="" coords="278,56,541,83"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#ad7e0379f362cb077747b1606cda84377" title="data_collection.ImageCollecting.turn\l_recording" alt="" coords="293,107,526,149"/>
+</map>

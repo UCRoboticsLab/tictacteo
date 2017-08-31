@@ -1,0 +1,13 @@
+<map id="phm_camera_calibration.CameraCalibrator.make_pose_stamp" name="phm_camera_calibration.CameraCalibrator.make_pose_stamp">
+<area shape="rect" id="node2" href="$classphm__find__grid_1_1_grid_detector.html#a1021fe36f7082cb7080fcb3d8e5c766e" title="phm_find_grid.GridDetector.get\l_ir_range" alt="" coords="268,70,471,111"/>
+<area shape="rect" id="node5" href="$classphm__game__controller_1_1_tig_tag_toe.html#a279af195b50fb9f81a8d83e9e60f0b1d" title="phm_game_controller.TigTag\lToe.pose_callback" alt="" coords="274,135,465,177"/>
+<area shape="rect" id="node7" href="$classphm__ik__client_1_1_move_arms.html#a99b4b00ec76fc4278d074ceb9ed2bb60" title="phm_ik_client.MoveArms.make\l_pose_stamp" alt="" coords="267,277,472,318"/>
+<area shape="rect" id="node8" href="$classphm__ik__client_1_1_move_arms.html#a8e66114b0b43c9cd2c98e0509fd8eead" title="phm_ik_client.MoveArms.move\l_distance" alt="" coords="529,203,735,245"/>
+<area shape="rect" id="node10" href="$classphm__ik__client_1_1_move_arms.html#aaabb58f3fa944f4e71a7f14be9cf2ab8" title="phm_ik_client.MoveArms.turn\l_angle" alt="" coords="535,362,729,403"/>
+<area shape="rect" id="node11" href="$classphm__ik__client_1_1_move_arms.html#a9fd9dbfede28d4fb5183f245d0b5e510" title="phm_ik_client.MoveArms.move_to" alt="" coords="521,307,743,333"/>
+<area shape="rect" id="node3" href="$classphm__find__grid_1_1_grid_detector.html#a8b27968258d5aaefd384e961cfe8f79b" title="phm_find_grid.GridDetector.track\l_contour" alt="" coords="525,5,739,46"/>
+<area shape="rect" id="node4" href="$classphm__find__grid_1_1_grid_detector.html#a8482864806b0d1694f55aeeb09da7406" title="phm_find_grid.GridDetector.track\l_contour2" alt="" coords="525,70,739,111"/>
+<area shape="rect" id="node6" href="$classphm__game__controller_1_1_tig_tag_toe.html#ad147b6f859d7cbb5c99b44d369dbcd03" title="phm_game_controller.TigTag\lToe.init_msgs" alt="" coords="537,135,727,177"/>
+<area shape="rect" id="node9" href="$classphm__ik__client_1_1_move_arms.html#af4591c9841121d1ef455bc7b90a5a0ad" title="phm_ik_client.MoveArms.run" alt="" coords="1033,269,1223,296"/>
+<area shape="rect" id="node12" href="$classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4" title="phm_ik_client.MoveArms.init\l_angle" alt="" coords="793,262,983,303"/>
+</map>

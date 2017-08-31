@@ -1,0 +1,7 @@
+<map id="phm_find_grid.GridDetector.get_ir_range" name="phm_find_grid.GridDetector.get_ir_range">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="296,5,491,46"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="272,70,515,111"/>
+<area shape="rect" id="node4" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="257,135,530,177"/>
+<area shape="rect" id="node5" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a49aeeb627dea5c2d6d549ce464cb2825" title="phm_camera_calibration.Camera\lCalibrator.make_pose_stamp" alt="" coords="287,201,500,242"/>
+<area shape="rect" id="node6" href="$classphm__find__grid_1_1_grid_detector.html#aa37bbc022ddc84a95f7ff544eb746f5e" title="phm_find_grid.GridDetector.make\l_pose_stamp" alt="" coords="285,266,502,307"/>
+</map>

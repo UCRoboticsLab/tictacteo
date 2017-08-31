@@ -1,0 +1,10 @@
+<map id="data_collection.ImageCollecting.get_image" name="data_collection.ImageCollecting.get_image">
+<area shape="rect" id="node2" href="$classdata__collection_1_1_image_collecting.html#af6fe58ffc032aac7b2a9e78c1209fab7" title="data_collection.ImageCollecting.capture\l_image" alt="" coords="290,5,545,46"/>
+<area shape="rect" id="node5" href="$classphm__calibrate__game_1_1_game_calibrator.html#a2d44d1195e02e50c7af99d5ace41d5e8" title="phm_calibrate_game.GameCalibrator.grids\l_roi_recorder" alt="" coords="283,70,552,111"/>
+<area shape="rect" id="node6" href="$classphm__find__grid_1_1_grid_detector.html#a8b27968258d5aaefd384e961cfe8f79b" title="phm_find_grid.GridDetector.track\l_contour" alt="" coords="310,135,525,177"/>
+<area shape="rect" id="node7" href="$classphm__find__grid_1_1_grid_detector.html#ad159f351be92c33c22f72e821bfe60a3" title="phm_find_grid.GridDetector.track\l_contour1" alt="" coords="310,201,525,242"/>
+<area shape="rect" id="node8" href="$classphm__find__grid_1_1_grid_detector.html#a8482864806b0d1694f55aeeb09da7406" title="phm_find_grid.GridDetector.track\l_contour2" alt="" coords="310,266,525,307"/>
+<area shape="rect" id="node9" href="$classphm__find__grid_1_1_grid_detector.html#a0d1e978886bb2afad5558de63ad64782" title="phm_find_grid.GridDetector.check_grid" alt="" coords="293,332,541,359"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#a36060a2960b7ff54afea242f3b483822" title="data_collection.ImageCollecting.up\l_recording" alt="" coords="601,5,826,46"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#a0e0a74f1726185611e275181063ff6fc" title="data_collection.ImageCollecting.run" alt="" coords="875,12,1104,39"/>
+</map>

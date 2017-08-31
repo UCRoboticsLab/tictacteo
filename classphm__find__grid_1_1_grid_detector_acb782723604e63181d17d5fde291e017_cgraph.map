@@ -1,0 +1,4 @@
+<map id="phm_find_grid.GridDetector.init_msgs" name="phm_find_grid.GridDetector.init_msgs">
+<area shape="rect" id="node2" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a246102d701083b1b58a5c1f9bee95811" title="phm_camera_calibration.Camera\lCalibrator._ir_sensor_callback" alt="" coords="296,5,509,46"/>
+<area shape="rect" id="node3" href="$classphm__find__grid_1_1_grid_detector.html#ace3ff622e4886dcf699cc8c8b3cc2963" title="phm_find_grid.GridDetector.\l_ir_sensor_callback" alt="" coords="310,70,495,111"/>
+</map>

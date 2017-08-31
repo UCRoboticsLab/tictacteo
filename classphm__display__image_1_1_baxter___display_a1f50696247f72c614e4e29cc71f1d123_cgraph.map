@@ -1,0 +1,6 @@
+<map id="phm_display_image.Baxter_Display.run" name="phm_display_image.Baxter_Display.run">
+<area shape="rect" id="node2" href="$classphm__display__image_1_1_baxter___display.html#aa7043d5d77ef866f8205bc922609a635" title="phm_display_image.Baxter\l_Display.load_images" alt="" coords="235,5,413,46"/>
+<area shape="rect" id="node3" href="$classphm__display__image_1_1_baxter___display.html#a3ccf99ff1f7002d618a2bb34a322eee7" title="phm_display_image.Baxter\l_Display.get_display_cmd" alt="" coords="235,70,413,111"/>
+<area shape="rect" id="node4" href="$classphm__display__image_1_1_baxter___display.html#a7c4d2f788c78e43a778a75bc9dbd1693" title="phm_display_image.Baxter\l_Display.interpret_message" alt="" coords="232,135,416,177"/>
+<area shape="rect" id="node5" href="$classphm__display__image_1_1_baxter___display.html#a875748f4b245820dabaea0c23c0db134" title="phm_display_image.Baxter\l_Display.display_image" alt="" coords="235,201,413,242"/>
+</map>

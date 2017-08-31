@@ -1,0 +1,12 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classbuild__training__set_1_1_baxter_image_grabber.html" title="build_training_set.Baxter\lImageGrabber" alt="" coords="148,5,313,46"/>
+<area shape="rect" id="node3" href="$classbuild__training__set_1_1_image_roi_collector.html" title="build_training_set.Image\lRoiCollector" alt="" coords="149,70,312,111"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html" title="data_collection.ImageCollecting" alt="" coords="127,136,334,163"/>
+<area shape="rect" id="node5" href="$classphm__calibrate__game_1_1_game_calibrator.html" title="phm_calibrate_game.GameCalibrator" alt="" coords="112,187,349,213"/>
+<area shape="rect" id="node6" href="$classphm__camera__calibration_1_1_camera_calibrator.html" title="phm_camera_calibration.Camera\lCalibrator" alt="" coords="124,238,337,279"/>
+<area shape="rect" id="node7" href="$classphm__display__image_1_1_baxter___display.html" title="phm_display_image.Baxter\l_Display" alt="" coords="141,303,320,345"/>
+<area shape="rect" id="node8" href="$classphm__find__grid_1_1_grid_detector.html" title="phm_find_grid.GridDetector" alt="" coords="140,369,321,396"/>
+<area shape="rect" id="node9" href="$classphm__find__table_1_1_game_table_finder.html" title="phm_find_table.GameTable\lFinder" alt="" coords="140,421,321,462"/>
+<area shape="rect" id="node10" href="$classphm__game__controller_1_1_tig_tag_toe.html" title="phm_game_controller.TigTagToe" alt="" coords="125,487,337,513"/>
+<area shape="rect" id="node11" href="$classphm__ik__client_1_1_move_arms.html" title="phm_ik_client.MoveArms" alt="" coords="146,537,315,564"/>
+</map>

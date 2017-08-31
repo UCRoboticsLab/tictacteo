@@ -1,0 +1,8 @@
+<map id="phm_find_grid.GridDetector.check_grid" name="phm_find_grid.GridDetector.check_grid">
+<area shape="rect" id="node2" href="$classbuild__training__set_1_1_baxter_image_grabber.html#a662f6e162ce7385dfcae0b4f9ce3170e" title="build_training_set.Baxter\lImageGrabber.get_image" alt="" coords="347,5,515,46"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#a4ab2cd308e62da7b9fbe50912f379494" title="data_collection.ImageCollecting.get\l_image" alt="" coords="316,70,545,111"/>
+<area shape="rect" id="node4" href="$classphm__calibrate__game_1_1_game_calibrator.html#a98a980168c5cc8c0b047281d2e9b52f1" title="phm_calibrate_game.GameCalibrator.get\l_image" alt="" coords="301,135,560,177"/>
+<area shape="rect" id="node5" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a2944b983a65f9c144023ce73d0debb04" title="phm_camera_calibration.Camera\lCalibrator.get_image" alt="" coords="324,201,537,242"/>
+<area shape="rect" id="node6" href="$classphm__find__grid_1_1_grid_detector.html#aa9d83daef76168a0d7d8101bade9e427" title="phm_find_grid.GridDetector.get\l_image" alt="" coords="329,266,532,307"/>
+<area shape="rect" id="node7" href="$classphm__find__grid_1_1_grid_detector.html#a61500b1fa8acf3a218e52bf4d0982677" title="phm_find_grid.GridDetector.contour\l_matching1" alt="" coords="317,331,545,373"/>
+</map>

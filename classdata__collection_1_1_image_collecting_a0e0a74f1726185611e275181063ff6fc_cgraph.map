@@ -1,0 +1,12 @@
+<map id="data_collection.ImageCollecting.run" name="data_collection.ImageCollecting.run">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#aebe681ed8e2438d749bcbbb8d17e76f9" title="baxterbase.BaxterBase.init_msgs" alt="" coords="307,16,525,43"/>
+<area shape="rect" id="node5" href="$classdata__collection_1_1_image_collecting.html#ad6d677059a86a7bec8279d8cd8e6697f" title="data_collection.ImageCollecting.init_msgs" alt="" coords="283,73,549,100"/>
+<area shape="rect" id="node8" href="$classdata__collection_1_1_image_collecting.html#a36060a2960b7ff54afea242f3b483822" title="data_collection.ImageCollecting.up\l_recording" alt="" coords="303,127,529,169"/>
+<area shape="rect" id="node3" href="$classbaxterbase_1_1_baxter_base.html#ae4f0e17f2a41a5c0e33db9f6f7c74832" title="baxterbase.BaxterBase.pose\l_callback" alt="" coords="630,5,821,46"/>
+<area shape="rect" id="node4" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="925,5,1120,46"/>
+<area shape="rect" id="node6" href="$classdata__collection_1_1_image_collecting.html#a04e535a5346ab0fa469d1c4e6185431c" title="data_collection.ImageCollecting.pose\l_callback" alt="" coords="606,70,845,111"/>
+<area shape="rect" id="node7" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="901,70,1144,111"/>
+<area shape="rect" id="node9" href="$classdata__collection_1_1_image_collecting.html#af6fe58ffc032aac7b2a9e78c1209fab7" title="data_collection.ImageCollecting.capture\l_image" alt="" coords="598,135,853,177"/>
+<area shape="rect" id="node10" href="$classbuild__training__set_1_1_baxter_image_grabber.html#a662f6e162ce7385dfcae0b4f9ce3170e" title="build_training_set.Baxter\lImageGrabber.get_image" alt="" coords="939,135,1107,177"/>
+<area shape="rect" id="node11" href="$classdata__collection_1_1_image_collecting.html#a4ab2cd308e62da7b9fbe50912f379494" title="data_collection.ImageCollecting.get\l_image" alt="" coords="908,201,1137,242"/>
+</map>

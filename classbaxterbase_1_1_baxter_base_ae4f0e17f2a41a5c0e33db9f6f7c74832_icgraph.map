@@ -1,0 +1,7 @@
+<map id="baxterbase.BaxterBase.pose_callback" name="baxterbase.BaxterBase.pose_callback">
+<area shape="rect" id="node2" href="$classbaxterbase_1_1_baxter_base.html#aebe681ed8e2438d749bcbbb8d17e76f9" title="baxterbase.BaxterBase.init_msgs" alt="" coords="285,5,504,32"/>
+<area shape="rect" id="node4" href="$classdata__collection_1_1_image_collecting.html#ad6d677059a86a7bec8279d8cd8e6697f" title="data_collection.ImageCollecting.init_msgs" alt="" coords="261,56,528,83"/>
+<area shape="rect" id="node5" href="$classphm__calibrate__game_1_1_game_calibrator.html#ac3b950869f7f3685718eca0db0df24ea" title="phm_calibrate_game.GameCalibrator.init_msgs" alt="" coords="246,107,543,133"/>
+<area shape="rect" id="node6" href="$classphm__game__controller_1_1_tig_tag_toe.html#ad147b6f859d7cbb5c99b44d369dbcd03" title="phm_game_controller.TigTag\lToe.init_msgs" alt="" coords="299,158,490,199"/>
+<area shape="rect" id="node3" href="$classdata__collection_1_1_image_collecting.html#a0e0a74f1726185611e275181063ff6fc" title="data_collection.ImageCollecting.run" alt="" coords="592,31,821,57"/>
+</map>
