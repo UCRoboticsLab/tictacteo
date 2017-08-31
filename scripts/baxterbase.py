@@ -170,20 +170,20 @@ class BaxterBase:
             
         return
         
-    def make_pose_stamp(self, pose_list, header):
-        
-        ps = PoseStamped()
-        ps.header = header
-        ps.pose.position = Point(x = pose_list[0], \
-                                 y = pose_list[1], \
-                                 z = pose_list[2], )
-
-        ps.pose.orientation = Quaternion(x = pose_list[3], \
-                                         y = pose_list[4], \
-                                         z = pose_list[5], \
-                                         w = pose_list[6], )
-        
-        return ps
+    # def make_pose_stamp(self, pose_list, header): ----------------------------
+#  -----------------------------------------------------------------------------
+        # ps = PoseStamped() ---------------------------------------------------
+        # ps.header = header ---------------------------------------------------
+        # ps.pose.position = Point(x = pose_list[0], \ -------------------------
+                                 # y = pose_list[1], \ -------------------------
+                                 # z = pose_list[2], ) -------------------------
+#  -----------------------------------------------------------------------------
+        # ps.pose.orientation = Quaternion(x = pose_list[3], \ -----------------
+                                         # y = pose_list[4], \ -----------------
+                                         # z = pose_list[5], \ -----------------
+                                         # w = pose_list[6], ) -----------------
+#  -----------------------------------------------------------------------------
+        # return ps ------------------------------------------------------------
     
     def get_img(self, side):
         
