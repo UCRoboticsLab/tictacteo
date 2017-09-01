@@ -1,6 +1,8 @@
 var classphm__find__grid_1_1_grid_detector =
 [
     [ "__init__", "classphm__find__grid_1_1_grid_detector.html#af912567a83b5baccc93442f45d7c5844", null ],
+    [ "_ir_sensor_callback", "classphm__find__grid_1_1_grid_detector.html#ace3ff622e4886dcf699cc8c8b3cc2963", null ],
+    [ "_pose_callback", "classphm__find__grid_1_1_grid_detector.html#ae07f05bc317dc5c1b5e7b80f18745440", null ],
     [ "add_template_images", "classphm__find__grid_1_1_grid_detector.html#a7de0697388a961df0cbc19c94e6b5aac", null ],
     [ "check_grid", "classphm__find__grid_1_1_grid_detector.html#a0d1e978886bb2afad5558de63ad64782", null ],
     [ "contour_match", "classphm__find__grid_1_1_grid_detector.html#a5fa6ee53b3d2fac17f56e229f4168536", null ],

@@ -1,6 +1,7 @@
 var classphm__calibrate__game_1_1_game_calibrator =
 [
     [ "__init__", "classphm__calibrate__game_1_1_game_calibrator.html#a599217b1e84a3bc0adde85318c03e3ca", null ],
+    [ "_camera_callback", "classphm__calibrate__game_1_1_game_calibrator.html#a24fafe7e6c7ba2c2c9239e9a51cfdb91", null ],
     [ "get_image", "classphm__calibrate__game_1_1_game_calibrator.html#a98a980168c5cc8c0b047281d2e9b52f1", null ],
     [ "grids_location_recorder", "classphm__calibrate__game_1_1_game_calibrator.html#a1c82e17253bb4db7a2a0ab7bf38fc891", null ],
     [ "grids_roi_recorder", "classphm__calibrate__game_1_1_game_calibrator.html#a2d44d1195e02e50c7af99d5ace41d5e8", null ],
@@ -11,6 +12,7 @@ var classphm__calibrate__game_1_1_game_calibrator =
     [ "run", "classphm__calibrate__game_1_1_game_calibrator.html#a859192f2f5307a506fab39366be35b5d", null ],
     [ "save_grid_locations", "classphm__calibrate__game_1_1_game_calibrator.html#a051bca1d91a31bdc4395ed8f53f92f88", null ],
     [ "save_roi_location", "classphm__calibrate__game_1_1_game_calibrator.html#afa79900afc0302fe9b90114767ebbc9b", null ],
+    [ "_camera", "classphm__calibrate__game_1_1_game_calibrator.html#a5d63cc9aa2002e7beea76f1dc633ca34", null ],
     [ "arm", "classphm__calibrate__game_1_1_game_calibrator.html#a077342c428427e5890a250e73e4a1324", null ],
     [ "ArmCmdPub", "classphm__calibrate__game_1_1_game_calibrator.html#a2fceb93432269b5d92147198e64a987e", null ],
     [ "baxter_grippers", "classphm__calibrate__game_1_1_game_calibrator.html#a17ff0df093d313309c33b0fa5e715a9d", null ],

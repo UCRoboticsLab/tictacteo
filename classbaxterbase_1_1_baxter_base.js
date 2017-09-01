@@ -1,6 +1,9 @@
 var classbaxterbase_1_1_baxter_base =
 [
     [ "__init__", "classbaxterbase_1_1_baxter_base.html#a644919f8de2caf9250c07b2d03c7ef1b", null ],
+    [ "_left_camera_callback", "classbaxterbase_1_1_baxter_base.html#ad11c7314ad263fbef1a9cb59edebddc7", null ],
+    [ "_pose_callback", "classbaxterbase_1_1_baxter_base.html#a7d0761edd05e88b80dfa03b54cf472ec", null ],
+    [ "_right_camera_callback", "classbaxterbase_1_1_baxter_base.html#ab6f6eb8e1c7dfc05eb9df88fd2ba5a68", null ],
     [ "get_img", "classbaxterbase_1_1_baxter_base.html#a04bd989088f70c1e45a811bb5a051da0", null ],
     [ "get_pose", "classbaxterbase_1_1_baxter_base.html#a63358f9cb6cb332afe54a3e0adc916d4", null ],
     [ "gripper_control", "classbaxterbase_1_1_baxter_base.html#abec01cb539bfd93094f0244040d44996", null ],
@@ -11,6 +14,7 @@ var classbaxterbase_1_1_baxter_base =
     [ "move_arm", "classbaxterbase_1_1_baxter_base.html#a86d94845873effdb99203a0a649d1730", null ],
     [ "pick_item", "classbaxterbase_1_1_baxter_base.html#a44bb261804661d1f446d7bc37d4d8a49", null ],
     [ "pose_callback", "classbaxterbase_1_1_baxter_base.html#ae4f0e17f2a41a5c0e33db9f6f7c74832", null ],
+    [ "_camera", "classbaxterbase_1_1_baxter_base.html#acc277e6721c24af06e9e4bc8d65a6c86", null ],
     [ "ArmCmdPub", "classbaxterbase_1_1_baxter_base.html#a78092cffe7b4a1285dddcc2f6589c99a", null ],
     [ "baxter_grippers", "classbaxterbase_1_1_baxter_base.html#a66531de570c12c926d9aa8eaf08b45c3", null ],
     [ "cam_calib", "classbaxterbase_1_1_baxter_base.html#ae2542db8c6ec4c1ca2534536f62934bb", null ],

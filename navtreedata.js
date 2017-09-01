@@ -51,7 +51,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classphm__game__controller_1_1_tig_tag_toe.html#ae6eb3c754f83249e491290c75d778f85"
+"classphm__game__controller_1_1_tig_tag_toe.html#aa0f5e2cd4b40c62f3e167926c29248d5",
+"phm__game__engine_8py.html#a969d1018c9e63cc6b57d5c7452f3a175"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

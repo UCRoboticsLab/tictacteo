@@ -1,6 +1,7 @@
 var classdata__collection_1_1_image_collecting =
 [
     [ "__init__", "classdata__collection_1_1_image_collecting.html#af896ae39c49cab75456ef8bdfacb814b", null ],
+    [ "_camera_callback", "classdata__collection_1_1_image_collecting.html#af722205f62e49dcbad3ca5718b3cb547", null ],
     [ "capture_image", "classdata__collection_1_1_image_collecting.html#af6fe58ffc032aac7b2a9e78c1209fab7", null ],
     [ "get_image", "classdata__collection_1_1_image_collecting.html#a4ab2cd308e62da7b9fbe50912f379494", null ],
     [ "init_msgs", "classdata__collection_1_1_image_collecting.html#ad6d677059a86a7bec8279d8cd8e6697f", null ],
@@ -11,6 +12,7 @@ var classdata__collection_1_1_image_collecting =
     [ "run", "classdata__collection_1_1_image_collecting.html#a0e0a74f1726185611e275181063ff6fc", null ],
     [ "turn_recording", "classdata__collection_1_1_image_collecting.html#ad7e0379f362cb077747b1606cda84377", null ],
     [ "up_recording", "classdata__collection_1_1_image_collecting.html#a36060a2960b7ff54afea242f3b483822", null ],
+    [ "_camera", "classdata__collection_1_1_image_collecting.html#a422c2b041fb382fd4791cfb7a5f6327f", null ],
     [ "arm", "classdata__collection_1_1_image_collecting.html#a5c6de09a168bc7a37065f1f8f3e29424", null ],
     [ "ArmCmdPub", "classdata__collection_1_1_image_collecting.html#a6b9afe690ab80ddb70e7602a3640c9de", null ],
     [ "ArmReply", "classdata__collection_1_1_image_collecting.html#af4d8d839e8a9c18f54d9436b7ec75d10", null ],

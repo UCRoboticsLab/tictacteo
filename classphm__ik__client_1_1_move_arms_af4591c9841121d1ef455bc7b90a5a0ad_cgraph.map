@@ -1,14 +1,14 @@
 <map id="phm_ik_client.MoveArms.run" name="phm_ik_client.MoveArms.run">
-<area shape="rect" id="node2" href="$classphm__ik__client_1_1_move_arms.html#ab433b0b36d39efc6921f7963936b3094" title="phm_ik_client.MoveArms.arms\l_cmd_parser" alt="" coords="245,68,448,109"/>
-<area shape="rect" id="node3" href="$classphm__ik__client_1_1_move_arms.html#a8e66114b0b43c9cd2c98e0509fd8eead" title="phm_ik_client.MoveArms.move\l_distance" alt="" coords="511,294,716,336"/>
-<area shape="rect" id="node11" href="$classphm__find__grid_1_1_grid_detector.html#a4869c822a37dea9d66c7dd16b85419f1" title="phm_find_grid.GridDetector.move_to" alt="" coords="496,231,731,258"/>
-<area shape="rect" id="node12" href="$classphm__ik__client_1_1_move_arms.html#a9fd9dbfede28d4fb5183f245d0b5e510" title="phm_ik_client.MoveArms.move_to" alt="" coords="502,168,725,195"/>
-<area shape="rect" id="node13" href="$classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4" title="phm_ik_client.MoveArms.init\l_angle" alt="" coords="251,185,442,226"/>
-<area shape="rect" id="node4" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="1072,9,1267,50"/>
-<area shape="rect" id="node5" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="1048,110,1291,152"/>
-<area shape="rect" id="node6" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="1033,212,1306,253"/>
-<area shape="rect" id="node7" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a49aeeb627dea5c2d6d549ce464cb2825" title="phm_camera_calibration.Camera\lCalibrator.make_pose_stamp" alt="" coords="1063,454,1276,496"/>
-<area shape="rect" id="node8" href="$classphm__find__grid_1_1_grid_detector.html#aa37bbc022ddc84a95f7ff544eb746f5e" title="phm_find_grid.GridDetector.make\l_pose_stamp" alt="" coords="1061,292,1278,333"/>
-<area shape="rect" id="node9" href="$classphm__game__controller_1_1_tig_tag_toe.html#afe317d4a96e77ec71ddadb85d3ac11fc" title="phm_game_controller.TigTag\lToe.make_pose_stamp" alt="" coords="1074,357,1265,398"/>
-<area shape="rect" id="node10" href="$classphm__ik__client_1_1_move_arms.html#a99b4b00ec76fc4278d074ceb9ed2bb60" title="phm_ik_client.MoveArms.make\l_pose_stamp" alt="" coords="779,294,984,336"/>
+<area shape="rect" id="node2" href="$classphm__ik__client_1_1_move_arms.html#ab433b0b36d39efc6921f7963936b3094" title="phm_ik_client.MoveArms.arms\l_cmd_parser" alt="" coords="245,29,448,70"/>
+<area shape="rect" id="node3" href="$classphm__ik__client_1_1_move_arms.html#a8e66114b0b43c9cd2c98e0509fd8eead" title="phm_ik_client.MoveArms.move\l_distance" alt="" coords="511,255,716,297"/>
+<area shape="rect" id="node11" href="$classphm__find__grid_1_1_grid_detector.html#a4869c822a37dea9d66c7dd16b85419f1" title="phm_find_grid.GridDetector.move_to" alt="" coords="496,204,731,231"/>
+<area shape="rect" id="node12" href="$classphm__ik__client_1_1_move_arms.html#a9fd9dbfede28d4fb5183f245d0b5e510" title="phm_ik_client.MoveArms.move_to" alt="" coords="502,153,725,180"/>
+<area shape="rect" id="node13" href="$classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4" title="phm_ik_client.MoveArms.init\l_angle" alt="" coords="251,146,442,187"/>
+<area shape="rect" id="node4" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="819,397,1013,438"/>
+<area shape="rect" id="node5" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="795,5,1037,46"/>
+<area shape="rect" id="node6" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="779,70,1053,111"/>
+<area shape="rect" id="node7" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a49aeeb627dea5c2d6d549ce464cb2825" title="phm_camera_calibration.Camera\lCalibrator.make_pose_stamp" alt="" coords="809,135,1023,177"/>
+<area shape="rect" id="node8" href="$classphm__find__grid_1_1_grid_detector.html#aa37bbc022ddc84a95f7ff544eb746f5e" title="phm_find_grid.GridDetector.make\l_pose_stamp" alt="" coords="807,201,1025,242"/>
+<area shape="rect" id="node9" href="$classphm__game__controller_1_1_tig_tag_toe.html#afe317d4a96e77ec71ddadb85d3ac11fc" title="phm_game_controller.TigTag\lToe.make_pose_stamp" alt="" coords="821,266,1011,307"/>
+<area shape="rect" id="node10" href="$classphm__ik__client_1_1_move_arms.html#a99b4b00ec76fc4278d074ceb9ed2bb60" title="phm_ik_client.MoveArms.make\l_pose_stamp" alt="" coords="813,331,1019,373"/>
 </map>

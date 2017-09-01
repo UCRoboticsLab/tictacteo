@@ -89,6 +89,8 @@ $(document).ready(function(){initNavTree('classbuild__training__set_1_1_baxter_i
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classbuild__training__set_1_1_baxter_image_grabber-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">build_training_set.BaxterImageGrabber Class Reference</div>  </div>
@@ -98,15 +100,11 @@ $(document).ready(function(){initNavTree('classbuild__training__set_1_1_baxter_i
 Inheritance diagram for build_training_set.BaxterImageGrabber:</div>
 <div class="dyncontent">
 <div class="center"><img src="classbuild__training__set_1_1_baxter_image_grabber__inherit__graph.png" border="0" usemap="#build__training__set_8_baxter_image_grabber_inherit__map" alt="Inheritance graph"/></div>
-<map name="build__training__set_8_baxter_image_grabber_inherit__map" id="build__training__set_8_baxter_image_grabber_inherit__map">
-</map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
 Collaboration diagram for build_training_set.BaxterImageGrabber:</div>
 <div class="dyncontent">
 <div class="center"><img src="classbuild__training__set_1_1_baxter_image_grabber__coll__graph.png" border="0" usemap="#build__training__set_8_baxter_image_grabber_coll__map" alt="Collaboration graph"/></div>
-<map name="build__training__set_8_baxter_image_grabber_coll__map" id="build__training__set_8_baxter_image_grabber_coll__map">
-</map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -128,6 +126,16 @@ Public Attributes</h2></td></tr>
 <tr class="separator:aa9a2ceaed6232366e49073bb2e3110df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adabad22f74919dfdea06e1158e196a6b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbuild__training__set_1_1_baxter_image_grabber.html#adabad22f74919dfdea06e1158e196a6b">ImageThreadLock</a></td></tr>
 <tr class="separator:adabad22f74919dfdea06e1158e196a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a1b31883fa4deabc7c172947802395839"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbuild__training__set_1_1_baxter_image_grabber.html#a1b31883fa4deabc7c172947802395839">_camera_callback</a> (self, image)</td></tr>
+<tr class="separator:a1b31883fa4deabc7c172947802395839"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:aac8de01a88a4c2c601795571cec4c24e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbuild__training__set_1_1_baxter_image_grabber.html#aac8de01a88a4c2c601795571cec4c24e">_camera</a></td></tr>
+<tr class="separator:aac8de01a88a4c2c601795571cec4c24e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a16720ea01a82d2defee739ae291d7e47"></a>
@@ -171,6 +179,42 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1b31883fa4deabc7c172947802395839"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b31883fa4deabc7c172947802395839">&#9670;&nbsp;</a></span>_camera_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">def build_training_set.BaxterImageGrabber._camera_callback </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>image</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a662f6e162ce7385dfcae0b4f9ce3170e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a662f6e162ce7385dfcae0b4f9ce3170e">&#9670;&nbsp;</a></span>get_image()</h2>
 
@@ -205,6 +249,28 @@ Here is the caller graph for this function:</div>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a id="aac8de01a88a4c2c601795571cec4c24e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac8de01a88a4c2c601795571cec4c24e">&#9670;&nbsp;</a></span>_camera</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">build_training_set.BaxterImageGrabber._camera</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a3ec4aeadc49b99f191258ef94d359877"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3ec4aeadc49b99f191258ef94d359877">&#9670;&nbsp;</a></span>cur_img</h2>
 

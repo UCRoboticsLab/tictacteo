@@ -1,6 +1,8 @@
 var classphm__ik__client_1_1_move_arms =
 [
     [ "__init__", "classphm__ik__client_1_1_move_arms.html#a444ac6832182ec6dacbb43140ba7c915", null ],
+    [ "_arms_cmd", "classphm__ik__client_1_1_move_arms.html#a88b72e036e7dddfd705026c5b863e402", null ],
+    [ "_pose_callback", "classphm__ik__client_1_1_move_arms.html#a3ecd5fc2d70a1b5d96d131f074577c60", null ],
     [ "arms_cmd_parser", "classphm__ik__client_1_1_move_arms.html#ab433b0b36d39efc6921f7963936b3094", null ],
     [ "get_pose", "classphm__ik__client_1_1_move_arms.html#ac64fba3a7308b634036b2f5885edf090", null ],
     [ "init_angle", "classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4", null ],

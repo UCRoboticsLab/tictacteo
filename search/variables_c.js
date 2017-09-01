@@ -1,6 +1,10 @@
 var searchData=
 [
-  ['o_5fside',['o_side',['../namespacephm__game__controller.html#af91348e70329d16666b13e5180b63a7b',1,'phm_game_controller']]],
-  ['ocvbridge',['OcvBridge',['../classbaxterbase_1_1_baxter_base.html#a07eddc39c15aebbf64420a6468506ddd',1,'baxterbase.BaxterBase.OcvBridge()'],['../classbuild__training__set_1_1_baxter_image_grabber.html#a163fb7cadbd29f53a8deeb9453fbbda8',1,'build_training_set.BaxterImageGrabber.OcvBridge()'],['../classdata__collection_1_1_image_collecting.html#aad6b9458acbf2534cee65ea8d9ff4288',1,'data_collection.ImageCollecting.OcvBridge()'],['../classphm__calibrate__game_1_1_game_calibrator.html#a2da25f9555a46f937ac2c6dd6773a189',1,'phm_calibrate_game.GameCalibrator.OcvBridge()'],['../classphm__camera__calibration_1_1_camera_calibrator.html#a88bbe215ecb900c8807308afadfc22d8',1,'phm_camera_calibration.CameraCalibrator.OcvBridge()'],['../classphm__find__grid_1_1_grid_detector.html#a0daf1aa5b0b8e0b0139f17a0c85f6462',1,'phm_find_grid.GridDetector.OcvBridge()']]],
-  ['old_5fgrid_5fstatus',['old_grid_status',['../namespacephm__game__controller.html#a11542a7900ed86003cf2306007107545',1,'phm_game_controller']]]
+  ['new_5fpose',['new_pose',['../namespacephm__game__controller.html#aba86e93e8615082bba2f228045ad3ebb',1,'phm_game_controller']]],
+  ['next_5fmove',['next_move',['../namespacephm__game__controller.html#a6bd2109ad767cb5e5c6dad4ae29cedc4',1,'phm_game_controller']]],
+  ['next_5fmove1',['next_move1',['../namespacephm__game__controller.html#a1d3aa734b72d6a8c694ece8000ce0f26',1,'phm_game_controller']]],
+  ['nextmarker',['NextMarker',['../namespacephm__game__controller.html#a8d897c7c0b18eed9c1d625b59607ca67',1,'phm_game_controller']]],
+  ['nextmovereply',['NextMoveReply',['../classphm__game__controller_1_1_tig_tag_toe.html#a49da9336582d9399aac4615c95d5b799',1,'phm_game_controller.TigTagToe.NextMoveReply()'],['../namespacephm__game__controller.html#a8bc59a7305817d589055d2445dddbaae',1,'phm_game_controller.NextMoveReply()']]],
+  ['nextplayer',['NextPlayer',['../namespacephm__game__controller.html#a985686c7072f8225a7b85755941781c2',1,'phm_game_controller']]],
+  ['nextstep',['NextStep',['../namespacephm__game__controller.html#aff3744b9525840647ec3fc84c3d8dff3',1,'phm_game_controller']]]
 ];

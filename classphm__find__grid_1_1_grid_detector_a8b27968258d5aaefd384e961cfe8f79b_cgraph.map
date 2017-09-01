@@ -8,9 +8,4 @@
 <area shape="rect" id="node8" href="$classphm__find__grid_1_1_grid_detector.html#aa161335a868a02d8071dec7f0e63c72c" title="phm_find_grid.GridDetector.pixel\l_to_baxter" alt="" coords="293,397,505,438"/>
 <area shape="rect" id="node9" href="$classphm__camera__calibration_1_1_camera_calibrator.html#ab384b250b07d31b421afbf1a42747b76" title="phm_camera_calibration.Camera\lCalibrator.get_ir_range" alt="" coords="292,462,505,503"/>
 <area shape="rect" id="node10" href="$classphm__find__grid_1_1_grid_detector.html#a1021fe36f7082cb7080fcb3d8e5c766e" title="phm_find_grid.GridDetector.get\l_ir_range" alt="" coords="297,527,500,569"/>
-<area shape="rect" id="node11" href="$classbaxterbase_1_1_baxter_base.html#ad3ac95eec054a122d6f7156eeb045d01" title="baxterbase.BaxterBase.make\l_pose_stamp" alt="" coords="616,397,811,438"/>
-<area shape="rect" id="node12" href="$classdata__collection_1_1_image_collecting.html#ad4722a371a1548ade46ad283a9c18cd7" title="data_collection.ImageCollecting.make\l_pose_stamp" alt="" coords="592,462,835,503"/>
-<area shape="rect" id="node13" href="$classphm__calibrate__game_1_1_game_calibrator.html#a014b418159c719d6534868f3e7d0fedb" title="phm_calibrate_game.GameCalibrator.make\l_pose_stamp" alt="" coords="577,527,850,569"/>
-<area shape="rect" id="node14" href="$classphm__camera__calibration_1_1_camera_calibrator.html#a49aeeb627dea5c2d6d549ce464cb2825" title="phm_camera_calibration.Camera\lCalibrator.make_pose_stamp" alt="" coords="607,593,820,634"/>
-<area shape="rect" id="node15" href="$classphm__find__grid_1_1_grid_detector.html#aa37bbc022ddc84a95f7ff544eb746f5e" title="phm_find_grid.GridDetector.make\l_pose_stamp" alt="" coords="605,658,822,699"/>
 </map>

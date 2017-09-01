@@ -1,10 +1,10 @@
 <map id="phm_game_controller.TigTagToe.make_pose_stamp" name="phm_game_controller.TigTagToe.make_pose_stamp">
-<area shape="rect" id="node2" href="$classphm__game__controller_1_1_tig_tag_toe.html#a279af195b50fb9f81a8d83e9e60f0b1d" title="phm_game_controller.TigTag\lToe.pose_callback" alt="" coords="253,5,443,46"/>
-<area shape="rect" id="node4" href="$classphm__ik__client_1_1_move_arms.html#a99b4b00ec76fc4278d074ceb9ed2bb60" title="phm_ik_client.MoveArms.make\l_pose_stamp" alt="" coords="245,197,451,238"/>
-<area shape="rect" id="node5" href="$classphm__ik__client_1_1_move_arms.html#a8e66114b0b43c9cd2c98e0509fd8eead" title="phm_ik_client.MoveArms.move\l_distance" alt="" coords="508,74,713,115"/>
-<area shape="rect" id="node7" href="$classphm__ik__client_1_1_move_arms.html#aaabb58f3fa944f4e71a7f14be9cf2ab8" title="phm_ik_client.MoveArms.turn\l_angle" alt="" coords="513,225,708,266"/>
-<area shape="rect" id="node8" href="$classphm__ik__client_1_1_move_arms.html#a9fd9dbfede28d4fb5183f245d0b5e510" title="phm_ik_client.MoveArms.move_to" alt="" coords="499,171,722,197"/>
-<area shape="rect" id="node3" href="$classphm__game__controller_1_1_tig_tag_toe.html#ad147b6f859d7cbb5c99b44d369dbcd03" title="phm_game_controller.TigTag\lToe.init_msgs" alt="" coords="515,5,706,46"/>
-<area shape="rect" id="node6" href="$classphm__ik__client_1_1_move_arms.html#af4591c9841121d1ef455bc7b90a5a0ad" title="phm_ik_client.MoveArms.run" alt="" coords="1011,140,1202,167"/>
-<area shape="rect" id="node9" href="$classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4" title="phm_ik_client.MoveArms.init\l_angle" alt="" coords="771,133,962,174"/>
+<area shape="rect" id="node2" href="$classphm__game__controller_1_1_tig_tag_toe.html#a279af195b50fb9f81a8d83e9e60f0b1d" title="phm_game_controller.TigTag\lToe.pose_callback" alt="" coords="262,5,453,46"/>
+<area shape="rect" id="node4" href="$classphm__ik__client_1_1_move_arms.html#a3ecd5fc2d70a1b5d96d131f074577c60" title="phm_ik_client.MoveArms.\l_pose_callback" alt="" coords="271,70,444,111"/>
+<area shape="rect" id="node5" href="$classphm__ik__client_1_1_move_arms.html#a8e66114b0b43c9cd2c98e0509fd8eead" title="phm_ik_client.MoveArms.move\l_distance" alt="" coords="517,129,723,170"/>
+<area shape="rect" id="node7" href="$classphm__ik__client_1_1_move_arms.html#aaabb58f3fa944f4e71a7f14be9cf2ab8" title="phm_ik_client.MoveArms.turn\l_angle" alt="" coords="260,187,455,229"/>
+<area shape="rect" id="node8" href="$classphm__ik__client_1_1_move_arms.html#a9fd9dbfede28d4fb5183f245d0b5e510" title="phm_ik_client.MoveArms.move_to" alt="" coords="246,253,469,280"/>
+<area shape="rect" id="node3" href="$classphm__game__controller_1_1_tig_tag_toe.html#ad147b6f859d7cbb5c99b44d369dbcd03" title="phm_game_controller.TigTag\lToe.init_msgs" alt="" coords="525,5,715,46"/>
+<area shape="rect" id="node6" href="$classphm__ik__client_1_1_move_arms.html#af4591c9841121d1ef455bc7b90a5a0ad" title="phm_ik_client.MoveArms.run" alt="" coords="771,195,962,221"/>
+<area shape="rect" id="node9" href="$classphm__ik__client_1_1_move_arms.html#a93b2f5d5fbf2ee67db7cf74f5bf99de4" title="phm_ik_client.MoveArms.init\l_angle" alt="" coords="525,246,715,287"/>
 </map>
