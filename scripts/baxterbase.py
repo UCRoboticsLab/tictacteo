@@ -1,14 +1,13 @@
 #!/usr/bin/python
 
 ########################################################
-# Copyright (c) 2015-2017, Robological
-# All rights reserved.
+# @package baxterbase
 #
 # This file is to provide a base class to use 
 # Baxter robot. Callback function for Image capture,
 # IR sensor, robot endpoints are provided
 #
-#         
+# @copyright  2015-2017 UCRoboticsLab, All rights reserved.         
 ########################################################
 
 
@@ -44,6 +43,9 @@ import rospy
 import signal
 
 class BaxterBase:
+    '''!
+    @brief The base class for baxter control. 
+    '''
     
     def __init__(self):
         
@@ -59,6 +61,11 @@ class BaxterBase:
                 
 
     def gripper_control(self, side, action):
+        '''
+        Perform open, close and calibrate with gripper. 
+        @param side: select the gripper to take action
+        @param action: the action to take
+        '''
         gripper = self.baxter_grippers[side]
         if action == 'calibrate':
             gripper.calibrate()
@@ -138,6 +145,10 @@ class BaxterBase:
 
 
     def _pose_callback(self, left_msg, right_msg):
+        '''! [YY] Update current pose for both arms.
+        @param left_msg: msg for left arm
+        @param right_msg: msg for right arm
+        '''
     
         pose1 = left_msg.pose
         pose2 = right_msg.pose
