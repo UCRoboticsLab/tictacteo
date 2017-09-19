@@ -48,9 +48,9 @@ class BaxterBase:
     '''
     
     def __init__(self):
-        
-        
-        
+        '''
+        [YY]Initialize base class and create ROS publisher to topic 'robot_arms_cmd' 
+        '''
         self.ArmCmdPub = rospy.Publisher('robot_arms_cmd', String, queue_size=10)
         self.OcvBridge = CvBridge()
         self.init_camera()
@@ -62,7 +62,7 @@ class BaxterBase:
 
     def gripper_control(self, side, action):
         '''
-        Perform open, close and calibrate with gripper. 
+        [YY]Perform open, close and calibrate with gripper. 
         @param side: select the gripper to take action
         @param action: the action to take
         '''
@@ -74,7 +74,12 @@ class BaxterBase:
         elif action == 'close':
             gripper.close()
             
-    def init_camera(self):
+    def init_camera(self):  
+        '''
+        [YY]Open, Configure and initialize hand cameras
+        Resolution: 960 x 600
+        Projection estimation of Calibration. 2.5mm per pixel at 1 meter distance
+        '''
         
         self.ImageThreadLockLeft = threading.Lock()
         self.ImageThreadLockRight = threading.Lock()
@@ -84,11 +89,8 @@ class BaxterBase:
         
         right_camera_sub = rospy.Subscriber('/cameras/right_hand_camera/image', \
                                        Image, self._right_camera_callback)      
-        
-        self.left_camera = self._camera = baxter_interface.CameraController('left_hand_camera')
-        
-        
-                                    
+        # [YY] No reference to self._camera found in the project. May be removed. 
+        self.left_camera = self._camera = baxter_interface.CameraController('left_hand_camera')                                    
         self.right_camera = self._camera = baxter_interface.CameraController('right_hand_camera')
         
         self.height = 600
@@ -106,16 +108,19 @@ class BaxterBase:
         self.cam_calib    = 0.0025                     # meters per pixel at 1 meter
         self.cam_x_offset = 0.045                      # camera gripper offset
         self.cam_y_offset = -0.01
-        
-        
-        
+
+        # [YY] Initialize left and right current image object. Right only currently.        
         self.left_cur_img = None #np.zeros((self.height, self.width, 3), np.uint8)
         self.right_cur_img = np.zeros((self.height, self.width, 3), np.uint8)
         
                               
         
     def _left_camera_callback(self, image):
-        
+        '''
+        [YY]Listener callback function to '/cameras/left_hand_camera/image'
+        @param image: The ROS image message 
+        @type image: sensor_msgs::Image
+        '''
         with self.ImageThreadLockLeft:
             try:
                 self.left_cur_img = self.OcvBridge.imgmsg_to_cv2(image, desired_encoding="bgr8")
@@ -125,7 +130,11 @@ class BaxterBase:
                 print 'OH NO - LEFT IMAGE WENT WRONG!!'
         
     def _right_camera_callback(self, image):
-        
+        '''
+        [YY]Listener callback function to '/cameras/right_hand_camera/image'
+        @param image: The ROS image message 
+        @type image: sensor_msgs::Image
+        '''
         with self.ImageThreadLockRight:
             try:
                 self.right_cur_img = self.OcvBridge.imgmsg_to_cv2(image, desired_encoding="bgr8")
@@ -136,6 +145,10 @@ class BaxterBase:
 
     
     def init_endpoints(self):
+        '''
+        [YY] Initialize end point listener for both arms. The state from both arms are 
+        synchronized to update current endpoint pose.  
+        '''
         self.PoseThreadLock = threading.Lock()
         self.current_poses = {'left':'', 'right':''}
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
@@ -197,6 +210,11 @@ class BaxterBase:
         # return ps ------------------------------------------------------------
     
     def get_img(self, side):
+        '''
+        [YY] Return the camera image in a thread safe way. 
+        @param side: The side of arms from which to obtain the camera image 
+        @type side: String
+        '''
         
         c_img = None
         if side == 'left':
@@ -210,6 +228,15 @@ class BaxterBase:
         return c_img
     
     def get_pose(self, side):
+        '''
+        [YY] The thread safe way to get a snapshot of current pose
+        TODO: There is a problem in this function. The function returns a 
+        PoseStamped class and it's mutable. So it technically returns a reference 
+        to the current pose data structure, instead of a copy. This defect renders
+        the whole function pointless. A deepcopy should be made instead.    
+        @param side: The side of arms from which to obtain the camera image 
+        @type side: String
+        '''
         
         cur_pose = None
         with self.PoseThreadLock:
@@ -218,6 +245,13 @@ class BaxterBase:
         return cur_pose 
     
     def make_pose_stamp(self, pose_list, header):
+        '''
+        Compose a time stamped pose message structure. 
+        @param pose_list: pose coordinates 
+        @type pose_list: list [x, y, z, quaternion_x, quaternion_y, quaternion_z, quaternion_w]
+        @param header: message header
+        @type header: 
+        '''
         
         ps = PoseStamped()
         ps.header = header
@@ -233,13 +267,24 @@ class BaxterBase:
         return ps
     
     def init_msgs(self):
-        
+        '''
+        [YY] This is a duplicate of init_endpoints
+        TODO: remove this function.
+        '''
         left_arm_msg = message_filters.Subscriber("/robot/limb/left/endpoint_state",EndpointState)
         right_arm_msg = message_filters.Subscriber("/robot/limb/right/endpoint_state",EndpointState)
         ts = message_filters.ApproximateTimeSynchronizer([left_arm_msg, right_arm_msg], 10, 0.05)
         ts.registerCallback(self.pose_callback)
     
     def pose_callback(self, left_msg, right_msg):
+        '''
+        This function is duplicate of _pose_callback
+        TODO: remove this function
+        @param left_msg:
+        @type left_msg:
+        @param right_msg:
+        @type right_msg:
+        '''
     
         pose1 = left_msg.pose
         pose2 = right_msg.pose
@@ -272,10 +317,17 @@ class BaxterBase:
         return   
     
     def move_arm(self, side, target_pose):
-        
+        '''
+        [YY]Move arm to the target pose and then return 
+        TODO: Check the outcome at the end of the function. The current 
+        mechanism did not keep sending/publishing request to 
+        @param side: which side of arm
+        @type side: string
+        @param target_pose: the target pose list
+        @type target_pose: list
+        '''
         # if e stop is on
-        
-        
+        # [YY]do nothing if post is not a list of 7
         if len(target_pose)!=7:
             print "Move arm target pose list number not correct..."
             print "Error target pose: ", target_pose
@@ -289,6 +341,7 @@ class BaxterBase:
         oz = target_pose[5]
         ow = target_pose[6]
         
+        #[YY] make command string
         msg_string = side + ':move_to:' + \
                       str(x) + \
                       ',' + \
@@ -305,16 +358,17 @@ class BaxterBase:
                       str(ow)
         self.ArmCmdPub.publish(msg_string)
         #print self.current_poses
+        #TODO: use get_pose to retrieve current pose in thread safe way. 
         cur_pose = self.current_poses[side]
+        #TODO: vectorize the following block 
         dist_x = math.fabs(cur_pose.pose.position.x-x)
         dist_y = math.fabs(cur_pose.pose.position.y-y)
         dist_z = math.fabs(cur_pose.pose.position.z-z)
         dist = math.sqrt(dist_x*dist_x+dist_y*dist_y+dist_z*dist_z)
         
+        #[YY] return after goal pose reached or 5 seconds
         counter = 0
         while dist>0.005: #dist_x>0.005 or dist_y>0.005 or dist_z>0.005:
-            
-            
             
             cur_pose = self.current_poses[side]
             
@@ -371,6 +425,8 @@ def main():
     
     t1.gripper_control('right', 'calibrate')
     
+    # [YY] The main loop to update hand camera image 10 times per second 
+    # and take snapshot if ESC is hit.  
     while not rospy.is_shutdown():
             
         img = t1.get_img(side)
