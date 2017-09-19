@@ -201,7 +201,8 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY]Initialize base class and create ROS publisher to topic 'robot_arms_cmd' 
+</pre> 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -238,7 +239,10 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY]Listener callback function to '/cameras/left_hand_camera/image'
+@param image: The ROS image message 
+@type image: sensor_msgs::Image
+</pre> 
 </div>
 </div>
 <a id="a7d0761edd05e88b80dfa03b54cf472ec"></a>
@@ -333,7 +337,10 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY]Listener callback function to '/cameras/right_hand_camera/image'
+@param image: The ROS image message 
+@type image: sensor_msgs::Image
+</pre> 
 </div>
 </div>
 <a id="a04bd989088f70c1e45a811bb5a051da0"></a>
@@ -361,7 +368,10 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY] Return the camera image in a thread safe way. 
+@param side: The side of arms from which to obtain the camera image 
+@type side: String
+</pre> 
 </div>
 </div>
 <a id="a63358f9cb6cb332afe54a3e0adc916d4"></a>
@@ -389,7 +399,14 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY] The thread safe way to get a snapshot of current pose
+TODO: There is a problem in this function. The function returns a 
+PoseStamped class and it's mutable. So it technically returns a reference 
+to the current pose data structure, instead of a copy. This defect renders
+the whole function pointless. A deepcopy should be made instead.    
+@param side: The side of arms from which to obtain the camera image 
+@type side: String
+</pre> 
 </div>
 </div>
 <a id="abec01cb539bfd93094f0244040d44996"></a>
@@ -423,7 +440,7 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Perform open, close and calibrate with gripper. 
+<pre class="fragment">[YY]Perform open, close and calibrate with gripper. 
 @param side: select the gripper to take action
 @param action: the action to take
 </pre> <div class="dynheader">
@@ -453,7 +470,10 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY]Open, Configure and initialize hand cameras
+Resolution: 960 x 600
+Projection estimation of Calibration. 2.5mm per pixel at 1 meter distance
+</pre> 
 </div>
 </div>
 <a id="ac1c03997a73bde0342ed022722c833c1"></a>
@@ -471,7 +491,9 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-
+<pre class="fragment">[YY] Initialize end point listener for both arms. The state from both arms are 
+synchronized to update current endpoint pose.  
+</pre> 
 </div>
 </div>
 <a id="aebe681ed8e2438d749bcbbb8d17e76f9"></a>
@@ -489,7 +511,9 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="dynheader">
+<pre class="fragment">[YY] This is a duplicate of init_endpoints
+TODO: remove this function.
+</pre> <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classbaxterbase_1_1_baxter_base_aebe681ed8e2438d749bcbbb8d17e76f9_cgraph.png" border="0" usemap="#classbaxterbase_1_1_baxter_base_aebe681ed8e2438d749bcbbb8d17e76f9_cgraph" alt=""/></div>
@@ -540,7 +564,12 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="dynheader">
+<pre class="fragment">Compose a time stamped pose message structure. 
+@param pose_list: pose coordinates 
+@type pose_list: list [x, y, z, quaternion_x, quaternion_y, quaternion_z, quaternion_w]
+@param header: message header
+@type header: 
+</pre> <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classbaxterbase_1_1_baxter_base_ad3ac95eec054a122d6f7156eeb045d01_icgraph.png" border="0" usemap="#classbaxterbase_1_1_baxter_base_ad3ac95eec054a122d6f7156eeb045d01_icgraph" alt=""/></div>
@@ -598,7 +627,14 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="dynheader">
+<pre class="fragment">[YY]Move arm to the target pose and then return 
+TODO: Check the outcome at the end of the function. The current 
+mechanism did not keep sending/publishing request to 
+@param side: which side of arm
+@type side: string
+@param target_pose: the target pose list
+@type target_pose: list
+</pre> <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classbaxterbase_1_1_baxter_base_a86d94845873effdb99203a0a649d1730_icgraph.png" border="0" usemap="#classbaxterbase_1_1_baxter_base_a86d94845873effdb99203a0a649d1730_icgraph" alt=""/></div>
@@ -685,7 +721,13 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="dynheader">
+<pre class="fragment">This function is duplicate of _pose_callback
+TODO: remove this function
+@param left_msg:
+@type left_msg:
+@param right_msg:
+@type right_msg:
+</pre> <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classbaxterbase_1_1_baxter_base_ae4f0e17f2a41a5c0e33db9f6f7c74832_cgraph.png" border="0" usemap="#classbaxterbase_1_1_baxter_base_ae4f0e17f2a41a5c0e33db9f6f7c74832_cgraph" alt=""/></div>
